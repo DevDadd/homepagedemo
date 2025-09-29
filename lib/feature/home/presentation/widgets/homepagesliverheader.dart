@@ -27,8 +27,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxHeight;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    // Header sẽ luôn cố định chiều cao (pin ngang AppBar)
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return Container(
       color: Colors.transparent,
       padding: const EdgeInsets.all(16),
@@ -68,7 +71,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
               scrollDirection: Axis.horizontal,
               itemCount: icons.length,
               itemBuilder: (context, index) => icons[index],
-              separatorBuilder: (context, index) => const SizedBox(width: 41.75),
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: 41.75),
             ),
           ),
         ],

@@ -17,7 +17,7 @@ class Listview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min, // tránh bị chiếm chỗ thừa
+      mainAxisSize: MainAxisSize.min,
       children: [
         Stack(
           alignment: Alignment.center,
@@ -28,6 +28,13 @@ class Listview extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: colors,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
             ),
             Center(child: SvgPicture.asset(imageURL)),
@@ -35,7 +42,7 @@ class Listview extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         SizedBox(
-          width: 55, 
+          width: 55,
           child: Text(
             lable,
             style: GoogleFonts.manrope(
@@ -45,7 +52,7 @@ class Listview extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
             softWrap: true,
-            maxLines: 2, // cho phép 2 dòng
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),

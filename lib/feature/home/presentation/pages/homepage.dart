@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/homepagesliverheader.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart' as extended;
+import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
+    as extended;
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -21,21 +22,25 @@ class _HomepageState extends State<Homepage> {
 
   final List<Listview> items = [
     Listview(
-        colors: const Color(0xFFEEAD70).withOpacity(0.3),
-        imageURL: "assets/icons/coin.svg",
-        lable: "Nộp tiền"),
+      colors: const Color(0xFFEEAD70).withOpacity(0.3),
+      imageURL: "assets/icons/coin.svg",
+      lable: "Nộp tiền",
+    ),
     Listview(
-        colors: const Color(0xFFFF79F4).withOpacity(0.3),
-        imageURL: "assets/icons/cs.svg",
-        lable: "Chuyên viên\nTVDT"),
+      colors: const Color(0xFFFF79F4).withOpacity(0.3),
+      imageURL: "assets/icons/cs.svg",
+      lable: "Chuyên viên\nTVDT",
+    ),
     Listview(
-        colors: const Color(0xFFFFC24D).withOpacity(0.3),
-        imageURL: "assets/icons/money.svg",
-        lable: "EzSaving"),
+      colors: const Color(0xFFFFC24D).withOpacity(0.3),
+      imageURL: "assets/icons/money.svg",
+      lable: "EzSaving",
+    ),
     Listview(
-        colors: const Color(0xFF8270EE).withOpacity(0.3),
-        imageURL: "assets/icons/analyst.svg",
-        lable: "Phân tích"),
+      colors: const Color(0xFF8270EE).withOpacity(0.3),
+      imageURL: "assets/icons/analyst.svg",
+      lable: "Phân tích",
+    ),
   ];
 
   @override
@@ -63,10 +68,17 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    const double headerTopPadding = 12;
+    final double pinnedHeaderHeight =
+        MediaQuery.of(context).padding.top +
+        kToolbarHeight +
+        30 +
+        headerTopPadding;
+
     return Scaffold(
       body: Stack(
         children: [
-          // Background
+          /// Background
           Positioned.fill(
             child: Lottie.asset(
               "assets/images/background.json",
@@ -74,60 +86,62 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
 
-          // ExtendedNestedScrollView với ScrollController
+          /// ExtendedNestedScrollView
           SafeArea(
             child: extended.ExtendedNestedScrollView(
               controller: _scrollController,
               floatHeaderSlivers: true,
+              pinnedHeaderSliverHeightBuilder: () => pinnedHeaderHeight,
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                const SliverToBoxAdapter(child: SizedBox(height: 70)),
-
-                // Header
-                SliverPersistentHeader(
-                  pinned: true,
-                  floating: true,
-                  delegate: Homepagesliverheader(
-                    minHeight: kToolbarHeight + 30,
-                    maxHeight: 250,
-                    name: "Quyet Trinh",
-                    clientId: "0C93123131",
-                    message: "Chúc mừng năm mới",
-                    icons: items,
+                SliverPadding(
+                  padding: const EdgeInsets.only(top: headerTopPadding),
+                  sliver: SliverPersistentHeader(
+                    pinned: true,
+                    delegate: Homepagesliverheader(
+                      minHeight: kToolbarHeight + 30,
+                      maxHeight: 250,
+                      name: "Quyet Trinh",
+                      clientId: "0C93123131",
+                      message: "Chúc mừng năm mới",
+                      icons: items,
+                    ),
                   ),
                 ),
               ],
-              body: Builder(
-                builder: (context) {
-                  return ListView(
-                    padding: const EdgeInsets.only(top: 200), // container xuyên header
-                    physics: const ClampingScrollPhysics(),
-                    children: [
-                      Container(
-                        height: 100,
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFCFCFC),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      Container(
-                        height: 500,
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFCFCFC),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ],
-                  );
-                },
+
+              /// Body được NestedScrollView điều khiển
+              body: ListView(
+                padding: EdgeInsets.zero,
+                physics: const NeverScrollableScrollPhysics(), // absorb scroll
+                children: [
+                  Container(
+                    height: 100,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFCFCFC),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  Container(
+                    height: 500,
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFCFCFC),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
 
-          // Top icons
+          /// Top icons overlay
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -144,7 +158,7 @@ class _HomepageState extends State<Homepage> {
         ],
       ),
 
-      // Bottom navigation bar
+      /// Bottom navigation bar
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _showNav ? Offset.zero : const Offset(0, 1),
@@ -157,10 +171,10 @@ class _HomepageState extends State<Homepage> {
           unselectedItemColor: const Color(0xFF6F767E),
           selectedFontSize: 12,
           unselectedFontSize: 12,
-          selectedLabelStyle:
-              GoogleFonts.manrope(fontWeight: FontWeight.w700),
-          unselectedLabelStyle:
-              GoogleFonts.manrope(fontWeight: FontWeight.w500),
+          selectedLabelStyle: GoogleFonts.manrope(fontWeight: FontWeight.w700),
+          unselectedLabelStyle: GoogleFonts.manrope(
+            fontWeight: FontWeight.w500,
+          ),
           items: [
             _buildBottomNavItem("Trang chủ", "assets/icons/house.svg"),
             _buildBottomNavItem("Danh mục", "assets/icons/chart.svg"),
