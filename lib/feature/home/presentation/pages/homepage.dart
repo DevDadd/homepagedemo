@@ -85,8 +85,6 @@ class _HomepageState extends State<Homepage> {
               fit: BoxFit.cover,
             ),
           ),
-
-          /// ExtendedNestedScrollView
           SafeArea(
             child: extended.ExtendedNestedScrollView(
               controller: _scrollController,
@@ -108,8 +106,6 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
                 ),
-
-                /// Demo containers
                 SliverToBoxAdapter(
                   child: Container(
                     height: 100,
@@ -155,7 +151,6 @@ class _HomepageState extends State<Homepage> {
           ),
         ],
       ),
-
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _showNav ? Offset.zero : const Offset(0, 1),
