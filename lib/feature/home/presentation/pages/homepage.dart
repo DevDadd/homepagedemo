@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:lottie/lottie.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/homepagesliverheader.dart';
-import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     as extended;
 
@@ -20,23 +20,23 @@ class _HomepageState extends State<Homepage> {
   bool _showNav = true;
   late ScrollController _scrollController;
 
-  final List<Listview> items = [
-    Listview(
+  final List<FeatureItem> items = [
+    FeatureItem(
       colors: const Color(0xFFEEAD70).withOpacity(0.3),
       imageURL: "assets/icons/coin.svg",
       lable: "Nộp tiền",
     ),
-    Listview(
+    FeatureItem(
       colors: const Color(0xFFFF79F4).withOpacity(0.3),
       imageURL: "assets/icons/cs.svg",
-      lable: "Chuyên viên\nTVDT",
+      lable: "Chuyên viên",
     ),
-    Listview(
+    FeatureItem(
       colors: const Color(0xFFFFC24D).withOpacity(0.3),
       imageURL: "assets/icons/money.svg",
       lable: "EzSaving",
     ),
-    Listview(
+    FeatureItem(
       colors: const Color(0xFF8270EE).withOpacity(0.3),
       imageURL: "assets/icons/analyst.svg",
       lable: "Phân tích",
@@ -94,27 +94,24 @@ class _HomepageState extends State<Homepage> {
               pinnedHeaderSliverHeightBuilder: () => pinnedHeaderHeight,
               headerSliverBuilder: (context, innerBoxIsScrolled) => [
                 SliverPadding(
-                  padding: const EdgeInsets.only(top: headerTopPadding),
+                  padding: const EdgeInsets.only(top: 50),
                   sliver: SliverPersistentHeader(
                     pinned: true,
                     delegate: Homepagesliverheader(
-                      minHeight: kToolbarHeight + 30,
+                      minHeight: kToolbarHeight + 145,
                       maxHeight: 250,
                       name: "Quyet Trinh",
                       clientId: "0C93123131",
                       message: "Chúc mừng năm mới",
-                      icons: items,
+                      avatarURL: "assets/images/ava.jpeg.webp",
+                      icons: items, // icons sẽ render trực tiếp trong header
                     ),
                   ),
                 ),
-              ],
 
-              /// Body được NestedScrollView điều khiển
-              body: ListView(
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(), // absorb scroll
-                children: [
-                  Container(
+                /// Demo containers
+                SliverToBoxAdapter(
+                  child: Container(
                     height: 100,
                     margin: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -125,7 +122,9 @@ class _HomepageState extends State<Homepage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  Container(
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
                     height: 500,
                     margin: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -136,12 +135,11 @@ class _HomepageState extends State<Homepage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+              body: const SizedBox.shrink(),
             ),
           ),
-
-          /// Top icons overlay
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -158,7 +156,6 @@ class _HomepageState extends State<Homepage> {
         ],
       ),
 
-      /// Bottom navigation bar
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _showNav ? Offset.zero : const Offset(0, 1),
@@ -194,9 +191,9 @@ class _HomepageState extends State<Homepage> {
         Container(
           height: 40,
           width: 40,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Color(0xFF82828266),
+            color: Color(0xFF828282).withOpacity(0.3),
           ),
         ),
         SvgPicture.asset(asset),

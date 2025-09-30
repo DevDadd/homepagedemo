@@ -9,7 +9,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final String name;
   final String clientId;
   final String message;
-  final List<Listview> icons;
+  final String avatarURL;
+  final List<FeatureItem> icons;
 
   Homepagesliverheader({
     required this.minHeight,
@@ -18,6 +19,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     required this.clientId,
     required this.message,
     required this.icons,
+    required this.avatarURL,
   });
 
   @override
@@ -32,47 +34,86 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
+    // Tính progress từ 0 -> 1
+    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+
+    // Scale size theo progress
+    final double nameFontSize = 32 - (12 * progress); // 32 -> 20
+    final double messageFontSize = 16 * (1 - progress); // 16 -> 0
+    final double avatarSize = 44 * progress; // 0 -> 44
+
     return Container(
       color: Colors.transparent,
       padding: const EdgeInsets.all(16),
-      alignment: Alignment.centerLeft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            message,
-            style: GoogleFonts.manrope(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF424242),
-            ),
-          ),
-          const SizedBox(height: 4),
+          /// Row avatar + text
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                name,
-                style: GoogleFonts.manrope(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF424242),
+              /// Avatar
+              Container(
+                height: avatarSize,
+                width: avatarSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: AssetImage(avatarURL),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              SvgPicture.asset("assets/icons/arrow.svg"),
+              const SizedBox(width: 12),
+
+              /// Texts
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// message
+                  if (messageFontSize > 0)
+                    Text(
+                      message,
+                      style: GoogleFonts.manrope(
+                        fontSize: messageFontSize,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF424242),
+                      ),
+                    ),
+                  const SizedBox(height: 4),
+
+                  /// name + arrow
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: GoogleFonts.manrope(
+                          fontSize: nameFontSize,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF424242),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SvgPicture.asset("assets/icons/arrow.svg"),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
+
           const SizedBox(height: 12),
+
+          /// Menu icons: giữ vị trí cố định, không Expanded
           SizedBox(
             height: 85,
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               itemCount: icons.length,
               itemBuilder: (context, index) => icons[index],
               separatorBuilder: (context, index) =>
-                  const SizedBox(width: 41.75),
+                  const SizedBox(width: 40), // khoảng cách vừa phải
             ),
           ),
         ],
@@ -86,6 +127,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
         clientId != oldDelegate.clientId ||
         message != oldDelegate.message ||
         minHeight != oldDelegate.minHeight ||
-        maxHeight != oldDelegate.maxHeight;
+        maxHeight != oldDelegate.maxHeight ||
+        icons != oldDelegate.icons;
   }
 }
