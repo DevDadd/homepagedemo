@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
+import 'package:lottie/lottie.dart';
+import 'package:homepageintern/core/extensions/color_extension.dart';
 
 class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final double minHeight;
@@ -11,6 +13,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final String message;
   final String avatarURL;
   final List<FeatureItem> icons;
+  final double backgroundScale;
 
   Homepagesliverheader({
     required this.minHeight,
@@ -20,6 +23,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     required this.message,
     required this.icons,
     required this.avatarURL,
+    this.backgroundScale = 1.0,
   });
 
   @override
@@ -28,139 +32,199 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   @override
   double get maxExtent => maxHeight;
 
+  double lerp(double min, double max, double t) => min + (max - min) * t;
+
   @override
   Widget build(
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    // progress: 0 khi expanded, 1 khi fully collapsed
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
 
-    // Font sizes
     final double nameFontSize = 32 - (12 * progress);
     final double messageFontSize = 16 * (1 - progress);
-
-    // Avatar: size 0 → 44 khi collapse
     final double avatarSize = 44 * progress;
-
-    // ID: 0 → 14
-    final double idFontSize = 14 * progress;
-
-    // ID offset xuống dưới tên
-    final double idYOffset = 1 * progress;
-
-    // Dịch toàn bộ header lên cao khi collapse (-13px trước)
-    final double overallYOffset = -13 * progress;
-
-    // Offset thêm để Tên + ID lên cao thêm 2px
-    final double textsYOffset = -2 * progress;
-
-    // Dịch avatar lên cao cùng header để không bị tụt
+    final double idFontSize = lerp(0, 14, progress);
+    final double idYOffset = lerp(-20, 25, progress);
+    final double overallYOffset = -15 * progress + 110 * (1 - progress);
+    final double textsYOffset = -10 * progress;
     final double avatarYOffset = progress;
 
-    return Container(
-      color: Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Transform.translate(
-            offset: Offset(0, overallYOffset),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                /// Avatar
-                Transform.translate(
-                  offset: Offset(0, avatarYOffset),
-                  child: Container(
-                    height: avatarSize,
-                    width: avatarSize,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      image: DecorationImage(
-                        image: AssetImage(avatarURL),
-                        fit: BoxFit.cover,
+    return Stack(
+      children: [
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: ClipRect(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 1.0, end: backgroundScale),
+              duration: Duration(
+                milliseconds: backgroundScale > 1.0 ? 200 : 400,
+              ),
+              curve: backgroundScale > 1.0 ? Curves.easeOut : Curves.elasticOut,
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  alignment: Alignment.topCenter,
+                  child: Lottie.asset(
+                    "assets/images/background.json",
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+
+        Positioned(
+          top: MediaQuery.of(context).padding.top + 8,
+          right: 8,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _buildTopIcon("assets/icons/magnifying.svg"),
+              const SizedBox(width: 16),
+              _buildTopIcon("assets/icons/bell.svg"),
+            ],
+          ),
+        ),
+
+        Container(
+          color: Colors.transparent,
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: MediaQuery.of(context).padding.top + 16,
+            bottom: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Transform.translate(
+                offset: Offset(0, overallYOffset),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Transform.translate(
+                      offset: Offset(0, avatarYOffset),
+                      child: Container(
+                        height: avatarSize,
+                        width: avatarSize,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: AssetImage(avatarURL),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
-                /// Texts
-                Expanded(
-                  child: Transform.translate(
-                    offset: Offset(0, textsYOffset),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Message
-                        if (messageFontSize > 0)
-                          Text(
-                            message,
-                            style: GoogleFonts.manrope(
-                              fontSize: messageFontSize,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF424242),
-                            ),
-                          ),
-                        const SizedBox(height: 4),
-
-                        /// Name + arrow
-                        Row(
+                    Expanded(
+                      child: Transform.translate(
+                        offset: Offset(0, textsYOffset),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              name,
-                              style: GoogleFonts.manrope(
-                                fontSize: nameFontSize,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF424242),
+                            if (messageFontSize > 0)
+                              Text(
+                                message,
+                                style: GoogleFonts.manrope(
+                                  fontSize: messageFontSize,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF424242),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            SvgPicture.asset(
-                              "assets/icons/arrow.svg",
-                              width: 4,
-                              height: 8,
+                            const SizedBox(height: 4),
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: GoogleFonts.manrope(
+                                        fontSize: nameFontSize,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF424242),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    SvgPicture.asset(
+                                      "assets/icons/arrow.svg",
+                                      width: 4,
+                                      height: 8,
+                                    ),
+                                  ],
+                                ),
+                                Positioned(
+                                  top: idYOffset,
+                                  child: Text(
+                                    clientId,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: idFontSize,
+                                      fontWeight: FontWeight.w500,
+                                      color: const Color(0xFF424242),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-
-                        // ID: scale + dịch chuyển xuống dưới
-                        Transform.translate(
-                          offset: Offset(0, idYOffset),
-                          child: Text(
-                            clientId,
-                            style: GoogleFonts.manrope(
-                              fontSize: idFontSize,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF424242),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Transform.translate(
+                offset: Offset(
+                  0,
+                  80 * (1 - progress) + 40 - 40 * progress - 10,
+                ),
+                child: SizedBox(
+                  height: 85,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: icons.length,
+                    itemBuilder: (context, index) => icons[index],
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 40),
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+        ),
+
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).blurAnimationHome.withValues(alpha: 0),
+                  Theme.of(context).blurAnimationHome.withValues(alpha: 1),
+                ],
+              ),
             ),
           ),
-
-          const SizedBox(height: 12),
-
-          /// Menu icons
-          SizedBox(
-            height: 85,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              itemCount: icons.length,
-              itemBuilder: (context, index) => icons[index],
-              separatorBuilder: (context, index) => const SizedBox(width: 40),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -171,6 +235,24 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
         message != oldDelegate.message ||
         minHeight != oldDelegate.minHeight ||
         maxHeight != oldDelegate.maxHeight ||
-        icons != oldDelegate.icons;
+        icons != oldDelegate.icons ||
+        backgroundScale != oldDelegate.backgroundScale;
+  }
+
+  Widget _buildTopIcon(String asset) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFF828282).withOpacity(0.3),
+          ),
+        ),
+        SvgPicture.asset(asset),
+      ],
+    );
   }
 }

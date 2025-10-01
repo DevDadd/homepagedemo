@@ -3,7 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
-import 'package:lottie/lottie.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/homepagesliverheader.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     as extended;
@@ -19,6 +18,12 @@ class _HomepageState extends State<Homepage> {
   int _currentIndex = 0;
   bool _showNav = true;
   late ScrollController _scrollController;
+
+  double _bgScale = 1.0;
+
+  static const double _maxOverscrollDistance = 150.0;
+  static const double _maxScaleMultiplier = 0.2;
+  static const double _maxScale = 1.0 + _maxScaleMultiplier;
 
   final List<FeatureItem> items = [
     FeatureItem(
@@ -41,6 +46,21 @@ class _HomepageState extends State<Homepage> {
       imageURL: "assets/icons/analyst.svg",
       lable: "Phân tích",
     ),
+    FeatureItem(
+      colors: const Color(0xFF4CAF50).withOpacity(0.3),
+      imageURL: "assets/icons/wallet.svg",
+      lable: "Ví điện tử",
+    ),
+    FeatureItem(
+      colors: const Color(0xFF2196F3).withOpacity(0.3),
+      imageURL: "assets/icons/chart.svg",
+      lable: "Báo cáo",
+    ),
+    FeatureItem(
+      colors: const Color(0xFF9C27B0).withOpacity(0.3),
+      imageURL: "assets/icons/function.svg",
+      lable: "Cài đặt",
+    ),
   ];
 
   @override
@@ -58,6 +78,22 @@ class _HomepageState extends State<Homepage> {
         ScrollDirection.forward) {
       if (!_showNav) setState(() => _showNav = true);
     }
+
+    if (_scrollController.position.pixels < 0) {
+      double overscroll = _scrollController.position.pixels.abs();
+      double normalizedOverscroll = (overscroll / _maxOverscrollDistance).clamp(
+        0.0,
+        1.0,
+      );
+      double scale =
+          1.0 +
+          (normalizedOverscroll * normalizedOverscroll * _maxScaleMultiplier);
+      setState(() => _bgScale = scale.clamp(1.0, _maxScale));
+    } else {
+      if (_bgScale != 1.0) {
+        setState(() => _bgScale = 1.0);
+      }
+    }
   }
 
   @override
@@ -68,89 +104,67 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    const double headerTopPadding = 12;
     final double pinnedHeaderHeight =
-        MediaQuery.of(context).padding.top +
-        kToolbarHeight +
-        30 +
-        headerTopPadding;
+        MediaQuery.of(context).padding.top + kToolbarHeight + 145;
 
     return Scaffold(
+      backgroundColor: Color(0xFFF4F4F4),
       body: Stack(
         children: [
-          /// Background
-          Positioned.fill(
-            child: Lottie.asset(
-              "assets/images/background.json",
-              fit: BoxFit.cover,
+          extended.ExtendedNestedScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
             ),
-          ),
-          SafeArea(
-            child: extended.ExtendedNestedScrollView(
-              controller: _scrollController,
-              floatHeaderSlivers: true,
-              pinnedHeaderSliverHeightBuilder: () => pinnedHeaderHeight,
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                SliverPadding(
-                  padding: const EdgeInsets.only(top: 50),
-                  sliver: SliverPersistentHeader(
-                    pinned: true,
-                    delegate: Homepagesliverheader(
-                      minHeight: kToolbarHeight + 145,
-                      maxHeight: 250,
-                      name: "Quyet Trinh",
-                      clientId: "0C93123131",
-                      message: "Chúc mừng năm mới",
-                      avatarURL: "assets/images/ava.jpeg.webp",
-                      icons: items, // icons sẽ render trực tiếp trong header
-                    ),
-                  ),
+            floatHeaderSlivers: true,
+            pinnedHeaderSliverHeightBuilder: () => pinnedHeaderHeight,
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: Homepagesliverheader(
+                  minHeight: kToolbarHeight + 190,
+                  maxHeight: 390,
+                  name: "Quyet Trinh",
+                  clientId: "0C93123131",
+                  message: "Chúc mừng năm mới",
+                  avatarURL: "assets/images/ava.jpeg.webp",
+                  icons: items,
+                  backgroundScale: _bgScale,
                 ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    height: 100,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFCFCFC),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    height: 500,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFCFCFC),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
-              body: const SizedBox.shrink(),
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  _buildTopIcon("assets/icons/magnifying.svg"),
-                  const SizedBox(width: 16),
-                  _buildTopIcon("assets/icons/bell.svg"),
-                ],
               ),
-            ),
+              SliverToBoxAdapter(
+                child: Container(
+                  height: 100,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFCFCFC),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Container(
+                  height: 500,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFCFCFC),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+            body: const SizedBox.shrink(),
           ),
         ],
       ),
+
+      /// Bottom nav
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _showNav ? Offset.zero : const Offset(0, 1),
@@ -176,23 +190,6 @@ class _HomepageState extends State<Homepage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTopIcon(String asset) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color(0xFF828282).withOpacity(0.3),
-          ),
-        ),
-        SvgPicture.asset(asset),
-      ],
     );
   }
 
