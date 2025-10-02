@@ -25,6 +25,9 @@ class _HomepageState extends State<Homepage> {
   static const double _maxScaleMultiplier = 0.2;
   static const double _maxScale = 1.0 + _maxScaleMultiplier;
 
+  final double _minHeader = kToolbarHeight + 190; // collapsed
+  final double _maxHeader = 390; // expanded
+
   final List<FeatureItem> items = [
     FeatureItem(
       colors: const Color(0xFFEEAD70).withOpacity(0.3),
@@ -96,6 +99,30 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  void _handleSnap() {
+    if (!_scrollController.hasClients) return;
+
+    final double collapseOffset = _maxHeader - _minHeader; // khoảng header
+    final double current = _scrollController.offset;
+    final double snapThreshold = collapseOffset / 2;
+
+    // Chỉ snap khi đang ở trong vùng header
+    if (current < 0 || current > collapseOffset) return;
+
+    double targetOffset;
+    if (current <= snapThreshold) {
+      targetOffset = 0; // Expanded
+    } else {
+      targetOffset = collapseOffset; // Collapsed
+    }
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -104,64 +131,59 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
-    final double pinnedHeaderHeight =
-        MediaQuery.of(context).padding.top + kToolbarHeight + 145;
-
     return Scaffold(
-      backgroundColor: Color(0xFFF4F4F4),
-      body: Stack(
-        children: [
-          extended.ExtendedNestedScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            floatHeaderSlivers: true,
-            pinnedHeaderSliverHeightBuilder: () => pinnedHeaderHeight,
-            headerSliverBuilder: (context, innerBoxIsScrolled) => [
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: Homepagesliverheader(
-                  minHeight: kToolbarHeight + 190,
-                  maxHeight: 390,
-                  name: "Quyet Trinh",
-                  clientId: "0C93123131",
-                  message: "Chúc mừng năm mới",
-                  avatarURL: "assets/images/ava.jpeg.webp",
-                  icons: items,
-                  backgroundScale: _bgScale,
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Container(
-                  height: 100,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFCFCFC),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Container(
-                  height: 500,
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFCFCFC),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-            body: const SizedBox.shrink(),
+      backgroundColor: const Color(0xFFF4F4F4),
+      body: NotificationListener<UserScrollNotification>(
+        onNotification: (notification) {
+          if (notification.direction == ScrollDirection.idle) {
+            _handleSnap();
+          }
+          return false;
+        },
+        child: extended.ExtendedNestedScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
           ),
-        ],
+          floatHeaderSlivers: true,
+          pinnedHeaderSliverHeightBuilder: () => 0,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: Homepagesliverheader(
+                minHeight: _minHeader,
+                maxHeight: _maxHeader,
+                name: "Trinh Van Quyet",
+                clientId: "0C93123131",
+                message: "Chúc mừng năm mới",
+                avatarURL: "assets/images/ava.jpeg.webp",
+                icons: items,
+                backgroundScale: _bgScale,
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: 100,
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFCFCFC),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                height: 500,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFCFCFC),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+          body: const SizedBox.shrink(),
+        ),
       ),
 
       /// Bottom nav
