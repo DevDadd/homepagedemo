@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:lottie/lottie.dart';
+import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:homepageintern/core/extensions/color_extension.dart';
 
 class Homepagesliverheader extends SliverPersistentHeaderDelegate {
@@ -43,12 +43,10 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
 
     final double nameFontSize = 32 - (12 * progress);
-    final double messageFontSize = 16 * (1 - progress);
     final double avatarSize = 44 * progress;
     final double idFontSize = lerp(0, 14, progress);
-    final double idYOffset = lerp(-20, 25, progress);
     final double overallYOffset = -15 * progress + 110 * (1 - progress);
-    final double textsYOffset = -10 * progress;
+    final double textsYOffset = -10 * progress + 30;
     final double avatarYOffset = 3 * progress;
 
     return Stack(
@@ -100,10 +98,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
             bottom: 16,
           ),
           child: Transform.translate(
-            offset: Offset(
-              0,
-              (backgroundScale - 1) * 400, // chữ + list kéo xuống
-            ),
+            offset: Offset(0, (backgroundScale - 1) * 400),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -112,6 +107,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      /// Avatar
                       Transform.translate(
                         offset: Offset(0, avatarYOffset),
                         child: Container(
@@ -128,53 +124,75 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                       ),
                       const SizedBox(width: 12),
 
+                      /// Texts
                       Expanded(
                         child: Transform.translate(
                           offset: Offset(0, textsYOffset),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (messageFontSize > 0)
-                                Text(
-                                  message,
-                                  style: GoogleFonts.manrope(
-                                    fontSize: messageFontSize,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF424242),
-                                  ),
-                                ),
-                              const SizedBox(height: 4),
+                              // Message + ID trong cùng 1 Stack
                               Stack(
-                                clipBehavior: Clip.none,
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        name,
+                                  // Message
+                                  AnimatedOpacity(
+                                    opacity: (1 - progress).clamp(0.0, 1.0),
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.easeInOut,
+                                    child: Transform.translate(
+                                      offset: Offset(0, progress * 40),
+                                      child: Text(
+                                        message,
                                         style: GoogleFonts.manrope(
-                                          fontSize: nameFontSize,
-                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
                                           color: const Color(0xFF424242),
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      SvgPicture.asset(
-                                        "assets/icons/arrow.svg",
-                                        width: 4,
-                                        height: 8,
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                  Positioned(
-                                    top: idYOffset,
-                                    child: Text(
-                                      clientId,
-                                      style: GoogleFonts.manrope(
-                                        fontSize: idFontSize,
-                                        fontWeight: FontWeight.w500,
-                                        color: const Color(0xFF424242),
+
+                                  // ID: fade in tại vị trí message, rồi đi xuống dưới tên
+                                  AnimatedOpacity(
+                                    opacity: progress.clamp(0.0, 1.0),
+                                    duration: const Duration(milliseconds: 250),
+                                    curve: Curves.easeOut,
+                                    child: Transform.translate(
+                                      offset: Offset(0, (1 - progress) * 20),
+                                      child: Transform.scale(
+                                        scale: lerp(0.8, 1.0, progress),
+                                        child: Text(
+                                          clientId,
+                                          style: GoogleFonts.manrope(
+                                            fontSize: idFontSize,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF424242),
+                                          ),
+                                        ),
                                       ),
                                     ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              // Name
+                              Row(
+                                children: [
+                                  Text(
+                                    name,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: nameFontSize,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF424242),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  SvgPicture.asset(
+                                    "assets/icons/arrow.svg",
+                                    width: 4,
+                                    height: 8,
                                   ),
                                 ],
                               ),
@@ -188,10 +206,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
                 const SizedBox(height: 12),
 
+                /// Feature icons list
                 Transform.translate(
                   offset: Offset(
                     0,
-                    80 * (1 - progress) + 40 - 40 * progress - 10,
+                    80 * (1 - progress) + 40 - 40 * progress - 10 + 25,
                   ),
                   child: SizedBox(
                     height: 85,
@@ -211,7 +230,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        /// Bottom fade gradient (kéo xuống theo backgroundScale)
+        /// Bottom fade gradient
         Align(
           alignment: Alignment.bottomCenter,
           child: Transform.translate(
@@ -243,6 +262,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
         minHeight != oldDelegate.minHeight ||
         maxHeight != oldDelegate.maxHeight ||
         icons != oldDelegate.icons ||
+        avatarURL != oldDelegate.avatarURL ||
         backgroundScale != oldDelegate.backgroundScale;
   }
 
