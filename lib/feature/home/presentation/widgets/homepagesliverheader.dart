@@ -46,8 +46,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     final double avatarSize = 44 * progress;
     final double idFontSize = lerp(0, 14, progress);
     final double overallYOffset = -15 * progress + 110 * (1 - progress);
-    final double textsYOffset = -10 * progress + 30;
-    final double avatarYOffset = 3 * progress;
+    final double textsYOffset = -15 * progress;
+    final double avatarYOffset = -2 * progress;
 
     return Stack(
       children: [
@@ -88,7 +88,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        /// Content (avatar + texts + feature list)
         Container(
           color: Colors.transparent,
           padding: EdgeInsets.only(
@@ -131,34 +130,58 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Message + ID trong cùng 1 Stack
-                              Stack(
+                              // Message (fade out khi collapse)
+                              AnimatedOpacity(
+                                opacity: (1 - progress).clamp(0.0, 1.0),
+                                duration: const Duration(milliseconds: 20),
+                                curve: Curves.easeInOut,
+                                child: Transform.translate(
+                                  offset: Offset(0, progress * 40),
+                                  child: Text(
+                                    message,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: const Color(0xFF424242),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // Name + ID
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Message
-                                  AnimatedOpacity(
-                                    opacity: (1 - progress).clamp(0.0, 1.0),
-                                    duration: const Duration(milliseconds: 250),
-                                    curve: Curves.easeInOut,
-                                    child: Transform.translate(
-                                      offset: Offset(0, progress * 40),
-                                      child: Text(
-                                        message,
+                                  // Name
+                                  Row(
+                                    children: [
+                                      Text(
+                                        name,
                                         style: GoogleFonts.manrope(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
+                                          fontSize: nameFontSize,
+                                          fontWeight: FontWeight.w600,
                                           color: const Color(0xFF424242),
                                         ),
                                       ),
-                                    ),
+                                      const SizedBox(width: 8),
+                                      SvgPicture.asset(
+                                        "assets/icons/arrow.svg",
+                                        width: 4,
+                                        height: 8,
+                                      ),
+                                    ],
                                   ),
 
-                                  // ID: fade in tại vị trí message, rồi đi xuống dưới tên
+                                  // Client ID: fade in ngay tại vị trí name, slide xuống dưới khi collapse
                                   AnimatedOpacity(
                                     opacity: progress.clamp(0.0, 1.0),
-                                    duration: const Duration(milliseconds: 250),
+                                    duration: const Duration(milliseconds: 20),
                                     curve: Curves.easeOut,
                                     child: Transform.translate(
-                                      offset: Offset(0, (1 - progress) * 20),
+                                      offset: Offset(
+                                        0,
+                                        lerp(-65, -1, progress),
+                                      ),
                                       child: Transform.scale(
                                         scale: lerp(0.8, 1.0, progress),
                                         child: Text(
@@ -171,28 +194,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 4),
-
-                              // Name
-                              Row(
-                                children: [
-                                  Text(
-                                    name,
-                                    style: GoogleFonts.manrope(
-                                      fontSize: nameFontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF424242),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  SvgPicture.asset(
-                                    "assets/icons/arrow.svg",
-                                    width: 4,
-                                    height: 8,
                                   ),
                                 ],
                               ),
