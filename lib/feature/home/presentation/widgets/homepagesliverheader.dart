@@ -51,7 +51,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
     return Stack(
       children: [
-        /// Background
         Positioned.fill(
           child: ClipRect(
             child: TweenAnimationBuilder<double>(
@@ -74,7 +73,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        /// Top right icons
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
           right: 8,
@@ -122,8 +120,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                         ),
                       ),
                       const SizedBox(width: 12),
-
-                      /// Texts
                       Expanded(
                         child: Transform.translate(
                           offset: Offset(0, textsYOffset),
@@ -147,8 +143,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                   ),
                                 ),
                               ),
-
-                              // Name + ID
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -171,8 +165,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                       ),
                                     ],
                                   ),
-
-                                  // Client ID: fade in ngay tại vị trí name, slide xuống dưới khi collapse
                                   AnimatedOpacity(
                                     opacity: progress.clamp(0.0, 1.0),
                                     duration: const Duration(milliseconds: 20),
@@ -207,7 +199,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
                 const SizedBox(height: 12),
 
-                /// Feature icons list
                 Transform.translate(
                   offset: Offset(
                     0,
@@ -231,7 +222,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        /// Bottom fade gradient
         Align(
           alignment: Alignment.bottomCenter,
           child: Transform.translate(

@@ -106,7 +106,6 @@ class _HomepageState extends State<Homepage> {
     final double current = _scrollController.offset;
     final double snapThreshold = collapseOffset / 2;
 
-    // Chỉ snap khi đang ở trong vùng header
     if (current < 0 || current > collapseOffset) return;
 
     double targetOffset;
@@ -186,7 +185,6 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
 
-      /// Bottom nav
       bottomNavigationBar: AnimatedSlide(
         duration: const Duration(milliseconds: 300),
         offset: _showNav ? Offset.zero : const Offset(0, 1),
