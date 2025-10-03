@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:homepageintern/core/extensions/color_extension.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final double minHeight;
@@ -14,6 +15,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final String avatarURL;
   final List<FeatureItem> icons;
   final double backgroundScale;
+
+  final PageController _pageController = PageController();
 
   Homepagesliverheader({
     required this.minHeight,
@@ -49,6 +52,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     final double textsYOffset = -15 * progress;
     final double avatarYOffset = -2 * progress;
 
+    final int pageCount = (icons.length / 4).ceil();
+
     return Stack(
       children: [
         Positioned.fill(
@@ -77,7 +82,6 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           top: MediaQuery.of(context).padding.top + 8,
           right: 8,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               _buildTopIcon("assets/icons/magnifying.svg"),
               const SizedBox(width: 16),
@@ -99,12 +103,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Avatar + texts
                 Transform.translate(
                   offset: Offset(0, overallYOffset),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      /// Avatar
                       Transform.translate(
                         offset: Offset(0, avatarYOffset),
                         child: Container(
@@ -126,11 +129,9 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Message (fade out khi collapse)
                               AnimatedOpacity(
                                 opacity: (1 - progress).clamp(0.0, 1.0),
                                 duration: const Duration(milliseconds: 20),
-                                curve: Curves.easeInOut,
                                 child: Transform.translate(
                                   offset: Offset(0, progress * 40),
                                   child: Text(
@@ -143,51 +144,41 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                   ),
                                 ),
                               ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  // Name
-                                  Row(
-                                    children: [
-                                      Text(
-                                        name,
-                                        style: GoogleFonts.manrope(
-                                          fontSize: nameFontSize,
-                                          fontWeight: FontWeight.w600,
-                                          color: const Color(0xFF424242),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      SvgPicture.asset(
-                                        "assets/icons/arrow.svg",
-                                        width: 4,
-                                        height: 8,
-                                      ),
-                                    ],
+                                  Text(
+                                    name,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: nameFontSize,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF424242),
+                                    ),
                                   ),
-                                  AnimatedOpacity(
-                                    opacity: progress.clamp(0.0, 1.0),
-                                    duration: const Duration(milliseconds: 20),
-                                    curve: Curves.easeOut,
-                                    child: Transform.translate(
-                                      offset: Offset(
-                                        0,
-                                        lerp(-65, -1, progress),
-                                      ),
-                                      child: Transform.scale(
-                                        scale: lerp(0.8, 1.0, progress),
-                                        child: Text(
-                                          clientId,
-                                          style: GoogleFonts.manrope(
-                                            fontSize: idFontSize,
-                                            fontWeight: FontWeight.w600,
-                                            color: const Color(0xFF424242),
-                                          ),
-                                        ),
+                                  const SizedBox(width: 8),
+                                  SvgPicture.asset(
+                                    "assets/icons/arrow.svg",
+                                    width: 4,
+                                    height: 8,
+                                  ),
+                                ],
+                              ),
+                              AnimatedOpacity(
+                                opacity: progress,
+                                duration: const Duration(milliseconds: 20),
+                                child: Transform.translate(
+                                  offset: Offset(0, lerp(-65, -1, progress)),
+                                  child: Transform.scale(
+                                    scale: lerp(0.8, 1.0, progress),
+                                    child: Text(
+                                      clientId,
+                                      style: GoogleFonts.manrope(
+                                        fontSize: idFontSize,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF424242),
                                       ),
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
@@ -199,22 +190,46 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
                 const SizedBox(height: 12),
 
+                // Feature list + Page Indicator
                 Transform.translate(
-                  offset: Offset(
-                    0,
-                    80 * (1 - progress) + 40 - 40 * progress - 10 + 25,
-                  ),
-                  child: SizedBox(
-                    height: 85,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      itemCount: icons.length,
-                      itemBuilder: (context, index) => icons[index],
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 40),
-                    ),
+                  offset: Offset(0, 95 * (1 - progress) + 40 - 40 * progress - 25),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 85,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: pageCount,
+                          itemBuilder: (context, pageIndex) {
+                            final start = pageIndex * 4;
+                            final end = (start + 4 < icons.length) ? start + 4 : icons.length;
+                            final items = icons.sublist(start, end);
+
+                            return Row(
+                              children: List.generate(items.length, (i) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 17), // 👈 spacing ngang
+                                  child: items[i],
+                                );
+                              }),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      if (icons.isNotEmpty)
+                        SmoothPageIndicator(
+                          controller: _pageController,
+                          count: pageCount,
+                          effect: ExpandingDotsEffect(
+                            activeDotColor: Colors.white,
+                            dotColor: Colors.grey.shade400,
+                            dotHeight: 8,
+                            dotWidth: 8,
+                            spacing: 6,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
@@ -225,7 +240,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
         Align(
           alignment: Alignment.bottomCenter,
           child: Transform.translate(
-            offset: Offset(0, (backgroundScale - 1) * 300),
+            offset: Offset(0, (backgroundScale - 1) * 300 + 5),
             child: Container(
               height: 40,
               decoration: BoxDecoration(
@@ -258,19 +273,14 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   }
 
   Widget _buildTopIcon(String asset) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 40,
-          width: 40,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: const Color(0xFF828282).withOpacity(0.3),
-          ),
-        ),
-        SvgPicture.asset(asset),
-      ],
+    return Container(
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFF828282).withOpacity(0.3),
+      ),
+      child: Center(child: SvgPicture.asset(asset)),
     );
   }
 }

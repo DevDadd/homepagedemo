@@ -43,6 +43,7 @@ class FeatureItem extends StatelessWidget {
         const SizedBox(height: 4),
         SizedBox(
           width: 55,
+          height: 28,
           child: Text(
             lable,
             style: GoogleFonts.manrope(

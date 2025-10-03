@@ -25,8 +25,8 @@ class _HomepageState extends State<Homepage> {
   static const double _maxScaleMultiplier = 0.2;
   static const double _maxScale = 1.0 + _maxScaleMultiplier;
 
-  final double _minHeader = kToolbarHeight + 190; // collapsed
-  final double _maxHeader = 390; // expanded
+  final double _minHeader = 285;
+  final double _maxHeader = 400; // expanded
 
   final List<FeatureItem> items = [
     FeatureItem(
@@ -163,7 +163,7 @@ class _HomepageState extends State<Homepage> {
             SliverToBoxAdapter(
               child: Container(
                 height: 100,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
+                margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFCFCFC),
                   borderRadius: BorderRadius.circular(12),
