@@ -41,8 +41,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
 
-    final double nameFontSize = 32 - (12 * progress);
-    final double avatarSize = 44 * progress;
+    final double nameFontSize = lerp(32, 20, progress);
+    final double avatarSize = lerp(0, 44, progress);
     final double overallYOffset = -15 * progress + 110 * (1 - progress);
     final double textsYOffset = -15 * progress;
     final double avatarYOffset = -2 * progress;
@@ -52,6 +52,20 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     if (backgroundOffset < -(maxExtent - minExtent)) {
       backgroundOffset = -(maxExtent - minExtent);
     }
+
+    final double blurAlpha = progress;
+
+    // Message fade + slide
+    final double messageOpacity = (1.0 - progress * 3).clamp(0.0, 1.0);
+    final double messageYOffset = progress * 20;
+
+    // ID fade + slide
+    final bool showID = messageOpacity <= 0;
+    final double idProgress = showID ? progress : 0;
+    final double idOpacity = showID ? ((progress - 0.33) * 1.5).clamp(0.0, 1.0) : 0; 
+    // fade in nhanh khi message biến mất
+    final double idYOffset = showID ? lerp(messageYOffset, 0, idProgress) + 55 : 0; 
+    // 20 là offset dưới tên khi collapsed
 
     return Stack(
       fit: StackFit.expand,
@@ -76,7 +90,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        // Top right icons
+        // Top icons
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
           right: 8,
@@ -89,7 +103,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        // Nội dung header
+        // Header content
         Container(
           color: Colors.transparent,
           padding: EdgeInsets.only(
@@ -107,6 +121,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                   offset: Offset(0, overallYOffset),
                   child: Row(
                     children: [
+                      // Avatar
                       Transform.translate(
                         offset: Offset(0, avatarYOffset),
                         child: Container(
@@ -114,10 +129,12 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                           width: avatarSize,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            image: DecorationImage(
-                              image: AssetImage(avatarURL),
-                              fit: BoxFit.cover,
-                            ),
+                            image: avatarSize > 0
+                                ? DecorationImage(
+                                    image: AssetImage(avatarURL),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
                         ),
                       ),
@@ -128,15 +145,15 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Stack message và clientId
+                              // Message → ID morph
                               Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  // Message fade out + đi xuống nhanh hơn
+                                  // Message
                                   Transform.translate(
-                                    offset: Offset(0, progress * 20), // di chuyển xuống
+                                    offset: Offset(0, messageYOffset),
                                     child: Opacity(
-                                      opacity: (1.0 - progress * 2).clamp(0.0, 1.0), // fade nhanh
+                                      opacity: messageOpacity,
                                       child: Text(
                                         message,
                                         style: GoogleFonts.manrope(
@@ -147,11 +164,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                       ),
                                     ),
                                   ),
-
-                                  // ClientId xuất hiện khi message đã biến mất
-                                  if ((1.0 - progress * 2).clamp(0.0, 1.0) <= 0.0)
-                                    Positioned(
-                                      top: 20, // vị trí trực tiếp dưới tên
+                                  // ID
+                                  Transform.translate(
+                                    offset: Offset(0, idYOffset),
+                                    child: Opacity(
+                                      opacity: idOpacity,
                                       child: Text(
                                         clientId,
                                         style: GoogleFonts.manrope(
@@ -161,9 +178,9 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                         ),
                                       ),
                                     ),
+                                  ),
                                 ],
                               ),
-
                               const SizedBox(height: 4),
                               Row(
                                 children: [
@@ -240,7 +257,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           ),
         ),
 
-        // Bottom gradient overlay
+        // Bottom blur overlay
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
@@ -251,7 +268,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                 end: Alignment.bottomCenter,
                 colors: [
                   Theme.of(context).blurAnimationHome.withValues(alpha: 0),
-                  Theme.of(context).blurAnimationHome.withValues(alpha: 1),
+                  Theme.of(context).blurAnimationHome.withValues(alpha: blurAlpha),
                 ],
               ),
             ),
