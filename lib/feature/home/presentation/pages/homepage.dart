@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
@@ -25,7 +26,7 @@ class _HomepageState extends State<Homepage> {
   static const double _maxScaleMultiplier = 0.2;
   static const double _maxScale = 1.0 + _maxScaleMultiplier;
 
-  final double _minHeader = 285;
+  final double _minHeader = 350;
   final double _maxHeader = 400; // expanded
 
   final List<FeatureItem> items = [
@@ -162,21 +163,143 @@ class _HomepageState extends State<Homepage> {
             ),
             SliverToBoxAdapter(
               child: Container(
-                height: 100,
-                margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFCFCFC),
-                  borderRadius: BorderRadius.circular(12),
+                height: 170.h,
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
                 ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                height: 500,
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFCFCFC),
+                  color: const Color(0XFFFCFCFC),
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFFDCE8ED).withOpacity(0.4),
+                      spreadRadius: 0,
+                      blurRadius: 40,
+                      offset: const Offset(0, 20),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 12),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15, bottom: 3),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Row(
+                            children: [
+                              Text(
+                                "Tiền và CK của tôi",
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF6F767E),
+                                ),
+                              ),
+                              Spacer(),
+                              SvgPicture.asset("assets/icons/eye.svg"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "5.000.000.000",
+                          style: GoogleFonts.manrope(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "+1,200,000",
+                          style: GoogleFonts.manrope(
+                            fontSize: 16,
+                            color: Color(0xFF1AAF74),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Container(
+                            width: 137.34,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF51D6A1),
+                              borderRadius: BorderRadius.only(topLeft: Radius.circular(100), bottomLeft: Radius.circular(100)),
+                            ),
+                          ),
+                          Container(
+                            width: 29.43,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFC682F3),
+                            ),
+                          ),
+                          Container(
+                            width: 52.32,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF5DC6D2),
+                            ),
+                          ),
+                          Container(
+                            width: 107.91,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFFB56C),
+                              borderRadius: BorderRadius.only(topRight: Radius.circular(100), bottomRight: Radius.circular(100)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 18,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 6,
+                            width: 6,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF51D6A1),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          SizedBox(width: 6,),
+                          Text("Cơ Sở 24%",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
+                          SizedBox(width: 12,),
+                          Container(
+                            height: 6,
+                            width: 6,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFC682F3),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          SizedBox(width: 6,),
+                          Text("Phái sinh 17%",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
+                          SizedBox(width: 12,),
+                           Container(
+                            height: 6,
+                            width: 6,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFFB56C),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          SizedBox(width: 6,),
+                          Text("GD trong ngày 68%",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -191,7 +314,7 @@ class _HomepageState extends State<Homepage> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: const Color(0xFFF4F4F4).withOpacity(0.3),
+          backgroundColor: Colors.white,
           type: BottomNavigationBarType.fixed,
           selectedItemColor: const Color(0xFF1AAF74),
           unselectedItemColor: const Color(0xFF6F767E),
