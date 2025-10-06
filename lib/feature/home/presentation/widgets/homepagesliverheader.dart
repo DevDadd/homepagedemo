@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,7 +46,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     final double nameFontSize = lerp(32, 20, progress);
     final double avatarSize = lerp(0, 44, progress);
     final double overallYOffset = -15 * progress + 110 * (1 - progress);
-    final double textsYOffset = -15 * progress;
+    final double textsYOffset = -20 * progress;
     final double avatarYOffset = -2 * progress;
     final int pageCount = (icons.length / 4).ceil();
 
@@ -55,31 +57,29 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
     final double blurAlpha = progress;
 
-    // Message fade + slide
-    final double messageOpacity = (1.0 - progress * 3).clamp(0.0, 1.0);
+    // Message fade
+    final double messageOpacity = (1.0 - progress * 1.5).clamp(0.0, 1.0);
     final double messageYOffset = progress * 20;
-
-    // ID fade + slide
-    final bool showID = messageOpacity <= 0;
-    final double idProgress = showID ? progress : 0;
-    final double idOpacity = showID ? ((progress - 0.33) * 1.5).clamp(0.0, 1.0) : 0; 
-    // fade in nhanh khi message biến mất
-    final double idYOffset = showID ? lerp(messageYOffset, 0, idProgress) + 55 : 0; 
-    // 20 là offset dưới tên khi collapsed
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Background Lottie
+        // ✅ Background với hiệu ứng chun + đàn hồi
         Transform.translate(
           offset: Offset(0, backgroundOffset),
           child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 1.0, end: backgroundScale),
-            duration: Duration(milliseconds: backgroundScale > 1.0 ? 200 : 400),
+            tween: Tween<double>(
+              begin: 1.0,
+              end: backgroundScale > 1.0 ? backgroundScale : 1.0,
+            ),
+            duration: Duration(milliseconds: backgroundScale > 1.0 ? 200 : 600),
             curve: backgroundScale > 1.0 ? Curves.easeOut : Curves.elasticOut,
-            builder: (context, scale, child) {
+            builder: (context, tweenScale, child) {
+              final double dynamicScale = 1.0 +
+                  (shrinkOffset < 0 ? (-shrinkOffset / 250) : 0);
+
               return Transform.scale(
-                scale: scale,
+                scale: tweenScale * dynamicScale,
                 alignment: Alignment.topCenter,
                 child: Lottie.asset(
                   "assets/images/background.json",
@@ -92,7 +92,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
         // Top icons
         Positioned(
-          top: MediaQuery.of(context).padding.top + 8,
+          top: MediaQuery.of(context).padding.top + 3,
           right: 8,
           child: Row(
             children: [
@@ -149,11 +149,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                               Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  // Message
-                                  Transform.translate(
-                                    offset: Offset(0, messageYOffset),
-                                    child: Opacity(
-                                      opacity: messageOpacity,
+                                  // Message fade out + đi xuống
+                                  Opacity(
+                                    opacity: messageOpacity,
+                                    child: Transform.translate(
+                                      offset: Offset(0, messageYOffset),
                                       child: Text(
                                         message,
                                         style: GoogleFonts.manrope(
@@ -164,41 +164,65 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                       ),
                                     ),
                                   ),
-                                  // ID
-                                  Transform.translate(
-                                    offset: Offset(0, idYOffset),
-                                    child: Opacity(
-                                      opacity: idOpacity,
-                                      child: Text(
-                                        clientId,
-                                        style: GoogleFonts.manrope(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: const Color(0xFF424242),
-                                        ),
-                                      ),
+
+                                  // ID fade in từ vị trí message biến mất
+                                  if (progress > 0.33)
+                                    Builder(
+                                      builder: (context) {
+                                        final double localT =
+                                            ((progress - 0.57) / 0.67)
+                                                .clamp(0.0, 1.0);
+                                        final double easedT =
+                                            Curves.easeInOut.transform(localT);
+                                        final double idOpacity = easedT;
+
+                                        final double idYOffsetStart = messageYOffset;
+                                        final double idYOffsetEnd = messageYOffset + 37;
+                                        final double idYOffset = lerpDouble(
+                                            idYOffsetStart, idYOffsetEnd, easedT)!;
+
+                                        return Transform.translate(
+                                          offset: Offset(0, idYOffset),
+                                          child: Opacity(
+                                            opacity: idOpacity,
+                                            child: Text(
+                                              clientId,
+                                              style: GoogleFonts.manrope(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: const Color(0xFF424242),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  ),
                                 ],
                               ),
+
                               const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text(
-                                    name,
-                                    style: GoogleFonts.manrope(
-                                      fontSize: nameFontSize,
-                                      fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF424242),
+
+                              // ✅ Tên + arrow lùi lên khi colaps
+                              Transform.translate(
+                                offset: Offset(0, -5 * progress),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: GoogleFonts.manrope(
+                                        fontSize: nameFontSize,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF424242),
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  SvgPicture.asset(
-                                    "assets/icons/arrow.svg",
-                                    width: 4,
-                                    height: 8,
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    SvgPicture.asset(
+                                      "assets/icons/arrow.svg",
+                                      width: 4,
+                                      height: 8,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -212,7 +236,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
 
                 // Feature list / PageView
                 Transform.translate(
-                  offset: Offset(0, 95 * (1 - progress) + 40 - 40 * progress - 25),
+                  offset:
+                      Offset(0, 95 * (1 - progress) + 40 - 40 * progress - 25),
                   child: Column(
                     children: [
                       SizedBox(
@@ -222,13 +247,16 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                           itemCount: pageCount,
                           itemBuilder: (context, pageIndex) {
                             final start = pageIndex * 4;
-                            final end = (start + 4 < icons.length) ? start + 4 : icons.length;
+                            final end = (start + 4 < icons.length)
+                                ? start + 4
+                                : icons.length;
                             final items = icons.sublist(start, end);
 
                             return Row(
                               children: List.generate(items.length, (i) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 17),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 17),
                                   child: items[i],
                                 );
                               }),
@@ -244,7 +272,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                           effect: ExpandingDotsEffect(
                             activeDotColor: Colors.white,
                             dotColor: Colors.grey.shade400,
-                            dotHeight: 8,
+                            dotHeight: 2,
                             dotWidth: 8,
                             spacing: 6,
                           ),
@@ -268,7 +296,9 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                 end: Alignment.bottomCenter,
                 colors: [
                   Theme.of(context).blurAnimationHome.withValues(alpha: 0),
-                  Theme.of(context).blurAnimationHome.withValues(alpha: blurAlpha),
+                  Theme.of(context)
+                      .blurAnimationHome
+                      .withValues(alpha: blurAlpha),
                 ],
               ),
             ),
