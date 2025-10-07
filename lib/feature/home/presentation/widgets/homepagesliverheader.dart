@@ -86,7 +86,21 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Container(height: 20, color: const Color(0xFFF4F4F4)),
+                      Container(
+                        height: 20,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(
+                                context,
+                              ).blurAnimationHome.withValues(alpha: 1),
+                              Theme.of(
+                                context,
+                              ).blurAnimationHome.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
 
                       Positioned.fill(
                         child: Lottie.asset(
@@ -97,26 +111,26 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                       ),
 
                       // Gradient mờ luôn hiển thị
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Container(
-                          height: 20,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Theme.of(
-                                  context,
-                                ).blurAnimationHome.withValues(alpha: 1),
-                                Theme.of(
-                                  context,
-                                ).blurAnimationHome.withValues(alpha: 0),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Align(
+                      //   alignment: Alignment.bottomCenter,
+                      //   child: Container(
+                      //     height: 5,
+                      //     decoration: BoxDecoration(
+                      //       gradient: LinearGradient(
+                      //         begin: Alignment.topCenter,
+                      //         end: Alignment.bottomCenter,
+                      //         colors: [
+                      //           Theme.of(
+                      //             context,
+                      //           ).blurAnimationHome.withValues(alpha: 1),
+                      //           Theme.of(
+                      //             context,
+                      //           ).blurAnimationHome.withValues(alpha: 0),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
