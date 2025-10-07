@@ -27,7 +27,7 @@ class _HomepageState extends State<Homepage> {
   static const double _maxScale = 1.0 + _maxScaleMultiplier;
 
   final double _minHeader = 350;
-  final double _maxHeader = 400; // expanded
+  final double _maxHeader = 380; // expanded
 
   final List<FeatureItem> items = [
     FeatureItem(
@@ -164,10 +164,7 @@ class _HomepageState extends State<Homepage> {
             SliverToBoxAdapter(
               child: Container(
                 height: 170.h,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 10,
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
                   color: const Color(0XFFFCFCFC),
                   borderRadius: BorderRadius.circular(12),
@@ -233,34 +230,36 @@ class _HomepageState extends State<Homepage> {
                             height: 8,
                             decoration: BoxDecoration(
                               color: Color(0xFF51D6A1),
-                              borderRadius: BorderRadius.only(topLeft: Radius.circular(100), bottomLeft: Radius.circular(100)),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(100),
+                                bottomLeft: Radius.circular(100),
+                              ),
                             ),
                           ),
                           Container(
                             width: 29.43,
                             height: 8,
-                            decoration: BoxDecoration(
-                              color: Color(0xFFC682F3),
-                            ),
+                            decoration: BoxDecoration(color: Color(0xFFC682F3)),
                           ),
                           Container(
                             width: 52.32,
                             height: 8,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF5DC6D2),
-                            ),
+                            decoration: BoxDecoration(color: Color(0xFF5DC6D2)),
                           ),
                           Container(
                             width: 107.91,
                             height: 8,
                             decoration: BoxDecoration(
                               color: Color(0xFFFFB56C),
-                              borderRadius: BorderRadius.only(topRight: Radius.circular(100), bottomRight: Radius.circular(100)),
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(100),
+                                bottomRight: Radius.circular(100),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 18,),
+                      SizedBox(height: 18),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -272,9 +271,16 @@ class _HomepageState extends State<Homepage> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 6,),
-                          Text("Cơ Sở 24%",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
-                          SizedBox(width: 12,),
+                          SizedBox(width: 6),
+                          Text(
+                            "Cơ Sở 24%",
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF6F767E),
+                            ),
+                          ),
+                          SizedBox(width: 12),
                           Container(
                             height: 6,
                             width: 6,
@@ -283,10 +289,17 @@ class _HomepageState extends State<Homepage> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 6,),
-                          Text("Phái sinh 17%",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
-                          SizedBox(width: 12,),
-                           Container(
+                          SizedBox(width: 6),
+                          Text(
+                            "Phái sinh 17%",
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF6F767E),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Container(
                             height: 6,
                             width: 6,
                             decoration: BoxDecoration(
@@ -294,10 +307,17 @@ class _HomepageState extends State<Homepage> {
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 6,),
-                          Text("GD trong ngày 68%",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
+                          SizedBox(width: 6),
+                          Text(
+                            "GD trong ngày 68%",
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF6F767E),
+                            ),
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),

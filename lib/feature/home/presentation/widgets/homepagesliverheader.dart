@@ -86,7 +86,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Container(height: 20, color:const Color(0xFFF4F4F4),),
+                      Container(height: 20, color: const Color(0xFFF4F4F4)),
 
                       Positioned.fill(
                         child: Lottie.asset(
@@ -109,9 +109,9 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                 Theme.of(
                                   context,
                                 ).blurAnimationHome.withValues(alpha: 1),
-                                Theme.of(context).blurAnimationHome.withValues(
-                                  alpha: 0
-                                ),
+                                Theme.of(
+                                  context,
+                                ).blurAnimationHome.withValues(alpha: 0),
                               ],
                             ),
                           ),
