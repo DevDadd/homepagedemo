@@ -26,8 +26,8 @@ class _HomepageState extends State<Homepage> {
   static const double _maxScaleMultiplier = 0.2;
   static const double _maxScale = 1.0 + _maxScaleMultiplier;
 
-  final double _minHeader = 320;
-  final double _maxHeader = 380; // expanded
+  final double _minHeader = 330;
+  final double _maxHeader = 400; // expanded
 
   final List<FeatureItem> items = [
     FeatureItem(

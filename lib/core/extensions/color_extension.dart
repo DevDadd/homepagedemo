@@ -16,7 +16,7 @@ extension ThemeExtension on ThemeData {
     if (brightness == Brightness.light) {
       return const Color(0xFFF4F4F4);
     } else {
-      return const Color(0xFF111315);
+      return const Color.fromARGB(255, 79, 77, 77);
     }
   }
 }

@@ -47,6 +47,7 @@ dependencies:
   extended_nested_scroll_view: ^6.2.1
   smooth_page_indicator: ^1.2.1
   flutter_screenutil: ^5.9.3
+  sliver_tools: ^0.2.12
 
 dev_dependencies:
   flutter_test:
