@@ -39,7 +39,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   double lerp(double min, double max, double t) => min + (max - min) * t;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
 
     final double nameFontSize = lerp(32, 20, progress);
@@ -66,12 +70,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
           offset: Offset(0, backgroundOffset),
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(
-                begin: 1.0,
-                end: backgroundScale > 1.0 ? backgroundScale : 1.0),
-            duration:
-                Duration(milliseconds: backgroundScale > 1.0 ? 200 : 600),
-            curve:
-                backgroundScale > 1.0 ? Curves.easeOut : Curves.elasticOut,
+              begin: 1.0,
+              end: backgroundScale > 1.0 ? backgroundScale : 1.0,
+            ),
+            duration: Duration(milliseconds: backgroundScale > 1.0 ? 200 : 600),
+            curve: backgroundScale > 1.0 ? Curves.easeOut : Curves.elasticOut,
             builder: (context, tweenScale, child) {
               final double dynamicScale =
                   1.0 + (shrinkOffset < 0 ? (-shrinkOffset / 250) : 0);
@@ -98,37 +101,37 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
         ),
 
         // ================= GRADIENT Ở ĐÁY HEADER =================
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: -shrinkOffset *
-              0.2, // giúp gradient di chuyển mượt cùng header khi scroll
-          height: 40,
-          child: IgnorePointer(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context)
-                        .blurAnimationHome
-                        .withValues(alpha: 0.95),
-                    Theme.of(context)
-                        .blurAnimationHome
-                        .withValues(alpha: 0.7),
-                    Theme.of(context)
-                        .blurAnimationHome
-                        .withValues(alpha: 0.3),
-                    Theme.of(context)
-                        .blurAnimationHome
-                        .withValues(alpha: 0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        // Positioned(
+        //   left: 0,
+        //   right: 0,
+        //   bottom: -shrinkOffset *
+        //       0.2, // giúp gradient di chuyển mượt cùng header khi scroll
+        //   height: 40,
+        //   child: IgnorePointer(
+        //     child: Container(
+        //       decoration: BoxDecoration(
+        //         gradient: LinearGradient(
+        //           begin: Alignment.topCenter,
+        //           end: Alignment.bottomCenter,
+        //           colors: [
+        //             Theme.of(context)
+        //                 .blurAnimationHome
+        //                 .withValues(alpha: 0.95),
+        //             Theme.of(context)
+        //                 .blurAnimationHome
+        //                 .withValues(alpha: 0.7),
+        //             Theme.of(context)
+        //                 .blurAnimationHome
+        //                 .withValues(alpha: 0.3),
+        //             Theme.of(context)
+        //                 .blurAnimationHome
+        //                 .withValues(alpha: 0),
+        //           ],
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
 
         // ================= TOP ICONS =================
         Positioned(
@@ -205,10 +208,12 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                     Builder(
                                       builder: (context) {
                                         final double localT =
-                                            ((progress - 0.39) / 0.67)
-                                                .clamp(0.0, 1.0);
-                                        final double easedT =
-                                            Curves.easeInOut.transform(localT);
+                                            ((progress - 0.39) / 0.67).clamp(
+                                              0.0,
+                                              1.0,
+                                            );
+                                        final double easedT = Curves.easeInOut
+                                            .transform(localT);
                                         final double idOpacity = easedT;
                                         final double idYOffsetStart =
                                             messageYOffset;
@@ -229,8 +234,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                               style: GoogleFonts.manrope(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
-                                                color:
-                                                    const Color(0xFF424242),
+                                                color: const Color(0xFF424242),
                                               ),
                                             ),
                                           ),
@@ -299,7 +303,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                               children: List.generate(items.length, (i) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 17),
+                                    horizontal: 17,
+                                  ),
                                   child: items[i],
                                 );
                               }),
