@@ -14,7 +14,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final String message;
   final String avatarURL;
   final List<FeatureItem> icons;
-  final double backgroundScale;
+  final double backgroundScale; // 👈 dùng scale từ Homepage
 
   final PageController _pageController = PageController();
 
@@ -48,9 +48,10 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     final double avatarYOffset = -2 * progress;
     final int pageCount = (icons.length / 4).ceil();
 
-    // 👇 Scale riêng icon size khi scroll
+    // 👇 size riêng cho logo SVG
     final double featureIconSize = lerp(34, 31, progress);
 
+    // 👇 xử lý background offset
     double backgroundOffset = -shrinkOffset * 0.5;
     if (backgroundOffset < -(maxExtent - minExtent)) {
       backgroundOffset = -(maxExtent - minExtent);
@@ -63,14 +64,14 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
       fit: StackFit.expand,
       clipBehavior: Clip.none,
       children: [
-        /// Background color
+        /// Nền chính
         Container(color: const Color(0xFFF4F4F4)),
 
-        /// Background Lottie animation
+        /// ✅ Hiệu ứng chun background
         Transform.translate(
           offset: Offset(0, backgroundOffset),
           child: Transform.scale(
-            scale: 1.0 + (shrinkOffset < 0 ? (-shrinkOffset / 250) : 0),
+            scale: backgroundScale, // 👈 scale từ Homepage truyền sang
             alignment: Alignment.topCenter,
             child: Stack(
               fit: StackFit.expand,
@@ -110,11 +111,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
             bottom: 16,
           ),
           child: Transform.translate(
-            offset: Offset(0, 50 + (backgroundScale - 1) * 400),
+            offset: Offset(0, 50 + (backgroundScale - 1) * 400), // 👈 dịch nền khi chun
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Avatar + name + message section
+                /// Avatar + name + message
                 Transform.translate(
                   offset: Offset(0, overallYOffset),
                   child: Row(
@@ -251,17 +252,14 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 17),
-                                  child: Transform.scale(
-                                    scale: featureIconSize / 32,
-                                    child: FeatureItem(
-                                      colors: original.colors,
-                                      imageURL: original.imageURL,
-                                      label: original.label,
-                                      iconSize: featureIconSize,
-                                      width: original.width,
-                                      height: original.height,
-                                      fontSize: original.fontSize,
-                                    ),
+                                  child: FeatureItem(
+                                    colors: original.colors,
+                                    imageURL: original.imageURL,
+                                    label: original.label,
+                                    iconSize: featureIconSize, // 👈 chỉ đổi size logo
+                                    width: original.width,
+                                    height: original.height,
+                                    fontSize: original.fontSize,
                                   ),
                                 );
                               }),
