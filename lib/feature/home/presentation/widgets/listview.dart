@@ -7,12 +7,22 @@ class FeatureItem extends StatelessWidget {
     super.key,
     required this.colors,
     required this.imageURL,
-    required this.lable,
+    required this.label,
+    this.width = 55,
+    this.height = 28,
+    this.iconSize = 24,
+    this.fontSize = 12,
+    this.iconBoxSize = 48,
   });
 
   final Color colors;
   final String imageURL;
-  final String lable;
+  final String label;
+  final double width;
+  final double height;
+  final double iconSize;
+  final double fontSize;
+  final double iconBoxSize;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +33,8 @@ class FeatureItem extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Container(
-              height: 48,
-              width: 48,
+              height: iconBoxSize,
+              width: iconBoxSize,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: colors,
@@ -37,17 +47,23 @@ class FeatureItem extends StatelessWidget {
                 ],
               ),
             ),
-            Center(child: SvgPicture.asset(imageURL)),
+            Center(
+              child: SvgPicture.asset(
+                imageURL,
+                width: iconSize + 8,
+                height: iconSize + 8,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
         SizedBox(
-          width: 55,
-          height: 28,
+          width: width,
+          height: height,
           child: Text(
-            lable,
+            label,
             style: GoogleFonts.manrope(
-              fontSize: 12,
+              fontSize: fontSize,
               fontWeight: FontWeight.w600,
               height: 1.3,
             ),
