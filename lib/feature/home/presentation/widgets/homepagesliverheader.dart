@@ -14,7 +14,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final String message;
   final String avatarURL;
   final List<FeatureItem> icons;
-  final double backgroundScale; // 👈 dùng scale từ Homepage
+  final double backgroundScale;
 
   final PageController _pageController = PageController();
 
@@ -48,13 +48,17 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
     final double avatarYOffset = -2 * progress;
     final int pageCount = (icons.length / 4).ceil();
 
-    // 👇 size riêng cho logo SVG
+    // 👇 Scale riêng icon size khi scroll
     final double featureIconSize = lerp(34, 31, progress);
 
-    // 👇 xử lý background offset
-    double backgroundOffset = -shrinkOffset * 0.5;
-    if (backgroundOffset < -(maxExtent - minExtent)) {
-      backgroundOffset = -(maxExtent - minExtent);
+    // 👇 Hiệu ứng pin background
+    double backgroundOffset;
+    if (progress < 1.0) {
+      // Di chuyển nhẹ khi scroll (parallax)
+      backgroundOffset = -shrinkOffset * 0.5;
+    } else {
+      // Pin cố định khi co hết
+      backgroundOffset = -(maxExtent - minExtent) * 0.5;
     }
 
     final double messageOpacity = (1.0 - progress * 1.8).clamp(0.0, 1.0);
@@ -64,14 +68,14 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
       fit: StackFit.expand,
       clipBehavior: Clip.none,
       children: [
-        /// Nền chính
+        /// Background color
         Container(color: const Color(0xFFF4F4F4)),
 
-        /// ✅ Hiệu ứng chun background
+        /// Background Lottie animation
         Transform.translate(
           offset: Offset(0, backgroundOffset),
           child: Transform.scale(
-            scale: backgroundScale, // 👈 scale từ Homepage truyền sang
+            scale: backgroundScale,
             alignment: Alignment.topCenter,
             child: Stack(
               fit: StackFit.expand,
@@ -111,11 +115,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
             bottom: 16,
           ),
           child: Transform.translate(
-            offset: Offset(0, 50 + (backgroundScale - 1) * 400), // 👈 dịch nền khi chun
+            offset: Offset(0, 50 + (backgroundScale - 1) * 400),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Avatar + name + message
+                /// Avatar + name + message section
                 Transform.translate(
                   offset: Offset(0, overallYOffset),
                   child: Row(
@@ -252,14 +256,17 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 17),
-                                  child: FeatureItem(
-                                    colors: original.colors,
-                                    imageURL: original.imageURL,
-                                    label: original.label,
-                                    iconSize: featureIconSize, // 👈 chỉ đổi size logo
-                                    width: original.width,
-                                    height: original.height,
-                                    fontSize: original.fontSize,
+                                  child: Transform.scale(
+                                    scale: featureIconSize / 32,
+                                    child: FeatureItem(
+                                      colors: original.colors,
+                                      imageURL: original.imageURL,
+                                      label: original.label,
+                                      iconSize: featureIconSize,
+                                      width: original.width,
+                                      height: original.height,
+                                      fontSize: original.fontSize,
+                                    ),
                                   ),
                                 );
                               }),
