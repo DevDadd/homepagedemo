@@ -93,6 +93,8 @@ flutter:
     - assets/icons/analyst.svg
     - assets/images/yellow_autumn.json
     - assets/icons/eye.svg
+    - assets/icons/clock.svg
+    - assets/icons/idk.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
