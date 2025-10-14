@@ -97,7 +97,7 @@ class _HomepageState extends State<Homepage> {
           (normalizedOverscroll * normalizedOverscroll * _maxScaleMultiplier);
       setState(() {
         _bgScale = scale.clamp(1.0, _maxScale);
-        _overscrollOffset = overscroll / 2;
+        _overscrollOffset = overscroll / 20; // <-- Chậm hơn cực kỳ
       });
     } else {
       if (_bgScale != 1.0 || _overscrollOffset != 0) {
