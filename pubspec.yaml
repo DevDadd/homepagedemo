@@ -48,6 +48,7 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   flutter_screenutil: ^5.9.3
   sliver_tools: ^0.2.12
+  marquee: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -95,6 +96,8 @@ flutter:
     - assets/icons/eye.svg
     - assets/icons/clock.svg
     - assets/icons/idk.svg
+    - assets/icons/button1.svg
+    - assets/icons/button2.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
