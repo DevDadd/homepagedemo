@@ -49,6 +49,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   sliver_tools: ^0.2.12
   marquee: ^2.3.0
+  autoscale_tabbarview: ^1.0.2
 
 dev_dependencies:
   flutter_test:

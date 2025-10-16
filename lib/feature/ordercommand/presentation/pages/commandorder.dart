@@ -1,8 +1,11 @@
+import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/dottedlinepainter.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/widget/sellbuttonclipper.dart';
 import 'package:marquee/marquee.dart';
 
 class Commandorder extends StatefulWidget {
@@ -114,7 +117,6 @@ class _CommandorderState extends State<Commandorder>
           children: [
             Column(
               children: [
-                /// --- PHẦN HEADER FPT ---
                 Container(
                   width: double.infinity,
                   height: 60,
@@ -286,7 +288,6 @@ class _CommandorderState extends State<Commandorder>
                 const SizedBox(height: 21),
 
                 Container(
-                  height: 180,
                   width: double.infinity,
                   decoration: BoxDecoration(),
                   child: Column(
@@ -325,18 +326,19 @@ class _CommandorderState extends State<Commandorder>
                           Tab(text: "Thanh khoản"),
                         ],
                       ),
-                      Expanded(
-                        child: TabBarView(
-                          controller: _tabController1,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 12,
-                                top: 19,
-                                right: 12,
-                              ),
-                              child: Align(
-                                alignment: Alignment.topLeft,
+                      AutoScaleTabBarView(
+                        controller: _tabController1,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 12,
+                              top: 19,
+                              right: 12,
+                            ),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                decoration: BoxDecoration(),
                                 child: Column(
                                   children: [
                                     Row(
@@ -469,7 +471,7 @@ class _CommandorderState extends State<Commandorder>
                                                 child: Text(
                                                   "94.30",
                                                   style: GoogleFonts.manrope(
-                                                    color: Color(0xFFF34859),
+                                                    color: Color(0xFFFF9F41),
                                                     fontWeight: FontWeight.w500,
                                                     fontSize: 14,
                                                   ),
@@ -489,30 +491,296 @@ class _CommandorderState extends State<Commandorder>
                                         ],
                                       ),
                                     ),
+                                    SizedBox(height: 12),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "30,000",
+                                            style: GoogleFonts.manrope(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                              color: Color(0xFF6F767E),
+                                            ),
+                                          ),
+                                          SizedBox(width: 51.w),
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                height: 21.h,
+                                                width: 79.w,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(4),
+                                                        bottomLeft:
+                                                            Radius.circular(4),
+                                                      ),
+                                                  color: Color(
+                                                    0xFF1AAF74,
+                                                  ).withOpacity(0.3),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 34,
+                                                ),
+                                                child: Text(
+                                                  "94.10",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                height: 21.h,
+                                                width: 79.w,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                        topRight:
+                                                            Radius.circular(4),
+                                                        bottomRight:
+                                                            Radius.circular(4),
+                                                      ),
+                                                  color: Color(
+                                                    0xFFF34859,
+                                                  ).withOpacity(0.3),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 14,
+                                                ),
+                                                child: Text(
+                                                  "94.40",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            "15,000",
+                                            style: GoogleFonts.manrope(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                              color: Color(0xFF6F767E),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 12),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "50,000",
+                                            style: GoogleFonts.manrope(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                              color: Color(0xFF6F767E),
+                                            ),
+                                          ),
+                                          SizedBox(width: 27),
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                height: 21,
+                                                width: 109,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(4),
+                                                        bottomLeft:
+                                                            Radius.circular(4),
+                                                      ),
+                                                  color: Color(
+                                                    0xFF1AAF74,
+                                                  ).withOpacity(0.3),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 56,
+                                                ),
+                                                child: Text(
+                                                  "94.00",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                height: 21,
+                                                width: 101,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                        topRight:
+                                                            Radius.circular(4),
+                                                        bottomRight:
+                                                            Radius.circular(4),
+                                                      ),
+                                                  color: Color(
+                                                    0xFFF34859,
+                                                  ).withOpacity(0.3),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  left: 14,
+                                                ),
+                                                child: Text(
+                                                  "94.50",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            "20,000",
+                                            style: GoogleFonts.manrope(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
+                                              color: Color(0xFF6F767E),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
-                            Center(
-                              child: Text(
-                                "Lệnh khớp",
-                                style: TextStyle(color: Colors.white),
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
+                                top: 19,
+                              ),
+                              child: Container(
+                                height: 200,
+                                width: double.infinity,
+                                decoration: BoxDecoration(color: Colors.white),
                               ),
                             ),
-                            Center(
-                              child: Text(
-                                "Lịch sử",
-                                style: TextStyle(color: Colors.white),
+                          ),
+                          Center(
+                            child: Text(
+                              "Lịch sử",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              "Khác",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 25),
+                Container(
+                  height: 200,
+                  width: 375,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF2F3437),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        spreadRadius: -16,
+                        blurRadius: 24,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 12, top: 12),
+                              child: ClipPath(
+                                clipper: MuaButtonClipper(),
+                                child: Container(
+                                  width: 84.75,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF1AAF74).withOpacity(0.3),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "Mua",
+                                      style: GoogleFonts.manrope(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                        color: Color(0xFF1AAF74),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                            Center(
-                              child: Text(
-                                "Khác",
-                                style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: ClipPath(
+                              clipper: SellButtonFlippedClipper(),
+                              child: Container(
+                                width: 84.75,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF3A4247),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    "Bán",
+                                    style: GoogleFonts.manrope(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Color(0xFFC4C4C4),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -520,7 +788,6 @@ class _CommandorderState extends State<Commandorder>
               ],
             ),
 
-            /// --- TAB PHÁI SINH ---
             const Center(
               child: Text(
                 "Nội dung Phái sinh",
