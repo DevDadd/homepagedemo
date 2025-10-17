@@ -99,6 +99,13 @@ flutter:
     - assets/icons/idk.svg
     - assets/icons/button1.svg
     - assets/icons/button2.svg
+    - assets/icons/orderwaiting.svg
+    - assets/icons/sodu.svg
+    - assets/icons/arrowdown.svg
+    - assets/icons/add.svg 
+    - assets/icons/addbut.svg
+    - assets/icons/plus.svg
+    - assets/icons/pen.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

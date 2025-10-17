@@ -6,24 +6,18 @@ class MuaButtonClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final path = Path();
 
-    const double leftRadius = 14; // Bo góc bên trái
-    const double rightRadius = 3; // Bo góc bên phải
-    const double cutWidth = 6; // Độ xiên (càng lớn càng thoải)
+    const double leftRadius = 14; 
+    const double rightRadius = 3; 
+    const double cutWidth = 6; 
 
-    // 🔹 Góc trên trái (bo 8px)
     path.moveTo(0, leftRadius);
     path.quadraticBezierTo(0, 0, leftRadius, 0);
 
-    // 🔹 Cạnh trên đến gần góc phải
     path.lineTo(size.width - rightRadius, 0);
-
-    // 🔹 Bo góc phải trên (4px)
     path.quadraticBezierTo(size.width, 0, size.width, rightRadius);
 
-    // 🔹 Đường xiên xuống dưới phải (thoải)
     path.lineTo(size.width - cutWidth, size.height  - rightRadius);
 
-    // 🔹 Bo góc phải dưới (4px)
     path.quadraticBezierTo(
       size.width - cutWidth - rightRadius,
       size.height ,
@@ -31,7 +25,6 @@ class MuaButtonClipper extends CustomClipper<Path> {
       size.height ,
     );
 
-    // 🔹 Cạnh dưới về bên trái
     path.lineTo(leftRadius, size.height);
     path.quadraticBezierTo(0, size.height, 0, size.height - leftRadius);
 
