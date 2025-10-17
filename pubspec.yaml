@@ -50,6 +50,7 @@ dependencies:
   sliver_tools: ^0.2.12
   marquee: ^2.3.0
   autoscale_tabbarview: ^1.0.2
+  equatable: ^2.0.7
 
 dev_dependencies:
   flutter_test:

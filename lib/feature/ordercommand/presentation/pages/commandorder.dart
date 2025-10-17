@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_cubit.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_state.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/dottedlinepainter.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/sellbuttonclipper.dart';
@@ -24,7 +27,8 @@ class _CommandorderState extends State<Commandorder>
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
   final TextEditingController _avaController = TextEditingController();
-  final double sucmua = 10;
+  final double sucmua = 100;
+  final int limit = 0;
   final double giatran = 100.90;
   final double giamin = 87.70;
   final double giahientai = 94.20;
@@ -828,257 +832,197 @@ class _CommandorderState extends State<Commandorder>
                   ),
                 ),
                 SizedBox(height: 25),
-                Container(
-                  height: 200,
-                  width: 375,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF2F3437),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
-                        spreadRadius: -16,
-                        blurRadius: 24,
-                        offset: Offset(0, 8),
+                BlocBuilder<OrdercommandCubit, OrdercommandState>(
+                  builder: (context, state) {
+                    return Container(
+                      height: 200,
+                      width: 375,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF2F3437),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            spreadRadius: -16,
+                            blurRadius: 24,
+                            offset: Offset(0, 8),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                          top: 12,
-                          right: 12,
-                        ),
-                        child: Row(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: ClipPath(
-                                clipper: MuaButtonClipper(),
-                                child: Container(
-                                  width: 84.75,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF1AAF74).withOpacity(0.3),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Mua",
-                                      style: GoogleFonts.manrope(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
-                                        color: Color(0xFF1AAF74),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 12,
+                              top: 12,
+                              right: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      context.read<OrdercommandCubit>().clickBuyButton();
+                                    },
+                                    child: ClipPath(
+                                      clipper: MuaButtonClipper(),
+                                      child: Container(
+                                        width: 84.75,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: state.isClickedSell ? Color(0xFF3A4247) : Color(0xFF1AAF74).withOpacity(0.3),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Mua",
+                                            style: GoogleFonts.manrope(
+                                              fontWeight: state.isClickedSell ? FontWeight.w500 : FontWeight.w700,
+                                              fontSize: 14,
+                                              color: state.isClickedSell ? Color(0xFFC4C4C4) : Color(0xFF1AAF74),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            ClipPath(
-                              clipper: SellButtonFlippedClipper(),
-                              child: Container(
-                                width: 84.75,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: Color(0xFF3A4247),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    "Bán",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFFC4C4C4),
+                                GestureDetector(
+                                  onTap: () {
+                                    context.read<OrdercommandCubit>().clickSellButton();
+                                  },
+                                  child: ClipPath(
+                                    clipper: SellButtonFlippedClipper(),
+                                    child: Container(
+                                      width: 84.75,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color: state.isClickedSell ? Color(0xFFF34859).withOpacity(0.3) : Color(0xFF3A4247),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "Bán",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: state.isClickedSell ? FontWeight.w700 : FontWeight.w500,
+                                            fontSize: 14,
+                                            color: state.isClickedSell ? Color(0xFFF34859) : Color(0xFFC4C4C4),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            Spacer(),
-                            Column(
-                              children: [
-                                SvgPicture.asset(
-                                  "assets/icons/orderwaiting.svg",
+                                Spacer(),
+                                Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                      "assets/icons/orderwaiting.svg",
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      "Lệnh chờ",
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFFC7C7C7),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(height: 2),
-                                Text(
-                                  "Lệnh chờ",
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFFC7C7C7),
-                                  ),
+                                SizedBox(width: 20),
+                                Column(
+                                  children: [
+                                    SvgPicture.asset("assets/icons/sodu.svg"),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      "Số dư CK",
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFFC7C7C7),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            SizedBox(width: 20),
-                            Column(
-                              children: [
-                                SvgPicture.asset("assets/icons/sodu.svg"),
-                                SizedBox(height: 2),
-                                Text(
-                                  "Số dư CK",
-                                  style: GoogleFonts.manrope(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFFC7C7C7),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 12, right: 12),
-                          child: Row(
-                            children: [
-                              Text(
-                                "Lệnh thường",
-                                style: GoogleFonts.manrope(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                  color: Color(0xFFC7C7C7),
-                                ),
+                          ),
+                          SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
                               ),
-                              SizedBox(width: 4),
-                              SvgPicture.asset("assets/icons/arrowdown.svg"),
-                              SizedBox(width: 12),
-                              Text(
-                                "Tiền mặt",
-                                style: GoogleFonts.manrope(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                  color: Color(0xFFC7C7C7),
-                                ),
-                              ),
-                              Spacer(),
-                              Stack(
+                              child: Row(
                                 children: [
                                   Text(
-                                    "Sức mua:",
+                                    "Lệnh thường",
                                     style: GoogleFonts.manrope(
-                                      color: Color(0xFF6F767E),
                                       fontWeight: FontWeight.w500,
                                       fontSize: 12,
+                                      color: Color(0xFFC7C7C7),
                                     ),
                                   ),
-                                  Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    child: CustomPaint(
-                                      size: const Size(double.infinity, 0.5),
-                                      painter: DottedLinePainter(),
+                                  SizedBox(width: 4),
+                                  SvgPicture.asset(
+                                    "assets/icons/arrowdown.svg",
+                                  ),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    "Tiền mặt",
+                                    style: GoogleFonts.manrope(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 12,
+                                      color: Color(0xFFC7C7C7),
                                     ),
                                   ),
-                                ],
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                sucmua.toString(),
-                                style: GoogleFonts.manrope(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              SizedBox(width: 4),
-                              SvgPicture.asset("assets/icons/add.svg"),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 12, right: 12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Ô giá
-                              Container(
-                                width: 169.5,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: const Color(0xFF3A4247),
-                                  border: Border.all(
-                                    color: _isOverLimit
-                                        ? Colors.red
-                                        : (isPriceFocused
-                                              ? Colors.green
-                                              : Colors.transparent),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  child: Row(
+                                  Spacer(),
+                                  Stack(
                                     children: [
-                                      GestureDetector(
-                                        onTap: () => decreasementController(
-                                          _priceController,
-                                        ),
-                                        child: SvgPicture.asset(
-                                          "assets/icons/addbut.svg",
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: TextField(
-                                          cursorColor: Colors.green,
-                                          focusNode: _priceFocus,
-                                          style: GoogleFonts.manrope(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
+                                      state.isClickedSell ? Text("Lãi Lỗ:",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),) : Text("Sức mua:",style: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF6F767E)),),
+                                      Positioned(
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        child: CustomPaint(
+                                          size: const Size(
+                                            double.infinity,
+                                            0.5,
                                           ),
-                                          controller: _priceController,
-                                          decoration: InputDecoration(
-                                            hintText: "Giá",
-                                            hintStyle: GoogleFonts.manrope(
-                                              color: Colors.grey,
-                                              fontSize: 14,
-                                            ),
-                                            border: InputBorder.none,
-                                            contentPadding:
-                                                const EdgeInsets.only(
-                                                  top: 11,
-                                                  bottom: 12,
-                                                ),
-                                          ),
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () => increamentController(
-                                          _priceController,
-                                        ),
-                                        child: SvgPicture.asset(
-                                          "assets/icons/plus.svg",
+                                          painter: DottedLinePainter(),
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    state.isClickedSell ? limit.toString() : sucmua.toString(),
+                                    style: GoogleFonts.manrope(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  SvgPicture.asset("assets/icons/add.svg"),
+                                ],
                               ),
-
-                              const SizedBox(width: 12),
-
-                              // Ô khối lượng (volume) + cảnh báo
-                              Stack(
-                                clipBehavior: Clip.none,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Ô giá
                                   Container(
                                     width: 169.5,
                                     height: 40,
@@ -1086,9 +1030,9 @@ class _CommandorderState extends State<Commandorder>
                                       borderRadius: BorderRadius.circular(12),
                                       color: const Color(0xFF3A4247),
                                       border: Border.all(
-                                        color: isOverSucMua
+                                        color: _isOverLimit
                                             ? Colors.red
-                                            : (isVolumeFocused
+                                            : (isPriceFocused
                                                   ? Colors.green
                                                   : Colors.transparent),
                                         width: 1.5,
@@ -1102,7 +1046,7 @@ class _CommandorderState extends State<Commandorder>
                                         children: [
                                           GestureDetector(
                                             onTap: () => decreasementController(
-                                              _avaController,
+                                              _priceController,
                                             ),
                                             child: SvgPicture.asset(
                                               "assets/icons/addbut.svg",
@@ -1111,15 +1055,15 @@ class _CommandorderState extends State<Commandorder>
                                           Expanded(
                                             child: TextField(
                                               cursorColor: Colors.green,
-                                              focusNode: _volumeFocus,
+                                              focusNode: _priceFocus,
                                               style: GoogleFonts.manrope(
                                                 color: Colors.white,
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
                                               ),
-                                              controller: _avaController,
+                                              controller: _priceController,
                                               decoration: InputDecoration(
-                                                hintText: "Tối đa: 0",
+                                                hintText: "Giá",
                                                 hintStyle: GoogleFonts.manrope(
                                                   color: Colors.grey,
                                                   fontSize: 14,
@@ -1127,7 +1071,7 @@ class _CommandorderState extends State<Commandorder>
                                                 border: InputBorder.none,
                                                 contentPadding:
                                                     const EdgeInsets.only(
-                                                      top: 9.5,
+                                                      top: 11,
                                                       bottom: 12,
                                                     ),
                                               ),
@@ -1138,7 +1082,7 @@ class _CommandorderState extends State<Commandorder>
                                           ),
                                           GestureDetector(
                                             onTap: () => increamentController(
-                                              _avaController,
+                                              _priceController,
                                             ),
                                             child: SvgPicture.asset(
                                               "assets/icons/plus.svg",
@@ -1149,144 +1093,225 @@ class _CommandorderState extends State<Commandorder>
                                     ),
                                   ),
 
-                                  // Dòng cảnh báo hiện đè ra dưới container
-                                  if (isOverSucMua)
-                                    Positioned(
-                                      bottom: -17,
-                                      left: -5,
-                                      right: 0,
-                                      child: Center(
-                                        child: Text(
-                                          "Vượt quá khối lượng tối đa",
-                                          style: GoogleFonts.manrope(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.red,
+                                  const SizedBox(width: 12),
+
+                                  // Ô khối lượng (volume) + cảnh báo
+                                  Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      Container(
+                                        width: 169.5,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          color: const Color(0xFF3A4247),
+                                          border: Border.all(
+                                            color: isOverSucMua
+                                                ? Colors.red
+                                                : (isVolumeFocused
+                                                      ? Colors.green
+                                                      : Colors.transparent),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    decreasementController(
+                                                      _avaController,
+                                                    ),
+                                                child: SvgPicture.asset(
+                                                  "assets/icons/addbut.svg",
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: TextField(
+                                                  cursorColor: Colors.green,
+                                                  focusNode: _volumeFocus,
+                                                  style: GoogleFonts.manrope(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                  controller: _avaController,
+                                                  decoration: InputDecoration(
+                                                    hintText: "Tối đa: 0",
+                                                    hintStyle:
+                                                        GoogleFonts.manrope(
+                                                          color: Colors.grey,
+                                                          fontSize: 14,
+                                                        ),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        const EdgeInsets.only(
+                                                          top: 9.5,
+                                                          bottom: 12,
+                                                        ),
+                                                  ),
+                                                  textAlignVertical:
+                                                      TextAlignVertical.center,
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () =>
+                                                    increamentController(
+                                                      _avaController,
+                                                    ),
+                                                child: SvgPicture.asset(
+                                                  "assets/icons/plus.svg",
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
 
-                      SizedBox(height: _isOverLimit ? 0 : 18),
-                      if (_isOverLimit)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12, bottom: 8),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Giá không nằm trong biên độ",
-                              style: GoogleFonts.manrope(
-                                color: Colors.red,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                                      // Dòng cảnh báo hiện đè ra dưới container
+                                      if (isOverSucMua)
+                                        Positioned(
+                                          bottom: -17,
+                                          left: -5,
+                                          right: 0,
+                                          child: Center(
+                                            child: Text(
+                                              "Vượt quá khối lượng tối đa",
+                                              style: GoogleFonts.manrope(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ),
 
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 169.5,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: isTotalFocused ? Colors.green : Colors.transparent,
-                                  ),
-                                  color: Color(0xFF3A4247),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 12,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: TextField(
-                                          cursorColor: Colors.green,
-                                          focusNode: _totalFocus,
-                                          style: GoogleFonts.manrope(
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          controller: _totalController,
-                                          decoration: InputDecoration(
-                                            hintText: "Tổng giá trị",
-                                            hintStyle: GoogleFonts.manrope(
-                                              color: Colors.grey,
-                                              fontSize: 14,
-                                            ),
-                                            border: InputBorder.none,
-                                            contentPadding: EdgeInsets.only(
-                                              top: 9.5,
-                                              bottom: 13.5,
-                                            ),
-                                          ),
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
+                          SizedBox(height: _isOverLimit ? 0 : 18),
+                          if (_isOverLimit)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                bottom: 8,
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Giá không nằm trong biên độ",
+                                  style: GoogleFonts.manrope(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 12),
-                              GestureDetector(
-                                onTap: () {
-                                  if (isValid(
-                                    _priceController,
-                                    _avaController,
-                                    _totalController,
-                                    giatran,
-                                    giamin,
-                                    sucmua,
-                                  )) {
-                                    print(1);
-                                  } else {
-                                    print(0);
-                                  }
-                                },
-                                child: Container(
-                                  width: 129.5,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: Color(0xFF1AAF74),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Đặt lệnh",
-                                      style: GoogleFonts.manrope(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
+                            ),
+
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 12),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 169.5,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: isTotalFocused
+                                            ? Colors.green
+                                            : Colors.transparent,
+                                      ),
+                                      color: Color(0xFF3A4247),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        left: 12,
+                                        right: 12,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextField(
+                                              cursorColor: Colors.green,
+                                              focusNode: _totalFocus,
+                                              style: GoogleFonts.manrope(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              controller: _totalController,
+                                              decoration: InputDecoration(
+                                                hintText: "Tổng giá trị",
+                                                hintStyle: GoogleFonts.manrope(
+                                                  color: Colors.grey,
+                                                  fontSize: 14,
+                                                ),
+                                                border: InputBorder.none,
+                                                contentPadding: EdgeInsets.only(
+                                                  top: 9.5,
+                                                  bottom: 13.5,
+                                                ),
+                                              ),
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                ),
+                                  SizedBox(width: 12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (isValid(
+                                        _priceController,
+                                        _avaController,
+                                        _totalController,
+                                        giatran,
+                                        giamin,
+                                        sucmua,
+                                      )) {
+                                        print(1);
+                                      } else {
+                                        print(0);
+                                      }
+                                    },
+                                    child: Container(
+                                      width: 129.5,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: state.isClickedSell ? Color(0xFFF34859) :  Color(0xFF1AAF74),
+                                      ),
+                                      child: Center(
+                                        child: state.isClickedSell ? Text("Đặt bán", style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),) : Text("Đặt lệnh", style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  SvgPicture.asset("assets/icons/pen.svg"),
+                                ],
                               ),
-                              SizedBox(width: 12),
-                              SvgPicture.asset("assets/icons/pen.svg"),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ],
             ),
