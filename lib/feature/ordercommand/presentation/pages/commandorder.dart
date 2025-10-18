@@ -41,7 +41,7 @@ class _CommandorderState extends State<Commandorder>
   final FocusNode _totalFocus = FocusNode();
   bool isTotalFocused = false;
   bool isOverSucMua = false;
-  final List<String> hi = ["123", "345", "3131", "3131", "412", "5141"];
+  final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
 
   void checkSucMua() {
     final total = double.tryParse(_totalController.text) ?? 0.0;
