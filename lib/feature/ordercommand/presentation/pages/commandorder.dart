@@ -261,7 +261,6 @@ class _CommandorderState extends State<Commandorder>
 
         final newText = numberFormat.format(number);
 
-        // Giữ vị trí con trỏ
         final selectionIndexFromEnd =
             _avaController.text.length - _avaController.selection.end;
         if (_avaController.text != newText) {
@@ -273,17 +272,11 @@ class _CommandorderState extends State<Commandorder>
           );
         }
 
-        // Cập nhật total nếu volume thay đổi
         _totalValue();
       }
     });
-
-    // ❌ KHÔNG addListener(findVolumeWhenKnowTotal) trực tiếp nữa
-    // _totalController.addListener(findVolumeWhenKnowTotal);
-
     _totalController.addListener(checkSucMua);
 
-    // 🧮 Format total + tính volume tự động
     _totalController.addListener(() {
       if (_totalFocus.hasFocus) {
         final text = _totalController.text.replaceAll('.', '');
