@@ -46,6 +46,7 @@ class _CommandorderState extends State<Commandorder>
   final FocusNode _totalFocus = FocusNode();
   bool isTotalFocused = false;
   bool isOverSucMua = false;
+  bool isTabBarVisible = true;
   final TextEditingController _controller = TextEditingController();
   final NumberFormat numberFormat = NumberFormat.decimalPattern('vi');
 
@@ -53,7 +54,7 @@ class _CommandorderState extends State<Commandorder>
 
   void _openCustomKeyboard(BuildContext context) {
     FocusScope.of(context).unfocus();
-
+    setState(() => isTabBarVisible = false);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -78,7 +79,9 @@ class _CommandorderState extends State<Commandorder>
           },
         );
       },
-    );
+    ).whenComplete(() {
+      setState(() => isTabBarVisible = true);
+    });
   }
 
   void checkSucMua() {
@@ -632,44 +635,58 @@ class _CommandorderState extends State<Commandorder>
                         decoration: BoxDecoration(),
                         child: Column(
                           children: [
-                            TabBar(
-                              controller: _tabController1,
-                              isScrollable: true,
-                              tabAlignment: TabAlignment.start,
-                              labelPadding: EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              labelColor: Colors.white,
-                              unselectedLabelColor: Colors.white60,
-                              indicatorColor: Colors.white,
-                              dividerColor: Colors.transparent,
-                              labelStyle: GoogleFonts.manrope(
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFFB8B3B3),
-                                fontSize: 14,
-                              ),
-                              unselectedLabelStyle: GoogleFonts.manrope(
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF6F767E),
-                                fontSize: 12,
-                              ),
-                              indicator: UnderlineTabIndicator(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  width: 3,
-                                  color: Color(0xFF1AAF74),
+                            AnimatedSize(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              child: Opacity(
+                                opacity: isTabBarVisible
+                                    ? 1.0
+                                    : 0.0, // fade in/out
+                                child: IgnorePointer(
+                                  ignoring:
+                                      !isTabBarVisible, // không nhận tương tác khi ẩn
+                                  child: TabBar(
+                                    controller: _tabController1,
+                                    isScrollable: true,
+                                    tabAlignment: TabAlignment.start,
+                                    labelPadding: EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                    ),
+                                    labelColor: Colors.white,
+                                    unselectedLabelColor: Colors.white60,
+                                    indicatorColor: Colors.white,
+                                    dividerColor: Colors.transparent,
+                                    labelStyle: GoogleFonts.manrope(
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFB8B3B3),
+                                      fontSize: 14,
+                                    ),
+                                    unselectedLabelStyle: GoogleFonts.manrope(
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF6F767E),
+                                      fontSize: 12,
+                                    ),
+                                    indicator: UnderlineTabIndicator(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        width: 3,
+                                        color: Color(0xFF1AAF74),
+                                      ),
+                                      insets: EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                      ),
+                                    ),
+                                    tabs: const [
+                                      Tab(text: "Giá"),
+                                      Tab(text: "Biểu đồ"),
+                                      Tab(text: "Khớp lệnh"),
+                                      Tab(text: "Thanh khoản"),
+                                    ],
+                                  ),
                                 ),
-                                insets: const EdgeInsets.symmetric(
-                                  horizontal: 5,
-                                ),
                               ),
-                              tabs: const [
-                                Tab(text: "Giá"),
-                                Tab(text: "Biểu đồ"),
-                                Tab(text: "Khớp lệnh"),
-                                Tab(text: "Thanh khoản"),
-                              ],
                             ),
+
                             AutoScaleTabBarView(
                               controller: _tabController1,
                               children: [
@@ -1388,6 +1405,10 @@ class _CommandorderState extends State<Commandorder>
                                                 Expanded(
                                                   child: TextField(
                                                     onTap: () {
+                                                      setState(
+                                                        () => isTabBarVisible =
+                                                            false,
+                                                      );
                                                       showModalBottomSheet(
                                                         context: context,
                                                         backgroundColor:
@@ -1478,9 +1499,16 @@ class _CommandorderState extends State<Commandorder>
                                                             },
                                                           ),
                                                         ),
-                                                      ).then((value) {
-                                                        _priceFocus.unfocus();
+                                                      ).whenComplete(() {
+                                                        setState(
+                                                          () =>
+                                                              isTabBarVisible =
+                                                                  true,
+                                                        ); 
+                                                        _priceFocus
+                                                            .unfocus(); 
                                                       });
+
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback((
                                                             _,
@@ -1672,13 +1700,14 @@ class _CommandorderState extends State<Commandorder>
                                                             _volumeFocus
                                                                 .unfocus();
                                                           });
-                                                          WidgetsBinding.instance
-                                                          .addPostFrameCallback((
-                                                            _,
-                                                          ) {
-                                                            _volumeFocus
-                                                                .requestFocus();
-                                                          });
+                                                          WidgetsBinding
+                                                              .instance
+                                                              .addPostFrameCallback((
+                                                                _,
+                                                              ) {
+                                                                _volumeFocus
+                                                                    .requestFocus();
+                                                              });
                                                         },
                                                         readOnly: true,
                                                         cursorColor:
