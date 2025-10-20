@@ -86,7 +86,7 @@ class _CommandorderState extends State<Commandorder>
     final price = double.tryParse(_priceController.text);
     if (price != null) {
       setState(() {
-        _isOverLimit = price >= giatran || price <= giamin;
+        _isOverLimit = price > giatran || price < giamin;
       });
     } else {
       _isOverLimit = false;
@@ -96,6 +96,12 @@ class _CommandorderState extends State<Commandorder>
   void increamentController(TextEditingController controller) {
     double current = double.tryParse(controller.text) ?? 0.0;
     double new_value = current + 0.1;
+    controller.text = new_value.toStringAsFixed(1);
+  }
+
+  void increamentAvalbleController(TextEditingController controller) {
+    double current = double.tryParse(controller.text) ?? 0.0;
+    double new_value = current + 1.0;
     controller.text = new_value.toStringAsFixed(1);
   }
 
@@ -410,12 +416,18 @@ class _CommandorderState extends State<Commandorder>
                                 ),
                               ),
                               const Spacer(),
-                              Text(
-                                giatran.toStringAsFixed(2),
-                                style: GoogleFonts.manrope(
-                                  color: const Color(0xFFA43EE7),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                              GestureDetector(
+                                onTap: () {
+                                  _priceController.text = giatran
+                                      .toStringAsFixed(2);
+                                },
+                                child: Text(
+                                  giatran.toStringAsFixed(2),
+                                  style: GoogleFonts.manrope(
+                                    color: const Color(0xFFA43EE7),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -1201,13 +1213,56 @@ class _CommandorderState extends State<Commandorder>
                                                       backgroundColor:
                                                           Colors.transparent,
                                                       isScrollControlled: true,
-                                                      barrierColor: Colors.transparent,
+                                                      barrierColor:
+                                                          Colors.transparent,
                                                       builder: (_) => CustomKeyboard(
                                                         onTextInput: (value) {
                                                           setState(() {
+                                                            final current =
+                                                                _priceController
+                                                                    .text;
+                                                            if ([
+                                                              "LO",
+                                                              "MP",
+                                                              "ATO",
+                                                              "ATC",
+                                                            ].contains(value)) {
+                                                              _priceController
+                                                                      .text =
+                                                                  value;
+                                                            }
+                                                            // Nếu hiện tại là LO/MP/ATO thì KHÔNG cho nhập thêm số
+                                                            else if (![
+                                                              "LO",
+                                                              "MP",
+                                                              "ATO",
+                                                              "ATC",
+                                                              "L",
+                                                              "O",
+                                                              "M",
+                                                              "P",
+                                                              "A",
+                                                              "T",
+                                                              "0",
+                                                              "C",
+                                                            ].contains(
+                                                              current,
+                                                            )) {
+                                                              _priceController
+                                                                      .text +=
+                                                                  value;
+                                                            }
+
+                                                            // Đặt con trỏ về cuối
                                                             _priceController
-                                                                    .text +=
-                                                                value;
+                                                                    .selection =
+                                                                TextSelection.fromPosition(
+                                                                  TextPosition(
+                                                                    offset: _priceController
+                                                                        .text
+                                                                        .length,
+                                                                  ),
+                                                                );
                                                           });
                                                         },
                                                         onBackspace: () {
@@ -1313,6 +1368,65 @@ class _CommandorderState extends State<Commandorder>
                                                   ),
                                                   Expanded(
                                                     child: TextField(
+                                                      onTap: () {
+                                                        showModalBottomSheet(
+                                                          context: context,
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          isScrollControlled:
+                                                              true,
+                                                          barrierColor: Colors.transparent,
+                                                          builder: (_) => CustomKeyboard(
+                                                            onTextInput: (value) {
+                                                              if ([
+                                                                "LO",
+                                                                "MP",
+                                                                "ATO",
+                                                                "ATC",
+                                                              ].contains(
+                                                                value,
+                                                              )) {
+                                                                _avaController
+                                                                        .text =
+                                                                    value;
+                                                              } else {
+                                                                if ([
+                                                                  "LO",
+                                                                  "MP",
+                                                                  "ATO",
+                                                                  "ATC",
+                                                                ].contains(
+                                                                  _avaController
+                                                                      .text,
+                                                                ))
+                                                                  return;
+
+                                                                _avaController
+                                                                        .text +=
+                                                                    value;
+                                                              }
+                                                            },
+                                                            onBackspace: () {
+                                                              if (_avaController
+                                                                  .text
+                                                                  .isNotEmpty) {
+                                                                _avaController
+                                                                    .text = _avaController
+                                                                    .text
+                                                                    .substring(
+                                                                      0,
+                                                                      _avaController
+                                                                              .text
+                                                                              .length -
+                                                                          1,
+                                                                    );
+                                                              }
+                                                            },
+                                                          ),
+                                                        );
+                                                      },
+                                                      readOnly: true,
                                                       cursorColor: Colors.green,
                                                       focusNode: _volumeFocus,
                                                       style:
@@ -1349,7 +1463,7 @@ class _CommandorderState extends State<Commandorder>
                                                   ),
                                                   GestureDetector(
                                                     onTap: () =>
-                                                        increamentController(
+                                                        increamentAvalbleController(
                                                           _avaController,
                                                         ),
                                                     child: SvgPicture.asset(
@@ -1434,6 +1548,64 @@ class _CommandorderState extends State<Commandorder>
                                             children: [
                                               Expanded(
                                                 child: TextField(
+                                                  onTap: () {
+                                                    showModalBottomSheet(
+                                                          context: context,
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          isScrollControlled:
+                                                              true,
+                                                          barrierColor: Colors.transparent,
+                                                          builder: (_) => CustomKeyboard(
+                                                            onTextInput: (value) {
+                                                              if ([
+                                                                "LO",
+                                                                "MP",
+                                                                "ATO",
+                                                                "ATC",
+                                                              ].contains(
+                                                                value,
+                                                              )) {
+                                                                _avaController
+                                                                        .text =
+                                                                    value;
+                                                              } else {
+                                                                if ([
+                                                                  "LO",
+                                                                  "MP",
+                                                                  "ATO",
+                                                                  "ATC",
+                                                                ].contains(
+                                                                  _avaController
+                                                                      .text,
+                                                                ))
+                                                                  return;
+
+                                                                _avaController
+                                                                        .text +=
+                                                                    value;
+                                                              }
+                                                            },
+                                                            onBackspace: () {
+                                                              if (_avaController
+                                                                  .text
+                                                                  .isNotEmpty) {
+                                                                _avaController
+                                                                    .text = _avaController
+                                                                    .text
+                                                                    .substring(
+                                                                      0,
+                                                                      _avaController
+                                                                              .text
+                                                                              .length -
+                                                                          1,
+                                                                    );
+                                                              }
+                                                            },
+                                                          ),
+                                                        );
+                                                  },
                                                   cursorColor: Colors.green,
                                                   focusNode: _totalFocus,
                                                   style: GoogleFonts.manrope(
