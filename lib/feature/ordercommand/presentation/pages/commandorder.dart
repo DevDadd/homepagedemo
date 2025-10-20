@@ -11,6 +11,7 @@ import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercomm
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_state.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/dottedlinepainter.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/widget/keyboard.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/sellbuttonclipper.dart';
 import 'package:marquee/marquee.dart';
 
@@ -41,7 +42,38 @@ class _CommandorderState extends State<Commandorder>
   final FocusNode _totalFocus = FocusNode();
   bool isTotalFocused = false;
   bool isOverSucMua = false;
+  final TextEditingController _controller = TextEditingController();
+
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
+
+  void _openCustomKeyboard(BuildContext context) {
+    FocusScope.of(context).unfocus();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return CustomKeyboard(
+          onTextInput: (value) {
+            setState(() {
+              _controller.text += value;
+            });
+          },
+          onBackspace: () {
+            setState(() {
+              if (_controller.text.isNotEmpty) {
+                _controller.text = _controller.text.substring(
+                  0,
+                  _controller.text.length - 1,
+                );
+              }
+            });
+          },
+        );
+      },
+    );
+  }
 
   void checkSucMua() {
     final total = double.tryParse(_totalController.text) ?? 0.0;
@@ -1160,6 +1192,46 @@ class _CommandorderState extends State<Commandorder>
                                               ),
                                               Expanded(
                                                 child: TextField(
+                                                  onTap: () {
+                                                    FocusScope.of(
+                                                      context,
+                                                    ).unfocus();
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      isScrollControlled: true,
+                                                      barrierColor: Colors.transparent,
+                                                      builder: (_) => CustomKeyboard(
+                                                        onTextInput: (value) {
+                                                          setState(() {
+                                                            _priceController
+                                                                    .text +=
+                                                                value;
+                                                          });
+                                                        },
+                                                        onBackspace: () {
+                                                          setState(() {
+                                                            if (_priceController
+                                                                .text
+                                                                .isNotEmpty) {
+                                                              _priceController
+                                                                  .text = _priceController
+                                                                  .text
+                                                                  .substring(
+                                                                    0,
+                                                                    _priceController
+                                                                            .text
+                                                                            .length -
+                                                                        1,
+                                                                  );
+                                                            }
+                                                          });
+                                                        },
+                                                      ),
+                                                    );
+                                                  },
+                                                  readOnly: true,
                                                   cursorColor: Colors.green,
                                                   focusNode: _priceFocus,
                                                   style: GoogleFonts.manrope(
@@ -1479,8 +1551,12 @@ class _CommandorderState extends State<Commandorder>
                               ],
                               isScrollable: true,
                               labelColor: Color(0xFF1AAF74),
-                              labelStyle: GoogleFonts.manrope(fontWeight: FontWeight.w700),
-                              unselectedLabelStyle: GoogleFonts.manrope(fontWeight: FontWeight.w500),
+                              labelStyle: GoogleFonts.manrope(
+                                fontWeight: FontWeight.w700,
+                              ),
+                              unselectedLabelStyle: GoogleFonts.manrope(
+                                fontWeight: FontWeight.w500,
+                              ),
                               tabAlignment: TabAlignment.start,
                               labelPadding: EdgeInsets.symmetric(
                                 horizontal: 10,
