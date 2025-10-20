@@ -58,6 +58,7 @@ class _CommandorderState extends State<Commandorder>
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useRootNavigator: true,
       builder: (_) {
         return CustomKeyboard(
           onTextInput: (value) {
@@ -311,6 +312,11 @@ class _CommandorderState extends State<Commandorder>
     // 🎯 Theo dõi focus cho 3 ô nhập
     _priceFocus.addListener(() {
       setState(() {
+        if (_priceFocus.hasFocus) {
+          print("a");
+        } else {
+          print("b");
+        }
         isPriceFocused = _priceFocus.hasFocus;
       });
     });
@@ -341,7 +347,7 @@ class _CommandorderState extends State<Commandorder>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+      behavior: HitTestBehavior.deferToChild,
       onTap: () {
         FocusScopeNode currentFocus = FocusScope.of(context);
         if (!currentFocus.hasPrimaryFocus &&
@@ -1389,89 +1395,103 @@ class _CommandorderState extends State<Commandorder>
                                                 Expanded(
                                                   child: TextField(
                                                     onTap: () {
-                                                      FocusScope.of(
-                                                        context,
-                                                      ).unfocus();
                                                       showModalBottomSheet(
                                                         context: context,
                                                         backgroundColor:
                                                             Colors.transparent,
                                                         isScrollControlled:
                                                             true,
+                                                        useRootNavigator: true,
                                                         barrierColor:
                                                             Colors.transparent,
-                                                        builder: (_) => CustomKeyboard(
-                                                          onTextInput: (value) {
-                                                            setState(() {
-                                                              final current =
+                                                        builder: (_) => GestureDetector(
+                                                          behavior: HitTestBehavior.opaque,
+                                                          onTap: () {
+                                                            FocusScope.of(context).unfocus();
+                                                            Navigator.of(context).pop();
+                                                          },
+                                                          child: CustomKeyboard(
+                                                            onTextInput: (value) {
+                                                              setState(() {
+                                                                final current =
+                                                                    _priceController
+                                                                        .text;
+                                                                if ([
+                                                                  "LO",
+                                                                  "MP",
+                                                                  "ATO",
+                                                                  "ATC",
+                                                                ].contains(
+                                                                  value,
+                                                                )) {
                                                                   _priceController
-                                                                      .text;
-                                                              if ([
-                                                                "LO",
-                                                                "MP",
-                                                                "ATO",
-                                                                "ATC",
-                                                              ].contains(
-                                                                value,
-                                                              )) {
+                                                                          .text =
+                                                                      value;
+                                                                }
+                                                                // Nếu hiện tại là LO/MP/ATO thì KHÔNG cho nhập thêm số
+                                                                else if (![
+                                                                  "LO",
+                                                                  "MP",
+                                                                  "ATO",
+                                                                  "ATC",
+                                                                  "L",
+                                                                  "O",
+                                                                  "M",
+                                                                  "P",
+                                                                  "A",
+                                                                  "T",
+                                                                  "0",
+                                                                  "C",
+                                                                ].contains(
+                                                                  current,
+                                                                )) {
+                                                                  _priceController
+                                                                          .text +=
+                                                                      value;
+                                                                }
+                                                          
+                                                                // Đặt con trỏ về cuối
                                                                 _priceController
-                                                                        .text =
-                                                                    value;
-                                                              }
-                                                              // Nếu hiện tại là LO/MP/ATO thì KHÔNG cho nhập thêm số
-                                                              else if (![
-                                                                "LO",
-                                                                "MP",
-                                                                "ATO",
-                                                                "ATC",
-                                                                "L",
-                                                                "O",
-                                                                "M",
-                                                                "P",
-                                                                "A",
-                                                                "T",
-                                                                "0",
-                                                                "C",
-                                                              ].contains(
-                                                                current,
-                                                              )) {
-                                                                _priceController
-                                                                        .text +=
-                                                                    value;
-                                                              }
-
-                                                              // Đặt con trỏ về cuối
-                                                              _priceController
-                                                                      .selection =
-                                                                  TextSelection.fromPosition(
-                                                                    TextPosition(
-                                                                      offset: _priceController
-                                                                          .text
-                                                                          .length,
-                                                                    ),
-                                                                  );
-                                                            });
-                                                          },
-                                                          onBackspace: () {
-                                                            setState(() {
-                                                              if (_priceController
-                                                                  .text
-                                                                  .isNotEmpty) {
-                                                                _priceController
-                                                                    .text = _priceController
-                                                                    .text
-                                                                    .substring(
-                                                                      0,
-                                                                      _priceController
-                                                                              .text
-                                                                              .length -
-                                                                          1,
+                                                                        .selection =
+                                                                    TextSelection.fromPosition(
+                                                                      TextPosition(
+                                                                        offset: _priceController
+                                                                            .text
+                                                                            .length,
+                                                                      ),
                                                                     );
-                                                              }
-                                                            });
-                                                          },
+                                                              });
+                                                            },
+                                                            onBackspace: () {
+                                                              setState(() {
+                                                                if (_priceController
+                                                                    .text
+                                                                    .isNotEmpty) {
+                                                                  _priceController
+                                                                      .text = _priceController
+                                                                      .text
+                                                                      .substring(
+                                                                        0,
+                                                                        _priceController
+                                                                                .text
+                                                                                .length -
+                                                                            1,
+                                                                      );
+                                                                }
+                                                              });
+                                                            },
+                                                          ),
                                                         ),
-                                                      );
+                                                      ).then((value) {
+                                                        _priceFocus.unfocus();
+                                                      },);
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback((
+                                                            _,
+                                                          ) {
+                                                            _priceFocus
+                                                                .requestFocus();
+                                                          });
                                                     },
                                                     readOnly: true,
                                                     cursorColor: Colors.green,
