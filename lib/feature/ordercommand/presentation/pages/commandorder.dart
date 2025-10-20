@@ -1405,10 +1405,16 @@ class _CommandorderState extends State<Commandorder>
                                                         barrierColor:
                                                             Colors.transparent,
                                                         builder: (_) => GestureDetector(
-                                                          behavior: HitTestBehavior.opaque,
+                                                          behavior:
+                                                              HitTestBehavior
+                                                                  .opaque,
                                                           onTap: () {
-                                                            FocusScope.of(context).unfocus();
-                                                            Navigator.of(context).pop();
+                                                            FocusScope.of(
+                                                              context,
+                                                            ).unfocus();
+                                                            Navigator.of(
+                                                              context,
+                                                            ).pop();
                                                           },
                                                           child: CustomKeyboard(
                                                             onTextInput: (value) {
@@ -1449,17 +1455,16 @@ class _CommandorderState extends State<Commandorder>
                                                                           .text +=
                                                                       value;
                                                                 }
-                                                          
+
                                                                 // Đặt con trỏ về cuối
                                                                 _priceController
-                                                                        .selection =
-                                                                    TextSelection.fromPosition(
-                                                                      TextPosition(
-                                                                        offset: _priceController
-                                                                            .text
-                                                                            .length,
-                                                                      ),
-                                                                    );
+                                                                    .selection = TextSelection.fromPosition(
+                                                                  TextPosition(
+                                                                    offset: _priceController
+                                                                        .text
+                                                                        .length,
+                                                                  ),
+                                                                );
                                                               });
                                                             },
                                                             onBackspace: () {
@@ -1472,9 +1477,7 @@ class _CommandorderState extends State<Commandorder>
                                                                       .text
                                                                       .substring(
                                                                         0,
-                                                                        _priceController
-                                                                                .text
-                                                                                .length -
+                                                                        _priceController.text.length -
                                                                             1,
                                                                       );
                                                                 }
@@ -1484,7 +1487,7 @@ class _CommandorderState extends State<Commandorder>
                                                         ),
                                                       ).then((value) {
                                                         _priceFocus.unfocus();
-                                                      },);
+                                                      });
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback((
                                                             _,
@@ -1672,7 +1675,17 @@ class _CommandorderState extends State<Commandorder>
                                                                     );
                                                                   },
                                                             ),
-                                                          );
+                                                          ).then((value) {
+                                                            _volumeFocus
+                                                                .unfocus();
+                                                          });
+                                                          WidgetsBinding.instance
+                                                          .addPostFrameCallback((
+                                                            _,
+                                                          ) {
+                                                            _volumeFocus
+                                                                .requestFocus();
+                                                          });
                                                         },
                                                         readOnly: true,
                                                         cursorColor:
@@ -1862,7 +1875,16 @@ class _CommandorderState extends State<Commandorder>
                                                             }
                                                           },
                                                         ),
-                                                      );
+                                                      ).then((value) {
+                                                        _totalFocus.unfocus();
+                                                      });
+                                                      WidgetsBinding.instance
+                                                          .addPostFrameCallback((
+                                                            _,
+                                                          ) {
+                                                            _totalFocus
+                                                                .requestFocus();
+                                                          });
                                                     },
                                                     cursorColor: Colors.green,
                                                     focusNode: _totalFocus,
