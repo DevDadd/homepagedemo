@@ -31,6 +31,7 @@ class _CommandorderState extends State<Commandorder>
   final TextEditingController _avaController = TextEditingController();
   final double sucmua = 100;
   final int limit = 0;
+  final double thamchieu = 94.30;
   final double giatran = 100.90;
   final double giamin = 87.70;
   final double giahientai = 94.20;
@@ -124,14 +125,19 @@ class _CommandorderState extends State<Commandorder>
     }
   }
 
-  void findVolumeWhenKnowTotal() {
-    final total = int.tryParse(_totalController.text);
-    final price = int.tryParse(_priceController.text);
-    if (total != null && price != null) {
-      final res = total / price;
-      _avaController.text = res.toString();
-    }
+void findVolumeWhenKnowTotal() {
+  final total = double.tryParse(_totalController.text);
+  final price = double.tryParse(_priceController.text);
+
+  if (total == null || price == null || price == 0) return;
+
+  final res = total / price;
+
+  if (_avaController.text != res.toStringAsFixed(2)) {
+    _avaController.text = res.toStringAsFixed(2);
   }
+}
+
 
   bool isValid(
     TextEditingController priceController,
@@ -431,21 +437,31 @@ class _CommandorderState extends State<Commandorder>
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                "94.30",
-                                style: GoogleFonts.manrope(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                  color: const Color(0xFFFF9F41),
+                              GestureDetector(
+                                onTap: () {
+                                  _priceController.text = thamchieu.toStringAsFixed(2);
+                                },
+                                child: Text(
+                                  thamchieu.toStringAsFixed(2),
+                                  style: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                    color: const Color(0xFFFF9F41),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                giamin.toStringAsFixed(2),
-                                style: GoogleFonts.manrope(
-                                  color: const Color(0xFF3FC2EB),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                              GestureDetector(
+                                onTap: () {
+                                  _priceController.text = giamin.toStringAsFixed(2);
+                                },
+                                child: Text(
+                                  giamin.toStringAsFixed(2),
+                                  style: GoogleFonts.manrope(
+                                    color: const Color(0xFF3FC2EB),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 4),
@@ -652,7 +668,7 @@ class _CommandorderState extends State<Commandorder>
                                                           left: 14,
                                                         ),
                                                     child: Text(
-                                                      "94.30",
+                                                      thamchieu.toStringAsFixed(2),
                                                       style:
                                                           GoogleFonts.manrope(
                                                             color: Color(
@@ -1567,7 +1583,7 @@ class _CommandorderState extends State<Commandorder>
                                                               ].contains(
                                                                 value,
                                                               )) {
-                                                                _avaController
+                                                                _totalController
                                                                         .text =
                                                                     value;
                                                               } else {
@@ -1577,26 +1593,26 @@ class _CommandorderState extends State<Commandorder>
                                                                   "ATO",
                                                                   "ATC",
                                                                 ].contains(
-                                                                  _avaController
+                                                                  _totalController
                                                                       .text,
                                                                 ))
                                                                   return;
 
-                                                                _avaController
+                                                                _totalController
                                                                         .text +=
                                                                     value;
                                                               }
                                                             },
                                                             onBackspace: () {
-                                                              if (_avaController
+                                                              if (_totalController
                                                                   .text
                                                                   .isNotEmpty) {
-                                                                _avaController
-                                                                    .text = _avaController
+                                                                _totalController
+                                                                    .text = _totalController
                                                                     .text
                                                                     .substring(
                                                                       0,
-                                                                      _avaController
+                                                                      _totalController
                                                                               .text
                                                                               .length -
                                                                           1,
