@@ -5,18 +5,20 @@ import 'package:google_fonts/google_fonts.dart';
 class Percentkeyboard extends StatefulWidget {
   final Function(String) onTextInput;
   final Function onBackspace;
+  final Function(int)? onPercentSelected; // ✅ callback khi chọn phần trăm
 
   const Percentkeyboard({
     Key? key,
     required this.onTextInput,
     required this.onBackspace,
+    this.onPercentSelected,
   }) : super(key: key);
 
   @override
-  State<Percentkeyboard> createState() => _CustomKeyboardState();
+  State<Percentkeyboard> createState() => _PercentkeyboardState();
 }
 
-class _CustomKeyboardState extends State<Percentkeyboard> {
+class _PercentkeyboardState extends State<Percentkeyboard> {
   String? selectedMode;
 
   void _textInputHandler(String text) => widget.onTextInput.call(text);
@@ -43,10 +45,11 @@ class _CustomKeyboardState extends State<Percentkeyboard> {
                 ),
                 const SizedBox(width: 12),
 
-                _buildModeButton("25%"),
-                _buildModeButton("50%"),
-                _buildModeButton("75%"),
-                _buildModeButton("100%"),
+                // 🔹 Các nút phần trăm
+                _buildPercentButton("25%"),
+                _buildPercentButton("50%"),
+                _buildPercentButton("75%"),
+                _buildPercentButton("100%"),
 
                 const SizedBox(width: 12),
 
@@ -56,7 +59,8 @@ class _CustomKeyboardState extends State<Percentkeyboard> {
                   onTap: () => Navigator.of(context).pop(),
                   splashColor: Colors.white.withOpacity(0.2),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: Text(
                       "Xong",
                       style: GoogleFonts.manrope(
@@ -81,14 +85,13 @@ class _CustomKeyboardState extends State<Percentkeyboard> {
     );
   }
 
-  // 🟩 Nút LO / MP / ATO / ATC
-  Widget _buildModeButton(String label) {
+  // 🟩 Nút phần trăm (25%, 50%, 75%, 100%)
+  Widget _buildPercentButton(String label) {
     final bool isActive = selectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
 
-    final Color bgColor = isActive
-        ? activeColor.withOpacity(0.1)
-        : const Color(0xFF33383F);
+    final Color bgColor =
+        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
     final Color textColor = isActive ? activeColor : Colors.white;
 
     return Padding(
@@ -104,6 +107,14 @@ class _CustomKeyboardState extends State<Percentkeyboard> {
             setState(() {
               selectedMode = label;
             });
+
+            // ✅ Gọi callback phần trăm nếu có
+            final percent = int.tryParse(label.replaceAll('%', ''));
+            if (percent != null) {
+              widget.onPercentSelected?.call(percent);
+            }
+
+            // Gửi text ra ngoài nếu cần xử lý thêm
             _textInputHandler(label);
           },
           child: SizedBox(
@@ -154,10 +165,7 @@ class _CustomKeyboardState extends State<Percentkeyboard> {
             if (isBackspace) {
               widget.onBackspace.call();
             } else {
-              // ⚡ Chặn nhập số nếu đang chọn LO/MP/ATO/ATC
-              if (selectedMode == null) {
-                _textInputHandler(label);
-              }
+              _textInputHandler(label);
             }
           },
           child: SizedBox(
