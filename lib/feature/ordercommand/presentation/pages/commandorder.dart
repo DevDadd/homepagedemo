@@ -60,18 +60,16 @@ class _CommandorderState extends State<Commandorder>
       useRootNavigator: true,
       builder: (_) {
         return CustomKeyboard(
+          giaTran: giatran,
           currentText: _priceController.text,
           selectedMode: selectedMode,
-          onModeChanged: (mode){
+          onModeChanged: (mode) {
             setState(() {
-              selectedMode =  mode;
-              _priceController.text = selectedMode ?? "";
+              selectedMode = mode;
             });
           },
-          onTextInput: (value) {
-            setState(() {
-              _controller.text += value;
-            });
+          onTextInput: (text) {
+            _priceController.text = text;
           },
           onBackspace: () {
             setState(() {
@@ -1435,50 +1433,43 @@ class _CommandorderState extends State<Commandorder>
                                                             ).pop();
                                                           },
                                                           child: CustomKeyboard(
-                                                            currentText: _priceController.text,
-                                                            selectedMode: selectedMode,
-                                                            onModeChanged: (mode) {
-                                                              setState(() {
-                                                               selectedMode = mode;
-                                                               if(mode != null){
-                                                                _priceController.text = mode;
-                                                               }
-                                                              });
-                                                            },
+                                                            giaTran: giatran,
+                                                            currentText:
+                                                                _priceController
+                                                                    .text,
+                                                            selectedMode:
+                                                                selectedMode,
+                                                            onModeChanged:
+                                                                (mode) {
+                                                                  setState(() {
+                                                                    selectedMode =
+                                                                        mode;
+                                                                  });
+                                                                },
                                                             onTextInput: (value) {
+                                                              final modes = [
+                                                                "LO",
+                                                                "MP",
+                                                                "ATO",
+                                                                "ATC",
+                                                              ];
+
                                                               setState(() {
-                                                                final current =
-                                                                    _priceController
-                                                                        .text;
-                                                                if ([
-                                                                  "LO",
-                                                                  "MP",
-                                                                  "ATO",
-                                                                  "ATC",
-                                                                ].contains(
-                                                                  value,
-                                                                )) {
+                                                                if (modes
+                                                                    .contains(
+                                                                      value,
+                                                                    )) {
+                                                                  // Mode → luôn ghi đè text, xóa hoàn toàn text cũ
                                                                   _priceController
                                                                           .text =
-                                                                      value;
-                                                                }
-                                                                // Nếu hiện tại là LO/MP/ATO thì KHÔNG cho nhập thêm số
-                                                                else if (![
-                                                                  "LO",
-                                                                  "MP",
-                                                                  "ATO",
-                                                                  "ATC",
-                                                                  "L",
-                                                                  "O",
-                                                                  "M",
-                                                                  "P",
-                                                                  "A",
-                                                                  "T",
-                                                                  "0",
-                                                                  "C",
-                                                                ].contains(
-                                                                  current,
-                                                                )) {
+                                                                      (value ==
+                                                                          "LO")
+                                                                      ? giatran.toStringAsFixed(
+                                                                          2,
+                                                                        ) // LO → giá trần
+                                                                      : value; // Các mode khác → tên mode
+                                                                } else {
+                                                                  // Số/dấu → append bình thường
                                                                   _priceController
                                                                           .text +=
                                                                       value;
@@ -1495,6 +1486,7 @@ class _CommandorderState extends State<Commandorder>
                                                                 );
                                                               });
                                                             },
+
                                                             onBackspace: () {
                                                               setState(() {
                                                                 if (_priceController
@@ -1921,9 +1913,8 @@ class _CommandorderState extends State<Commandorder>
                                                           () =>
                                                               isTabBarVisible =
                                                                   true,
-                                                        ); 
-                                                        _totalFocus
-                                                            .unfocus(); 
+                                                        );
+                                                        _totalFocus.unfocus();
                                                       });
 
                                                       WidgetsBinding.instance
