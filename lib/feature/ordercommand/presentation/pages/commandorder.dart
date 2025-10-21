@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
-import 'package:draggable_bottom_sheet_nullsafety/draggable_bottom_sheet_nullsafety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -308,11 +305,6 @@ class _CommandorderState extends State<Commandorder>
     // 🎯 Theo dõi focus cho 3 ô nhập
     _priceFocus.addListener(() {
       setState(() {
-        if (_priceFocus.hasFocus) {
-          print("a");
-        } else {
-          print("b");
-        }
         isPriceFocused = _priceFocus.hasFocus;
       });
     });
@@ -627,7 +619,9 @@ class _CommandorderState extends State<Commandorder>
                           ],
                         ),
                       ),
-                      isTabBarVisible ? SizedBox(height: 21,) : SizedBox(height: 0,),
+                      isTabBarVisible
+                          ? SizedBox(height: 21)
+                          : SizedBox(height: 0),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(),
@@ -1340,7 +1334,10 @@ class _CommandorderState extends State<Commandorder>
                                         Text(
                                           state.isClickedSell
                                               ? limit.toString()
-                                              : NumberFormat("#,##0.##", "en_US").format(sucmua).toString(),
+                                              : NumberFormat(
+                                                  "#,##0.##",
+                                                  "en_US",
+                                                ).format(sucmua).toString(),
                                           style: GoogleFonts.manrope(
                                             color: Colors.white,
                                             fontSize: 12,
@@ -1502,9 +1499,8 @@ class _CommandorderState extends State<Commandorder>
                                                           () =>
                                                               isTabBarVisible =
                                                                   true,
-                                                        ); 
-                                                        _priceFocus
-                                                            .unfocus(); 
+                                                        );
+                                                        _priceFocus.unfocus();
                                                       });
 
                                                       WidgetsBinding.instance
@@ -1602,6 +1598,10 @@ class _CommandorderState extends State<Commandorder>
                                                     Expanded(
                                                       child: TextField(
                                                         onTap: () {
+                                                          setState(() {
+                                                            isTabBarVisible =
+                                                                false;
+                                                          });
                                                           showModalBottomSheet(
                                                             context: context,
                                                             backgroundColor:
@@ -1612,9 +1612,7 @@ class _CommandorderState extends State<Commandorder>
                                                             barrierColor: Colors
                                                                 .transparent,
                                                             builder: (_) => Percentkeyboard(
-                                                              // 🔹 Khi người dùng nhấn nút bất kỳ
                                                               onTextInput: (value) {
-                                                                // Nếu là phần trăm → gọi hàm tính volume theo phần trăm
                                                                 if ([
                                                                   "25%",
                                                                   "50%",
@@ -1637,7 +1635,6 @@ class _CommandorderState extends State<Commandorder>
                                                                   return;
                                                                 }
 
-                                                                // Nếu là các chế độ LO / MP / ATO / ATC
                                                                 if ([
                                                                   "LO",
                                                                   "MP",
@@ -1652,7 +1649,6 @@ class _CommandorderState extends State<Commandorder>
                                                                   return;
                                                                 }
 
-                                                                // Nếu đang ở chế độ LO / MP / ATO / ATC thì không nhập thêm số
                                                                 if ([
                                                                   "LO",
                                                                   "MP",
@@ -1664,13 +1660,11 @@ class _CommandorderState extends State<Commandorder>
                                                                 ))
                                                                   return;
 
-                                                                // Thêm ký tự vào text hiện tại
                                                                 _avaController
                                                                         .text +=
                                                                     value;
                                                               },
 
-                                                              // 🔹 Khi người dùng nhấn backspace
                                                               onBackspace: () {
                                                                 if (_avaController
                                                                     .text
@@ -1686,7 +1680,6 @@ class _CommandorderState extends State<Commandorder>
                                                                 }
                                                               },
 
-                                                              // 🔹 Callback riêng khi chọn phần trăm
                                                               onPercentSelected:
                                                                   (percent) {
                                                                     calculate_volume_with_percentages(
@@ -1694,10 +1687,16 @@ class _CommandorderState extends State<Commandorder>
                                                                     );
                                                                   },
                                                             ),
-                                                          ).then((value) {
+                                                          ).whenComplete(() {
+                                                            setState(
+                                                              () =>
+                                                                  isTabBarVisible =
+                                                                      true,
+                                                            );
                                                             _volumeFocus
                                                                 .unfocus();
                                                           });
+
                                                           WidgetsBinding
                                                               .instance
                                                               .addPostFrameCallback((
@@ -1842,6 +1841,9 @@ class _CommandorderState extends State<Commandorder>
                                                           .digitsOnly,
                                                     ],
                                                     onTap: () {
+                                                      setState(() {
+                                                        isTabBarVisible = false;
+                                                      });
                                                       showModalBottomSheet(
                                                         context: context,
                                                         backgroundColor:
@@ -1895,9 +1897,16 @@ class _CommandorderState extends State<Commandorder>
                                                             }
                                                           },
                                                         ),
-                                                      ).then((value) {
-                                                        _totalFocus.unfocus();
+                                                      ).whenComplete(() {
+                                                        setState(
+                                                          () =>
+                                                              isTabBarVisible =
+                                                                  true,
+                                                        ); 
+                                                        _totalFocus
+                                                            .unfocus(); 
                                                       });
+
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback((
                                                             _,
