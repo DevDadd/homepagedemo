@@ -26,6 +26,7 @@ class _CommandorderState extends State<Commandorder>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late TabController _tabController1;
+  String? selectedMode;
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
   final TextEditingController _avaController = TextEditingController();
@@ -59,6 +60,14 @@ class _CommandorderState extends State<Commandorder>
       useRootNavigator: true,
       builder: (_) {
         return CustomKeyboard(
+          currentText: _priceController.text,
+          selectedMode: selectedMode,
+          onModeChanged: (mode){
+            setState(() {
+              selectedMode =  mode;
+              _priceController.text = selectedMode ?? "";
+            });
+          },
           onTextInput: (value) {
             setState(() {
               _controller.text += value;
@@ -1426,6 +1435,16 @@ class _CommandorderState extends State<Commandorder>
                                                             ).pop();
                                                           },
                                                           child: CustomKeyboard(
+                                                            currentText: _priceController.text,
+                                                            selectedMode: selectedMode,
+                                                            onModeChanged: (mode) {
+                                                              setState(() {
+                                                               selectedMode = mode;
+                                                               if(mode != null){
+                                                                _priceController.text = mode;
+                                                               }
+                                                              });
+                                                            },
                                                             onTextInput: (value) {
                                                               setState(() {
                                                                 final current =
@@ -1852,7 +1871,7 @@ class _CommandorderState extends State<Commandorder>
                                                             true,
                                                         barrierColor:
                                                             Colors.transparent,
-                                                        builder: (_) => CustomKeyboard(
+                                                        builder: (_) => Percentkeyboard(
                                                           onTextInput: (value) {
                                                             if ([
                                                               "LO",

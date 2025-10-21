@@ -5,11 +5,17 @@ import 'package:google_fonts/google_fonts.dart';
 class CustomKeyboard extends StatefulWidget {
   final Function(String) onTextInput;
   final Function onBackspace;
+  final Function(String?) onModeChanged;
+  final String? selectedMode;
+  final String currentText;
 
   const CustomKeyboard({
     Key? key,
     required this.onTextInput,
     required this.onBackspace,
+    required this.onModeChanged,
+    required this.selectedMode,
+    required this.currentText,
   }) : super(key: key);
 
   @override
@@ -17,9 +23,35 @@ class CustomKeyboard extends StatefulWidget {
 }
 
 class _CustomKeyboardState extends State<CustomKeyboard> {
-  String? selectedMode; // 👉 lưu nút đang được chọn (LO, MP, ATO, ATC)
+  String? localSelectedMode;
+
+  @override
+  void initState() {
+    super.initState();
+    localSelectedMode = widget.selectedMode;
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomKeyboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedMode != oldWidget.selectedMode) {
+      localSelectedMode = widget.selectedMode;
+    }
+  }
 
   void _textInputHandler(String text) => widget.onTextInput.call(text);
+
+  void _modeTap(String mode) {
+    setState(() {
+      if (localSelectedMode == mode) {
+        localSelectedMode = null;
+        widget.onModeChanged(null);
+      } else {
+        localSelectedMode = mode;
+        widget.onModeChanged(mode);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +62,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
         height: 298,
         child: Column(
           children: [
-            // 🔹 Hàng đầu tiên
+            // 🔹 Thanh trên
             Row(
               children: [
                 Padding(
@@ -43,21 +75,19 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
                   child: SvgPicture.asset("assets/icons/rightarr.svg"),
                 ),
                 const SizedBox(width: 12),
-
                 _buildModeButton("LO"),
                 _buildModeButton("MP"),
                 _buildModeButton("ATO"),
                 _buildModeButton("ATC"),
-
                 const SizedBox(width: 12),
-
                 // 🔹 Nút "Xong"
                 InkWell(
                   borderRadius: BorderRadius.circular(8),
                   onTap: () => Navigator.of(context).pop(),
                   splashColor: Colors.white.withOpacity(0.2),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: Text(
                       "Xong",
                       style: GoogleFonts.manrope(
@@ -70,7 +100,6 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
                 ),
               ],
             ),
-
             // 🔹 Các hàng số
             _buildRow(['1', '2', '3']),
             _buildRow(['4', '5', '6']),
@@ -82,14 +111,13 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     );
   }
 
-  // 🟩 Nút LO / MP / ATO / ATC
+  // 🟩 Nút chế độ (LO / MP / ATO / ATC)
   Widget _buildModeButton(String label) {
-    final bool isActive = selectedMode == label;
+    final bool isActive = localSelectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
 
-    final Color bgColor = isActive
-        ? activeColor.withOpacity(0.1)
-        : const Color(0xFF33383F);
+    final Color bgColor =
+        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
     final Color textColor = isActive ? activeColor : Colors.white;
 
     return Padding(
@@ -101,12 +129,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
           borderRadius: BorderRadius.circular(12),
           splashColor: Colors.white.withOpacity(0.2),
           highlightColor: Colors.white.withOpacity(0.05),
-          onTap: () {
-            setState(() {
-              selectedMode = label;
-            });
-            _textInputHandler(label);
-          },
+          onTap: () => _modeTap(label),
           child: SizedBox(
             width: 55,
             height: 28,
@@ -140,7 +163,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     );
   }
 
-  // 🟩 Nút số / backspace
+  // 🟩 Nút số / xoá
   Widget _buildKey(String label, {bool isBackspace = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -153,12 +176,13 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
           highlightColor: Colors.white.withOpacity(0.1),
           onTap: () {
             if (isBackspace) {
-              widget.onBackspace.call();
-            } else {
-              // ⚡ Chặn nhập số nếu đang chọn LO/MP/ATO/ATC
-              if (selectedMode == null) {
-                _textInputHandler(label);
+              widget.onBackspace();
+              if (widget.currentText.isEmpty) {
+                setState(() => localSelectedMode = null);
+                widget.onModeChanged(null);
               }
+            } else {
+              _textInputHandler(label);
             }
           },
           child: SizedBox(
