@@ -7,7 +7,6 @@ class CustomKeyboard extends StatefulWidget {
   final Function onBackspace;
   final Function(String?) onModeChanged;
   final String? selectedMode;
-  final String currentText;
   final double giaTran;
 
   const CustomKeyboard({
@@ -16,7 +15,6 @@ class CustomKeyboard extends StatefulWidget {
     required this.onBackspace,
     required this.onModeChanged,
     required this.selectedMode,
-    required this.currentText,
     required this.giaTran,
   }) : super(key: key);
 
@@ -31,7 +29,6 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   void initState() {
     super.initState();
     localSelectedMode = widget.selectedMode;
-    print('[DEBUG] initState -> localSelectedMode = $localSelectedMode');
   }
 
   @override
@@ -39,38 +36,27 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     super.didUpdateWidget(oldWidget);
     if (widget.selectedMode != oldWidget.selectedMode) {
       localSelectedMode = widget.selectedMode;
-      print('[DEBUG] didUpdateWidget -> localSelectedMode = $localSelectedMode');
     }
   }
 
-  void _textInputHandler(String text) {
-    print('[DEBUG] onTextInput("$text") được gọi');
-    widget.onTextInput.call(text);
-  }
+  void _textInputHandler(String text) => widget.onTextInput(text);
 
-  void _modeTap(String mode) {
-    print('\n==============================');
-    print('[DEBUG] _modeTap START -> mode=$mode, localSelectedMode=$localSelectedMode');
+void _modeTap(String mode) {
+  if (localSelectedMode == mode) return;
 
-    setState(() {
-      localSelectedMode = mode;
-    });
-
+  setState(() {
+    localSelectedMode = mode;
     widget.onModeChanged(mode);
-    print('[DEBUG] Đã gọi onModeChanged("$mode")');
 
+    // LO → gửi giá trần, các mode khác → gửi tên mode
     if (mode == "LO") {
-      final text = widget.giaTran.toStringAsFixed(2);
-      print('[DEBUG] Mode LO được chọn → set giá trần = $text');
-      _textInputHandler(text);
+      widget.onTextInput(widget.giaTran.toStringAsFixed(2));
     } else {
-      print('[DEBUG] Mode khác LO → set text = $mode');
-      _textInputHandler(mode);
+      widget.onTextInput(mode);
     }
+  });
+}
 
-    print('[DEBUG] _modeTap END');
-    print('==============================\n');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,11 +79,14 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
                   child: SvgPicture.asset("assets/icons/rightarr.svg"),
                 ),
                 const SizedBox(width: 12),
+
                 _buildModeButton("LO"),
                 _buildModeButton("MP"),
                 _buildModeButton("ATO"),
                 _buildModeButton("ATC"),
+
                 const SizedBox(width: 12),
+
                 InkWell(
                   borderRadius: BorderRadius.circular(8),
                   onTap: () => Navigator.of(context).pop(),
@@ -116,10 +105,10 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
                 ),
               ],
             ),
-            _buildRow(['1', '2', '3']),
-            _buildRow(['4', '5', '6']),
-            _buildRow(['7', '8', '9']),
-            _buildRow(['.', '0', '⌫']),
+            _buildRow(['1','2','3']),
+            _buildRow(['4','5','6']),
+            _buildRow(['7','8','9']),
+            _buildRow(['.','0','⌫']),
           ],
         ),
       ),
@@ -129,9 +118,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   Widget _buildModeButton(String label) {
     final bool isActive = localSelectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
-
-    final Color bgColor =
-        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
+    final Color bgColor = isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
     final Color textColor = isActive ? activeColor : Colors.white;
 
     return Padding(
@@ -188,15 +175,8 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
           highlightColor: Colors.white.withOpacity(0.1),
           onTap: () {
             if (isBackspace) {
-              print('[DEBUG] Backspace pressed');
               widget.onBackspace();
-              if (widget.currentText.isEmpty) {
-                print('[DEBUG] currentText empty → reset mode');
-                setState(() => localSelectedMode = null);
-                widget.onModeChanged(null);
-              }
             } else {
-              print('[DEBUG] Key "$label" pressed');
               _textInputHandler(label);
             }
           },

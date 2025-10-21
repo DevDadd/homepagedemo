@@ -53,6 +53,7 @@ class _CommandorderState extends State<Commandorder>
   void _openCustomKeyboard(BuildContext context) {
     FocusScope.of(context).unfocus();
     setState(() => isTabBarVisible = false);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -61,22 +62,30 @@ class _CommandorderState extends State<Commandorder>
       builder: (_) {
         return CustomKeyboard(
           giaTran: giatran,
-          currentText: _priceController.text,
           selectedMode: selectedMode,
           onModeChanged: (mode) {
             setState(() {
               selectedMode = mode;
             });
           },
-          onTextInput: (text) {
-            _priceController.text = text;
+          onTextInput: (value) {
+            setState(() {
+              _priceController.text = value; // Gán cứng, không append
+              _priceController.selection = TextSelection.fromPosition(
+                TextPosition(offset: _priceController.text.length),
+              );
+            });
           },
+
           onBackspace: () {
             setState(() {
-              if (_controller.text.isNotEmpty) {
-                _controller.text = _controller.text.substring(
+              if (_priceController.text.isNotEmpty) {
+                _priceController.text = _priceController.text.substring(
                   0,
-                  _controller.text.length - 1,
+                  _priceController.text.length - 1,
+                );
+                _priceController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: _priceController.text.length),
                 );
               }
             });
@@ -1434,9 +1443,6 @@ class _CommandorderState extends State<Commandorder>
                                                           },
                                                           child: CustomKeyboard(
                                                             giaTran: giatran,
-                                                            currentText:
-                                                                _priceController
-                                                                    .text,
                                                             selectedMode:
                                                                 selectedMode,
                                                             onModeChanged:
@@ -1447,35 +1453,10 @@ class _CommandorderState extends State<Commandorder>
                                                                   });
                                                                 },
                                                             onTextInput: (value) {
-                                                              final modes = [
-                                                                "LO",
-                                                                "MP",
-                                                                "ATO",
-                                                                "ATC",
-                                                              ];
-
                                                               setState(() {
-                                                                if (modes
-                                                                    .contains(
-                                                                      value,
-                                                                    )) {
-                                                                  // Mode → luôn ghi đè text, xóa hoàn toàn text cũ
-                                                                  _priceController
-                                                                          .text =
-                                                                      (value ==
-                                                                          "LO")
-                                                                      ? giatran.toStringAsFixed(
-                                                                          2,
-                                                                        ) // LO → giá trần
-                                                                      : value; // Các mode khác → tên mode
-                                                                } else {
-                                                                  // Số/dấu → append bình thường
-                                                                  _priceController
-                                                                          .text +=
-                                                                      value;
-                                                                }
-
-                                                                // Đặt con trỏ về cuối
+                                                                _priceController
+                                                                        .text =
+                                                                    value; // Gán cứng, không append
                                                                 _priceController
                                                                     .selection = TextSelection.fromPosition(
                                                                   TextPosition(
