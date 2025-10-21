@@ -627,9 +627,7 @@ class _CommandorderState extends State<Commandorder>
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 21),
-
+                      isTabBarVisible ? SizedBox(height: 21,) : SizedBox(height: 0,),
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(),
@@ -638,50 +636,50 @@ class _CommandorderState extends State<Commandorder>
                             AnimatedSize(
                               duration: Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
-                              child: Opacity(
-                                opacity: isTabBarVisible
-                                    ? 1.0
-                                    : 0.0, // fade in/out
-                                child: IgnorePointer(
-                                  ignoring:
-                                      !isTabBarVisible, // không nhận tương tác khi ẩn
-                                  child: TabBar(
-                                    controller: _tabController1,
-                                    isScrollable: true,
-                                    tabAlignment: TabAlignment.start,
-                                    labelPadding: EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                    ),
-                                    labelColor: Colors.white,
-                                    unselectedLabelColor: Colors.white60,
-                                    indicatorColor: Colors.white,
-                                    dividerColor: Colors.transparent,
-                                    labelStyle: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFFB8B3B3),
-                                      fontSize: 14,
-                                    ),
-                                    unselectedLabelStyle: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF6F767E),
-                                      fontSize: 12,
-                                    ),
-                                    indicator: UnderlineTabIndicator(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(
-                                        width: 3,
-                                        color: Color(0xFF1AAF74),
+                              child: ClipRRect(
+                                child: SizedBox(
+                                  height: isTabBarVisible ? 50 : 0,
+                                  child: IgnorePointer(
+                                    ignoring:
+                                        !isTabBarVisible, // không nhận tương tác khi ẩn
+                                    child: TabBar(
+                                      controller: _tabController1,
+                                      isScrollable: true,
+                                      tabAlignment: TabAlignment.start,
+                                      labelPadding: EdgeInsets.symmetric(
+                                        horizontal: 20,
                                       ),
-                                      insets: EdgeInsets.symmetric(
-                                        horizontal: 5,
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.white60,
+                                      indicatorColor: Colors.white,
+                                      dividerColor: Colors.transparent,
+                                      labelStyle: GoogleFonts.manrope(
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFB8B3B3),
+                                        fontSize: 14,
                                       ),
+                                      unselectedLabelStyle: GoogleFonts.manrope(
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF6F767E),
+                                        fontSize: 12,
+                                      ),
+                                      indicator: UnderlineTabIndicator(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                          width: 3,
+                                          color: Color(0xFF1AAF74),
+                                        ),
+                                        insets: EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                        ),
+                                      ),
+                                      tabs: const [
+                                        Tab(text: "Giá"),
+                                        Tab(text: "Biểu đồ"),
+                                        Tab(text: "Khớp lệnh"),
+                                        Tab(text: "Thanh khoản"),
+                                      ],
                                     ),
-                                    tabs: const [
-                                      Tab(text: "Giá"),
-                                      Tab(text: "Biểu đồ"),
-                                      Tab(text: "Khớp lệnh"),
-                                      Tab(text: "Thanh khoản"),
-                                    ],
                                   ),
                                 ),
                               ),
@@ -1342,7 +1340,7 @@ class _CommandorderState extends State<Commandorder>
                                         Text(
                                           state.isClickedSell
                                               ? limit.toString()
-                                              : sucmua.toString(),
+                                              : NumberFormat("#,##0.##", "en_US").format(sucmua).toString(),
                                           style: GoogleFonts.manrope(
                                             color: Colors.white,
                                             fontSize: 12,
@@ -1981,7 +1979,7 @@ class _CommandorderState extends State<Commandorder>
                                                           ),
                                                     )
                                                   : Text(
-                                                      "Đặt lệnh",
+                                                      "Đặt mua",
                                                       style:
                                                           GoogleFonts.manrope(
                                                             fontSize: 14,
