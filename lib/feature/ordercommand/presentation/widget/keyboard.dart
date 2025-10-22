@@ -24,11 +24,24 @@ class CustomKeyboard extends StatefulWidget {
 
 class _CustomKeyboardState extends State<CustomKeyboard> {
   String? localSelectedMode;
+  String currentText = ""; // ✅ giữ text hiện tại để nối thêm số
 
   @override
   void initState() {
     super.initState();
-    localSelectedMode = widget.selectedMode;
+
+    // ✅ Khi mở bàn phím, mặc định chọn LO
+    localSelectedMode = widget.selectedMode ?? "LO";
+
+    // Nếu mode ban đầu là null → gửi giá trần
+    if (widget.selectedMode == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onModeChanged("LO");
+        final value = widget.giaTran.toStringAsFixed(2);
+        currentText = value;
+        widget.onTextInput(value);
+      });
+    }
   }
 
   @override
@@ -39,24 +52,39 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     }
   }
 
-  void _textInputHandler(String text) => widget.onTextInput(text);
+  void _textInputHandler(String text) {
+    // ✅ nối thêm ký tự mới vào chuỗi hiện tại
+    setState(() {
+      currentText += text;
+    });
+    widget.onTextInput(currentText);
+  }
 
-void _modeTap(String mode) {
-  if (localSelectedMode == mode) return;
+  void _backspaceHandler() {
+    if (currentText.isEmpty) return;
+    setState(() {
+      currentText = currentText.substring(0, currentText.length - 1);
+    });
+    widget.onTextInput(currentText);
+  }
 
-  setState(() {
-    localSelectedMode = mode;
+  void _modeTap(String mode) {
+    setState(() {
+      localSelectedMode = mode;
+      currentText = ""; // ✅ reset khi đổi mode
+    });
+
     widget.onModeChanged(mode);
 
-    // LO → gửi giá trần, các mode khác → gửi tên mode
-    if (mode == "LO") {
-      widget.onTextInput(widget.giaTran.toStringAsFixed(2));
-    } else {
+    // ✅ MP, ATO, ATC → hiển thị chữ nhưng logic hiểu là giá trần
+    if (mode == "MP" || mode == "ATO" || mode == "ATC") {
       widget.onTextInput(mode);
+    } else if (mode == "LO") {
+      final value = widget.giaTran.toStringAsFixed(2);
+      currentText = value;
+      widget.onTextInput(value);
     }
-  });
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +98,14 @@ void _modeTap(String mode) {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 10, top: 14),
+                  padding:
+                      const EdgeInsets.only(left: 12, bottom: 10, top: 14),
                   child: SvgPicture.asset("assets/icons/leftarr.svg"),
                 ),
                 const SizedBox(width: 5),
                 Padding(
-                  padding: const EdgeInsets.only(left: 12, bottom: 10, top: 14),
+                  padding:
+                      const EdgeInsets.only(left: 12, bottom: 10, top: 14),
                   child: SvgPicture.asset("assets/icons/rightarr.svg"),
                 ),
                 const SizedBox(width: 12),
@@ -92,7 +122,8 @@ void _modeTap(String mode) {
                   onTap: () => Navigator.of(context).pop(),
                   splashColor: Colors.white.withOpacity(0.2),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 4),
                     child: Text(
                       "Xong",
                       style: GoogleFonts.manrope(
@@ -105,10 +136,10 @@ void _modeTap(String mode) {
                 ),
               ],
             ),
-            _buildRow(['1','2','3']),
-            _buildRow(['4','5','6']),
-            _buildRow(['7','8','9']),
-            _buildRow(['.','0','⌫']),
+            _buildRow(['1', '2', '3']),
+            _buildRow(['4', '5', '6']),
+            _buildRow(['7', '8', '9']),
+            _buildRow(['.', '0', '⌫']),
           ],
         ),
       ),
@@ -118,7 +149,8 @@ void _modeTap(String mode) {
   Widget _buildModeButton(String label) {
     final bool isActive = localSelectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
-    final Color bgColor = isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
+    final Color bgColor =
+        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
     final Color textColor = isActive ? activeColor : Colors.white;
 
     return Padding(
@@ -175,7 +207,7 @@ void _modeTap(String mode) {
           highlightColor: Colors.white.withOpacity(0.1),
           onTap: () {
             if (isBackspace) {
-              widget.onBackspace();
+              _backspaceHandler(); // ✅ sửa dùng hàm mới
             } else {
               _textInputHandler(label);
             }
