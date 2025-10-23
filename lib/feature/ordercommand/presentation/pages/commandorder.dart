@@ -45,7 +45,8 @@ class _CommandorderState extends State<Commandorder>
   bool isTotalFocused = false;
   bool isOverSucMua = false;
   bool isTabBarVisible = true;
-  final TextEditingController _controller = TextEditingController();
+  bool isTooltipVisible = false;
+  final GlobalKey<TooltipState> _tooltipKey = GlobalKey<TooltipState>();
   final NumberFormat numberFormat = NumberFormat.decimalPattern('vi');
   int? priceMaxCanBuy;
 
@@ -110,60 +111,60 @@ class _CommandorderState extends State<Commandorder>
     final price = double.tryParse(_priceController.text);
     if (price != null) {
       setState(() {
-        _isOverLimit = (price * 1000) > (giatran * 1000) || (price * 1000) < (giamin * 1000);
+        _isOverLimit =
+            (price * 1000) > (giatran * 1000) ||
+            (price * 1000) < (giamin * 1000);
       });
     } else {
       _isOverLimit = false;
     }
   }
 
-void updateGiaMax() {
-  final priceText = _priceController.text.trim();
-  double? price;
-  if (priceText == "MP" || priceText == "ATO" || priceText == "ATC") {
-    price = giatran;
-  } else {
-    price = double.tryParse(priceText);
+  void updateGiaMax() {
+    final priceText = _priceController.text.trim();
+    double? price;
+    if (priceText == "MP" || priceText == "ATO" || priceText == "ATC") {
+      price = giatran;
+    } else {
+      price = double.tryParse(priceText);
+    }
+
+    final validPrice = (price != null && price > 0) ? price : giamin;
+
+    if (validPrice <= 0) {
+      priceMaxCanBuy = 0;
+      return;
+    }
+
+    final double totalMoney = sucmua.toDouble();
+    final double volume = totalMoney / (validPrice * 1000);
+
+    priceMaxCanBuy = volume.floor();
   }
 
-  final validPrice = (price != null && price > 0) ? price : giamin;
+  void calculate_volume_with_percentages(int percentages) {
+    final priceText = _priceController.text.trim();
+    final currentPrice = double.tryParse(priceText);
 
-  if (validPrice <= 0) {
-    priceMaxCanBuy = 0;
-    return;
+    final validPrice = (currentPrice != null && currentPrice > 0)
+        ? (currentPrice * 1000)
+        : (giamin * 1000);
+
+    final total = sucmua * (percentages / 100);
+
+    final volume = total / validPrice;
+
+    final intVolume = volume.round();
+
+    final formatted = numberFormat.format(intVolume);
+
+    _avaController.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+
+    _totalValue();
   }
-
-  final double totalMoney = sucmua.toDouble();
-  final double volume = totalMoney / (validPrice * 1000);
-
-  priceMaxCanBuy = volume.floor();
-}
-
-
-void calculate_volume_with_percentages(int percentages) {
-  final priceText = _priceController.text.trim();
-  final currentPrice = double.tryParse(priceText);
-
-  final validPrice = (currentPrice != null && currentPrice > 0)
-      ? (currentPrice * 1000) 
-      : (giamin * 1000);
-
-  final total = sucmua * (percentages / 100);
-
-  final volume = total / validPrice;
-
-  final intVolume = volume.round();
-
-  final formatted = numberFormat.format(intVolume);
-
-  _avaController.value = TextEditingValue(
-    text: formatted,
-    selection: TextSelection.collapsed(offset: formatted.length),
-  );
-
-  _totalValue();
-}
-
 
   void increamentController(TextEditingController controller) {
     double current = double.tryParse(controller.text) ?? 0.0;
@@ -210,80 +211,79 @@ void calculate_volume_with_percentages(int percentages) {
   }
 
   void _totalValue() {
-  // Lấy text từ controller, loại bỏ dấu chấm phân cách hàng nghìn
-  String priceText = _priceController.text.replaceAll('.', '');
-  String volumeText = _avaController.text.replaceAll('.', '');
+    // Lấy text từ controller, loại bỏ dấu chấm phân cách hàng nghìn
+    String priceText = _priceController.text.replaceAll('.', '');
+    String volumeText = _avaController.text.replaceAll('.', '');
 
-  double? price;
-  int? volume;
+    double? price;
+    int? volume;
 
-  // Nếu người dùng chọn mode đặc biệt thì dùng giá trần
-  if (_priceController.text == "MP" ||
-      _priceController.text == "ATO" ||
-      _priceController.text == "ATC") {
-    price = giatran; // giatran là double
-  } else {
-    // Parse chuỗi sang số
-    price = double.tryParse(priceText);
+    // Nếu người dùng chọn mode đặc biệt thì dùng giá trần
+    if (_priceController.text == "MP" ||
+        _priceController.text == "ATO" ||
+        _priceController.text == "ATC") {
+      price = giatran; // giatran là double
+    } else {
+      // Parse chuỗi sang số
+      price = double.tryParse(priceText);
+    }
+
+    volume = int.tryParse(volumeText);
+
+    if (price == null || volume == null) return;
+
+    // Tính tổng giá trị
+    final total = (price * volume).round();
+
+    // Format lại theo định dạng số
+    final formatted = numberFormat.format(total);
+
+    // Chỉ cập nhật nếu khác giá trị hiện tại
+    if (_totalController.text != formatted) {
+      _totalController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
-
-  volume = int.tryParse(volumeText);
-
-  if (price == null || volume == null) return;
-
-  // Tính tổng giá trị
-  final total = (price * volume).round();
-
-  // Format lại theo định dạng số
-  final formatted = numberFormat.format(total);
-
-  // Chỉ cập nhật nếu khác giá trị hiện tại
-  if (_totalController.text != formatted) {
-    _totalController.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
-
 
   void findVolumeWhenKnowTotal() {
-  // Xóa dấu chấm phân cách hàng nghìn
-  String totalText = _totalController.text.replaceAll('.', '');
-  String priceText = _priceController.text.replaceAll('.', '');
+    // Xóa dấu chấm phân cách hàng nghìn
+    String totalText = _totalController.text.replaceAll('.', '');
+    String priceText = _priceController.text.replaceAll('.', '');
 
-  double? price;
-  double? total;
+    double? price;
+    double? total;
 
-  // Nếu là mode đặc biệt thì dùng giá trần
-  if (_priceController.text == "MP" ||
-      _priceController.text == "ATO" ||
-      _priceController.text == "ATC") {
-    price = giatran; // giatran là double
-  } else {
-    price = double.tryParse(priceText);
+    // Nếu là mode đặc biệt thì dùng giá trần
+    if (_priceController.text == "MP" ||
+        _priceController.text == "ATO" ||
+        _priceController.text == "ATC") {
+      price = giatran; // giatran là double
+    } else {
+      price = double.tryParse(priceText);
+    }
+
+    total = double.tryParse(totalText);
+
+    // Tránh chia cho 0 hoặc lỗi parse
+    if (total == null || price == null || price == 0) return;
+
+    // Tính khối lượng
+    final volume = total / price;
+    final intVolume = volume.round();
+
+    // Định dạng lại
+    final formatted = numberFormat.format(intVolume);
+
+    // Chỉ cập nhật nếu khác hiện tại
+    if (_avaController.text != formatted) {
+      _avaController.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    }
   }
-
-  total = double.tryParse(totalText);
-
-  // Tránh chia cho 0 hoặc lỗi parse
-  if (total == null || price == null || price == 0) return;
-
-  // Tính khối lượng
-  final volume = total / price;
-  final intVolume = volume.round();
-
-  // Định dạng lại
-  final formatted = numberFormat.format(intVolume);
-
-  // Chỉ cập nhật nếu khác hiện tại
-  if (_avaController.text != formatted) {
-    _avaController.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
 
   bool isValid(
     TextEditingController priceController,
@@ -315,15 +315,16 @@ void calculate_volume_with_percentages(int percentages) {
     // 🧮 Tự tính total khi nhập price/volume
     _priceController.addListener(_totalValue);
     _priceController.addListener(checkLimit);
-    _priceController.addListener((){
+    _priceController.addListener(() {
       updateGiaMax();
-      setState(() {
-        
-      });
+      setState(() {});
     });
 
     // 🧮 Format volume khi người dùng nhập
     _avaController.addListener(() {
+      // Update UI khi text thay đổi
+      setState(() {});
+
       if (_volumeFocus.hasFocus) {
         final text = _avaController.text.replaceAll('.', '');
         if (text.isEmpty) return;
@@ -1606,6 +1607,7 @@ void calculate_volume_with_percentages(int percentages) {
                                         const SizedBox(width: 12),
 
                                         // Ô khối lượng (volume) + cảnh báo
+                                        // Khai báo global key ở trên cùng của State
                                         Stack(
                                           clipBehavior: Clip.none,
                                           children: [
@@ -1643,156 +1645,227 @@ void calculate_volume_with_percentages(int percentages) {
                                                       ),
                                                     ),
                                                     Expanded(
-                                                      child: TextField(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            isTabBarVisible =
-                                                                false;
-                                                          });
-                                                          showModalBottomSheet(
-                                                            context: context,
-                                                            backgroundColor:
-                                                                Colors
-                                                                    .transparent,
-                                                            isScrollControlled:
-                                                                true,
-                                                            barrierColor: Colors
-                                                                .transparent,
-                                                            builder: (_) => Percentkeyboard(
-                                                              onTextInput: (value) {
-                                                                if ([
-                                                                  "25%",
-                                                                  "50%",
-                                                                  "75%",
-                                                                  "100%",
-                                                                ].contains(
-                                                                  value,
-                                                                )) {
-                                                                  final percent =
-                                                                      int.tryParse(
-                                                                        value.replaceAll(
-                                                                          '%',
-                                                                          '',
-                                                                        ),
-                                                                      ) ??
-                                                                      0;
-                                                                  calculate_volume_with_percentages(
-                                                                    percent,
-                                                                  );
-                                                                  return;
-                                                                }
-
-                                                                if ([
-                                                                  "LO",
-                                                                  "MP",
-                                                                  "ATO",
-                                                                  "ATC",
-                                                                ].contains(
-                                                                  value,
-                                                                )) {
-                                                                  _avaController
-                                                                          .text =
-                                                                      value;
-                                                                  return;
-                                                                }
-
-                                                                if ([
-                                                                  "LO",
-                                                                  "MP",
-                                                                  "ATO",
-                                                                  "ATC",
-                                                                ].contains(
-                                                                  _avaController
-                                                                      .text,
-                                                                ))
-                                                                  return;
-
-                                                                _avaController
-                                                                        .text +=
-                                                                    value;
-                                                              },
-
-                                                              onBackspace: () {
-                                                                if (_avaController
-                                                                    .text
-                                                                    .isNotEmpty) {
-                                                                  _avaController
-                                                                      .text = _avaController
-                                                                      .text
-                                                                      .substring(
-                                                                        0,
-                                                                        _avaController.text.length -
-                                                                            1,
-                                                                      );
-                                                                }
-                                                              },
-
-                                                              onPercentSelected:
-                                                                  (percent) {
-                                                                    calculate_volume_with_percentages(
-                                                                      percent,
-                                                                    );
-                                                                  },
+                                                      child: Tooltip(
+                                                        key: _tooltipKey,
+                                                        message:
+                                                            "KL max:                        $priceMaxCanBuy",
+                                                        preferBelow: false,
+                                                        verticalOffset: 50,
+                                                        margin:
+                                                            const EdgeInsets.only(
+                                                              bottom: 20,
                                                             ),
-                                                          ).whenComplete(() {
-                                                            setState(
-                                                              () =>
-                                                                  isTabBarVisible =
-                                                                      true,
-                                                            );
-                                                            _volumeFocus
-                                                                .unfocus();
-                                                          });
-
-                                                          WidgetsBinding
-                                                              .instance
-                                                              .addPostFrameCallback((
-                                                                _,
-                                                              ) {
-                                                                _volumeFocus
-                                                                    .requestFocus();
-                                                              });
-                                                        },
-                                                        readOnly: true,
-                                                        cursorColor:
-                                                            Colors.green,
-                                                        focusNode: _volumeFocus,
-                                                        style:
+                                                        showDuration:
+                                                            const Duration(
+                                                              milliseconds:
+                                                                  2000,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: Color(
+                                                            0xFF33383F,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                    0.2,
+                                                                  ),
+                                                              blurRadius: 4,
+                                                              offset:
+                                                                  const Offset(
+                                                                    0,
+                                                                    2,
+                                                                  ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 20,
+                                                              vertical: 10,
+                                                            ),
+                                                        textStyle:
                                                             GoogleFonts.manrope(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 14,
+                                                              fontSize: 12,
                                                               fontWeight:
                                                                   FontWeight
-                                                                      .w500,
+                                                                      .bold,
                                                             ),
-                                                        inputFormatters: [
-                                                          FilteringTextInputFormatter
-                                                              .digitsOnly,
-                                                        ],
-                                                        controller:
-                                                            _avaController,
-                                                        decoration: InputDecoration(
-                                                          hintText: "Tối đa: $priceMaxCanBuy",
-                                                          hintStyle:
-                                                              GoogleFonts.manrope(
-                                                                color:
-                                                                    Colors.grey,
-                                                                fontSize: 14,
+                                                        child: GestureDetector(
+                                                          behavior:
+                                                              HitTestBehavior
+                                                                  .opaque,
+                                                          onTap: () {
+                                                            // Ẩn hint text ngay lập tức
+                                                            setState(() {
+                                                              isTooltipVisible =
+                                                                  true;
+                                                              isTabBarVisible =
+                                                                  false;
+                                                            });
+                                                            showModalBottomSheet(
+                                                              context: context,
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .transparent,
+                                                              isScrollControlled:
+                                                                  true,
+                                                              barrierColor: Colors
+                                                                  .transparent,
+                                                              builder: (_) => Percentkeyboard(
+                                                                onTextInput: (value) {
+                                                                  if ([
+                                                                    "25%",
+                                                                    "50%",
+                                                                    "75%",
+                                                                    "100%",
+                                                                  ].contains(
+                                                                    value,
+                                                                  )) {
+                                                                    final percent =
+                                                                        int.tryParse(
+                                                                          value.replaceAll(
+                                                                            '%',
+                                                                            '',
+                                                                          ),
+                                                                        ) ??
+                                                                        0;
+                                                                    calculate_volume_with_percentages(
+                                                                      percent,
+                                                                    );
+                                                                    return;
+                                                                  }
+                                                                  if ([
+                                                                    "LO",
+                                                                    "MP",
+                                                                    "ATO",
+                                                                    "ATC",
+                                                                  ].contains(
+                                                                    value,
+                                                                  )) {
+                                                                    _avaController
+                                                                            .text =
+                                                                        value;
+                                                                    return;
+                                                                  }
+                                                                  if ([
+                                                                    "LO",
+                                                                    "MP",
+                                                                    "ATO",
+                                                                    "ATC",
+                                                                  ].contains(
+                                                                    _avaController
+                                                                        .text,
+                                                                  ))
+                                                                    return;
+                                                                  _avaController
+                                                                          .text +=
+                                                                      value;
+                                                                },
+                                                                onBackspace: () {
+                                                                  if (_avaController
+                                                                      .text
+                                                                      .isNotEmpty) {
+                                                                    _avaController
+                                                                        .text = _avaController
+                                                                        .text
+                                                                        .substring(
+                                                                          0,
+                                                                          _avaController.text.length -
+                                                                              1,
+                                                                        );
+                                                                  }
+                                                                },
+                                                                onPercentSelected:
+                                                                    (percent) {
+                                                                      calculate_volume_with_percentages(
+                                                                        percent,
+                                                                      );
+                                                                    },
                                                               ),
-                                                          border:
-                                                              InputBorder.none,
-                                                          contentPadding:
-                                                              const EdgeInsets.only(
-                                                                top: 9.5,
-                                                                bottom: 12,
+                                                            ).whenComplete(() {
+                                                              // Tắt tooltip khi modal đóng
+                                                              final dynamic
+                                                              tooltip = _tooltipKey
+                                                                  .currentState;
+                                                              tooltip
+                                                                  ?.deactivate();
+
+                                                              setState(
+                                                                () =>
+                                                                    isTabBarVisible =
+                                                                        true,
+                                                              );
+                                                              setState(() {
+                                                                isTooltipVisible =
+                                                                    false;
+                                                              });
+                                                              _volumeFocus
+                                                                  .unfocus();
+                                                            });
+
+                                                            // Hiển thị tooltip sau khi modal đã mở
+                                                            Future.delayed(
+                                                              const Duration(
+                                                                milliseconds:
+                                                                    100,
                                                               ),
-                                                        ),
-                                                        textAlignVertical:
-                                                            TextAlignVertical
+                                                              () {
+                                                                final dynamic
+                                                                tooltip =
+                                                                    _tooltipKey
+                                                                        .currentState;
+                                                                tooltip
+                                                                    ?.ensureTooltipVisible();
+
+                                                                // Không tự động tắt tooltip, chỉ tắt khi tap ra ngoài
+                                                                // Tooltip sẽ tự động tắt khi modal đóng
+                                                              },
+                                                            );
+                                                          },
+                                                          child: Container(
+                                                            width:
+                                                                double.infinity,
+                                                            height:
+                                                                double.infinity,
+                                                            alignment: Alignment
                                                                 .center,
-                                                        textAlign:
-                                                            TextAlign.center,
+                                                            child: Text(
+                                                              _avaController
+                                                                          .text
+                                                                          .isEmpty &&
+                                                                      !isTooltipVisible
+                                                                  ? "Tối đa: $priceMaxCanBuy"
+                                                                  : _avaController
+                                                                        .text,
+                                                              style: GoogleFonts.manrope(
+                                                                color:
+                                                                    _avaController
+                                                                            .text
+                                                                            .isEmpty &&
+                                                                        !isTooltipVisible
+                                                                    ? Colors
+                                                                          .grey
+                                                                    : Colors
+                                                                          .white,
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center,
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                     GestureDetector(
@@ -1809,7 +1882,6 @@ void calculate_volume_with_percentages(int percentages) {
                                               ),
                                             ),
 
-                                            // Dòng cảnh báo hiện đè ra dưới container
                                             if (isOverSucMua)
                                               Positioned(
                                                 bottom: -17,
