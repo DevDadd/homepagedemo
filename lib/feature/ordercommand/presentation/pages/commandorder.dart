@@ -47,6 +47,7 @@ class _CommandorderState extends State<Commandorder>
   bool isTabBarVisible = true;
   final TextEditingController _controller = TextEditingController();
   final NumberFormat numberFormat = NumberFormat.decimalPattern('vi');
+  int? priceMaxCanBuy;
 
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
 
@@ -109,44 +110,60 @@ class _CommandorderState extends State<Commandorder>
     final price = double.tryParse(_priceController.text);
     if (price != null) {
       setState(() {
-        _isOverLimit = price > giatran || price < giamin;
+        _isOverLimit = (price * 1000) > (giatran * 1000) || (price * 1000) < (giamin * 1000);
       });
     } else {
       _isOverLimit = false;
     }
   }
 
-  void calculate_volume_with_percentages(int percentages) {
-    // Lấy giá hiện tại — KHÔNG remove '.' vì đây là dấu thập phân (vd "100.90")
-    final priceText = _priceController.text.trim();
-    final currentPrice = double.tryParse(priceText);
-
-    // Nếu chưa nhập giá hoặc parse fail thì dùng giá sàn
-    final validPrice = (currentPrice != null && currentPrice > 0)
-        ? currentPrice
-        : giamin;
-
-    // Tổng sức mua theo phần trăm
-    final total = sucmua * (percentages / 100);
-
-    // Tính khối lượng (volume) = total / price
-    final volume = total / validPrice;
-
-    // Vì volume bạn muốn là int, làm tròn (hoặc floor/ceil tùy ý)
-    final intVolume = volume.round();
-
-    // Format volume có dấu chấm ngăn hàng nghìn
-    final formatted = numberFormat.format(intVolume);
-
-    // Cập nhật controller (và đặt caret cuối)
-    _avaController.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-
-    // Cập nhật total tương ứng (format có dấu chấm)
-    _totalValue();
+void updateGiaMax() {
+  final priceText = _priceController.text.trim();
+  double? price;
+  if (priceText == "MP" || priceText == "ATO" || priceText == "ATC") {
+    price = giatran;
+  } else {
+    price = double.tryParse(priceText);
   }
+
+  final validPrice = (price != null && price > 0) ? price : giamin;
+
+  if (validPrice <= 0) {
+    priceMaxCanBuy = 0;
+    return;
+  }
+
+  final double totalMoney = sucmua.toDouble();
+  final double volume = totalMoney / (validPrice * 1000);
+
+  priceMaxCanBuy = volume.floor();
+}
+
+
+void calculate_volume_with_percentages(int percentages) {
+  final priceText = _priceController.text.trim();
+  final currentPrice = double.tryParse(priceText);
+
+  final validPrice = (currentPrice != null && currentPrice > 0)
+      ? (currentPrice * 1000) 
+      : (giamin * 1000);
+
+  final total = sucmua * (percentages / 100);
+
+  final volume = total / validPrice;
+
+  final intVolume = volume.round();
+
+  final formatted = numberFormat.format(intVolume);
+
+  _avaController.value = TextEditingValue(
+    text: formatted,
+    selection: TextSelection.collapsed(offset: formatted.length),
+  );
+
+  _totalValue();
+}
+
 
   void increamentController(TextEditingController controller) {
     double current = double.tryParse(controller.text) ?? 0.0;
@@ -155,17 +172,13 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void increamentAvalbleController(TextEditingController controller) {
-    // Bỏ dấu chấm trước khi parse
     final text = controller.text.replaceAll('.', '');
     int current = int.tryParse(text) ?? 0;
 
-    // Tăng giá trị
     int newValue = current + 1;
 
-    // Format lại có dấu chấm ngăn cách
     final formatted = numberFormat.format(newValue);
 
-    // Cập nhật lại controller mà không làm nhảy con trỏ lung tung
     controller.value = TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -197,45 +210,80 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void _totalValue() {
-    final priceText = _priceController.text.replaceAll('.', '');
-    final volumeText = _avaController.text.replaceAll('.', '');
+  // Lấy text từ controller, loại bỏ dấu chấm phân cách hàng nghìn
+  String priceText = _priceController.text.replaceAll('.', '');
+  String volumeText = _avaController.text.replaceAll('.', '');
 
-    final price = double.tryParse(priceText);
-    final volume = int.tryParse(volumeText);
+  double? price;
+  int? volume;
 
-    if (price == null || volume == null) return;
-
-    final total = (price * volume).round();
-    final formatted = numberFormat.format(total);
-
-    if (_totalController.text != formatted) {
-      _totalController.value = TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
-    }
+  // Nếu người dùng chọn mode đặc biệt thì dùng giá trần
+  if (_priceController.text == "MP" ||
+      _priceController.text == "ATO" ||
+      _priceController.text == "ATC") {
+    price = giatran; // giatran là double
+  } else {
+    // Parse chuỗi sang số
+    price = double.tryParse(priceText);
   }
+
+  volume = int.tryParse(volumeText);
+
+  if (price == null || volume == null) return;
+
+  // Tính tổng giá trị
+  final total = (price * volume).round();
+
+  // Format lại theo định dạng số
+  final formatted = numberFormat.format(total);
+
+  // Chỉ cập nhật nếu khác giá trị hiện tại
+  if (_totalController.text != formatted) {
+    _totalController.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
 
   void findVolumeWhenKnowTotal() {
-    final totalText = _totalController.text.replaceAll('.', '');
-    final priceText = _priceController.text.replaceAll('.', '');
+  // Xóa dấu chấm phân cách hàng nghìn
+  String totalText = _totalController.text.replaceAll('.', '');
+  String priceText = _priceController.text.replaceAll('.', '');
 
-    final total = double.tryParse(totalText);
-    final price = double.tryParse(priceText);
+  double? price;
+  double? total;
 
-    if (total == null || price == null || price == 0) return;
-
-    final volume = total / price;
-    final intVolume = volume.round();
-    final formatted = numberFormat.format(intVolume);
-
-    if (_avaController.text != formatted) {
-      _avaController.value = TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
-      );
-    }
+  // Nếu là mode đặc biệt thì dùng giá trần
+  if (_priceController.text == "MP" ||
+      _priceController.text == "ATO" ||
+      _priceController.text == "ATC") {
+    price = giatran; // giatran là double
+  } else {
+    price = double.tryParse(priceText);
   }
+
+  total = double.tryParse(totalText);
+
+  // Tránh chia cho 0 hoặc lỗi parse
+  if (total == null || price == null || price == 0) return;
+
+  // Tính khối lượng
+  final volume = total / price;
+  final intVolume = volume.round();
+
+  // Định dạng lại
+  final formatted = numberFormat.format(intVolume);
+
+  // Chỉ cập nhật nếu khác hiện tại
+  if (_avaController.text != formatted) {
+    _avaController.value = TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 
   bool isValid(
     TextEditingController priceController,
@@ -259,6 +307,7 @@ class _CommandorderState extends State<Commandorder>
   @override
   void initState() {
     super.initState();
+    updateGiaMax();
 
     _tabController = TabController(length: 2, vsync: this);
     _tabController1 = TabController(length: 4, vsync: this);
@@ -266,6 +315,12 @@ class _CommandorderState extends State<Commandorder>
     // 🧮 Tự tính total khi nhập price/volume
     _priceController.addListener(_totalValue);
     _priceController.addListener(checkLimit);
+    _priceController.addListener((){
+      updateGiaMax();
+      setState(() {
+        
+      });
+    });
 
     // 🧮 Format volume khi người dùng nhập
     _avaController.addListener(() {
@@ -1718,7 +1773,7 @@ class _CommandorderState extends State<Commandorder>
                                                         controller:
                                                             _avaController,
                                                         decoration: InputDecoration(
-                                                          hintText: "Tối đa: 0",
+                                                          hintText: "Tối đa: $priceMaxCanBuy",
                                                           hintStyle:
                                                               GoogleFonts.manrope(
                                                                 color:
