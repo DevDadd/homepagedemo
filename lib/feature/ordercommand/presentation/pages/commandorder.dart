@@ -1708,7 +1708,7 @@ class _CommandorderState extends State<Commandorder>
                                                     ),
                                                     child: Center(
                                                       child: Text(
-                                                        "KL max:                   $priceMaxCanBuy",
+                                                        "KL max:                   ${numberFormat.format(priceMaxCanBuy ?? 0)}",
                                                         style:
                                                             GoogleFonts.manrope(
                                                               color:
@@ -1881,7 +1881,18 @@ class _CommandorderState extends State<Commandorder>
                                                                             !isTooltipVisible
                                                                         ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
                                                                         : _avaController
-                                                                              .text,
+                                                                              .text
+                                                                              .isEmpty
+                                                                        ? ""
+                                                                        : numberFormat.format(
+                                                                            int.tryParse(
+                                                                                  _avaController.text.replaceAll(
+                                                                                    ',',
+                                                                                    '',
+                                                                                  ),
+                                                                                ) ??
+                                                                                0,
+                                                                          ),
                                                                     style: GoogleFonts.manrope(
                                                                       color:
                                                                           _avaController.text.isEmpty &&
