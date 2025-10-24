@@ -164,7 +164,29 @@ class _CommandorderState extends State<Commandorder>
     _totalValue();
   }
 
+  void decreamentController(TextEditingController controller) {
+    // Nếu price rỗng, set giá trần
+    if (controller == _priceController && controller.text.isEmpty) {
+      controller.text = giatran.toStringAsFixed(2);
+      return;
+    }
+
+    double current = double.tryParse(controller.text) ?? 0.0;
+    double new_value = current - 0.1;
+    if (new_value < 0) {
+      new_value = 0.0;
+    } else {
+      controller.text = new_value.toStringAsFixed(1);
+    }
+  }
+
   void increamentController(TextEditingController controller) {
+    // Nếu price rỗng, set giá sàn
+    if (controller == _priceController && controller.text.isEmpty) {
+      controller.text = giamin.toStringAsFixed(2);
+      return;
+    }
+
     double current = double.tryParse(controller.text) ?? 0.0;
     double new_value = current + 0.1;
     controller.text = new_value.toStringAsFixed(1);
@@ -199,6 +221,12 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void decreasementController(TextEditingController controller) {
+    // Nếu price rỗng, set giá trần
+    if (controller == _priceController && controller.text.isEmpty) {
+      controller.text = giatran.toStringAsFixed(2);
+      return;
+    }
+
     double current = double.tryParse(controller.text) ?? 0.0;
     double new_value = current - 0.1;
     if (new_value < 0) {
@@ -242,7 +270,7 @@ class _CommandorderState extends State<Commandorder>
     }
 
     // Tính tổng giá trị
-    final total = (price * volume).round();
+    final total = (price * volume).floor();
 
     print('total: $total');
 
@@ -342,10 +370,13 @@ class _CommandorderState extends State<Commandorder>
     _tabController = TabController(length: 2, vsync: this);
     _tabController1 = TabController(length: 4, vsync: this);
 
-    // 🧮 Tự tính total khi nhập price/volume
+    // 🧮 Chỉ tính total khi cả price và volume đều có giá trị
     _priceController.addListener(() {
       print('Price changed: ${_priceController.text}');
-      _totalValue();
+      // Không tính total ngay khi price thay đổi, chỉ khi cả price và volume đều có giá trị
+      if (_priceController.text.isNotEmpty && _avaController.text.isNotEmpty) {
+        _totalValue();
+      }
     });
     _priceController.addListener(checkLimit);
     _priceController.addListener(() {
@@ -361,15 +392,17 @@ class _CommandorderState extends State<Commandorder>
       }
     });
 
-    // 🧮 Volume không được format, luôn tính total khi volume thay đổi
+    // 🧮 Volume không được format, chỉ tính total khi cả price và volume đều có giá trị
     _avaController.addListener(() {
       // Update UI khi text thay đổi
       setState(() {});
 
       print('Volume changed: ${_avaController.text}');
 
-      // Luôn tính total khi volume thay đổi
-      _totalValue();
+      // Chỉ tính total khi cả price và volume đều có giá trị
+      if (_priceController.text.isNotEmpty && _avaController.text.isNotEmpty) {
+        _totalValue();
+      }
     });
     _totalController.addListener(checkSucMua);
 
@@ -393,8 +426,8 @@ class _CommandorderState extends State<Commandorder>
           );
         }
 
-        // ✅ Gọi tính toán volume sau khi format xong
-        findVolumeWhenKnowTotal();
+        // Không tính volume khi đang focus vào total
+        // Volume sẽ được tính khi không focus vào total nữa
       }
     });
 
@@ -415,6 +448,12 @@ class _CommandorderState extends State<Commandorder>
       setState(() {
         isTotalFocused = _totalFocus.hasFocus;
       });
+
+      // Tính volume khi không focus vào total nữa và total có giá trị
+      if (!_totalFocus.hasFocus && _totalController.text.isNotEmpty) {
+        print('Total focus lost, calculating volume');
+        findVolumeWhenKnowTotal();
+      }
     });
   }
 

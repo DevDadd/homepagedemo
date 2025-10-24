@@ -33,15 +33,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     // ✅ Khi mở bàn phím, mặc định chọn LO
     localSelectedMode = widget.selectedMode ?? "LO";
 
-    // Nếu mode ban đầu là null → gửi giá trần
-    if (widget.selectedMode == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onModeChanged("LO");
-        final value = widget.giaTran.toStringAsFixed(2);
-        currentText = value;
-        widget.onTextInput(value);
-      });
-    }
+    // Không tự động set giá trần khi mở keyboard lần đầu
   }
 
   @override
@@ -71,7 +63,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   void _modeTap(String mode) {
     setState(() {
       localSelectedMode = mode;
-      currentText = ""; // ✅ reset khi đổi mode
+      // Không reset currentText khi đổi mode để giữ lại số đã nhập
     });
 
     widget.onModeChanged(mode);
@@ -80,9 +72,12 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     if (mode == "MP" || mode == "ATO" || mode == "ATC") {
       widget.onTextInput(mode);
     } else if (mode == "LO") {
-      final value = widget.giaTran.toStringAsFixed(2);
-      currentText = value;
-      widget.onTextInput(value);
+      // Chỉ set giá trần nếu currentText rỗng
+      if (currentText.isEmpty) {
+        final value = widget.giaTran.toStringAsFixed(2);
+        currentText = value;
+        widget.onTextInput(value);
+      }
     }
   }
 
@@ -98,14 +93,12 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
             Row(
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.only(left: 12, bottom: 10, top: 14),
+                  padding: const EdgeInsets.only(left: 12, bottom: 10, top: 14),
                   child: SvgPicture.asset("assets/icons/leftarr.svg"),
                 ),
                 const SizedBox(width: 5),
                 Padding(
-                  padding:
-                      const EdgeInsets.only(left: 12, bottom: 10, top: 14),
+                  padding: const EdgeInsets.only(left: 12, bottom: 10, top: 14),
                   child: SvgPicture.asset("assets/icons/rightarr.svg"),
                 ),
                 const SizedBox(width: 12),
@@ -123,7 +116,9 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
                   splashColor: Colors.white.withOpacity(0.2),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Text(
                       "Xong",
                       style: GoogleFonts.manrope(
@@ -149,8 +144,9 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   Widget _buildModeButton(String label) {
     final bool isActive = localSelectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
-    final Color bgColor =
-        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
+    final Color bgColor = isActive
+        ? activeColor.withOpacity(0.1)
+        : const Color(0xFF33383F);
     final Color textColor = isActive ? activeColor : Colors.white;
 
     return Padding(
