@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async'; // Thêm import Timer
+import 'package:just_the_tooltip/just_the_tooltip.dart'; // Thay đổi import
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_cubit.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_state.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
@@ -49,8 +50,8 @@ class _CommandorderState extends State<Commandorder>
   bool isTabBarVisible = true;
   bool isTooltipVisible = false;
   bool isVolumeKeyboardOpen = false; // Thêm biến để track keyboard volume
-  Timer? _tooltipTimer; // Timer để đảm bảo tooltip hiện
-  final GlobalKey<TooltipState> _tooltipKey = GlobalKey<TooltipState>();
+  final JustTheController _tooltipController =
+      JustTheController(); // Sử dụng JustTheController
   final NumberFormat numberFormat = NumberFormat("#,##0", "en_US");
   int? priceMaxCanBuy;
 
@@ -101,26 +102,6 @@ class _CommandorderState extends State<Commandorder>
     ).whenComplete(() {
       setState(() => isTabBarVisible = true);
     });
-  }
-
-  void _startTooltipTimer() {
-    _tooltipTimer?.cancel();
-    _tooltipTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
-      if (isVolumeKeyboardOpen && mounted) {
-        setState(() {
-          isTooltipVisible = true;
-        });
-        final dynamic tooltip = _tooltipKey.currentState;
-        tooltip?.ensureTooltipVisible();
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
-  void _stopTooltipTimer() {
-    _tooltipTimer?.cancel();
-    _tooltipTimer = null;
   }
 
   void checkSucMua() {
@@ -490,7 +471,7 @@ class _CommandorderState extends State<Commandorder>
     _priceController.dispose();
     _totalController.dispose();
     _avaController.dispose();
-    _stopTooltipTimer(); // Cancel timer khi dispose
+    _tooltipController.dispose(); // Dispose JustTheController
     super.dispose();
   }
 
@@ -1700,85 +1681,35 @@ class _CommandorderState extends State<Commandorder>
                                         Stack(
                                           clipBehavior: Clip.none,
                                           children: [
-                                            Container(
-                                              width: 169.5,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                                color: const Color(0xFF3A4247),
-                                                border: Border.all(
-                                                  color: isOverSucMua
-                                                      ? Colors.red
-                                                      : (isVolumeFocused
-                                                            ? Colors.green
-                                                            : Colors
-                                                                  .transparent),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                    ),
-                                                child: Row(
-                                                  children: [
-                                                    GestureDetector(
-                                                      onTap: () =>
-                                                          decreamentAvalbleController(
-                                                            _avaController,
+                                            Column(
+                                              children: [
+                                                JustTheTooltip(
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  controller:
+                                                      _tooltipController,
+                                                  isModal: true,
+                                                  barrierDismissible: false,
+                                                  triggerMode:
+                                                      TooltipTriggerMode.tap,
+                                                  tailBaseWidth: 0,
+                                                  tailLength: 0,
+                                                  preferredDirection:
+                                                      AxisDirection.up,
+                                                  content: Container(
+                                                    height: 35,
+                                                    width: 160,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
                                                           ),
-                                                      child: SvgPicture.asset(
-                                                        "assets/icons/addbut.svg",
-                                                      ),
+                                                      color: Color(0xFF33383F),
                                                     ),
-                                                    Expanded(
-                                                      child: Tooltip(
-                                                        key: _tooltipKey,
-                                                        message:
-                                                            "KL max:                        ${numberFormat.format(priceMaxCanBuy ?? 0)}",
-                                                        preferBelow: false,
-                                                        verticalOffset: 10,
-                                                        margin:
-                                                            const EdgeInsets.only(
-                                                              bottom: 20,
-                                                            ),
-                                                        showDuration:
-                                                            const Duration(
-                                                              milliseconds:
-                                                                  2000,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color: Color(
-                                                            0xFF33383F,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors
-                                                                  .black
-                                                                  .withOpacity(
-                                                                    0.2,
-                                                                  ),
-                                                              blurRadius: 4,
-                                                              offset:
-                                                                  const Offset(
-                                                                    0,
-                                                                    2,
-                                                                  ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 20,
-                                                              vertical: 10,
-                                                            ),
-                                                        textStyle:
+                                                    child: Center(
+                                                      child: Text(
+                                                        "KL max:                   $priceMaxCanBuy",
+                                                        style:
                                                             GoogleFonts.manrope(
                                                               color:
                                                                   Colors.white,
@@ -1787,230 +1718,206 @@ class _CommandorderState extends State<Commandorder>
                                                                   FontWeight
                                                                       .bold,
                                                             ),
-                                                        child: GestureDetector(
-                                                          behavior:
-                                                              HitTestBehavior
-                                                                  .opaque,
-                                                          onTap: () {
-                                                            // Ẩn hint text ngay lập tức
-                                                            setState(() {
-                                                              isTooltipVisible =
-                                                                  true;
-                                                              isTabBarVisible =
-                                                                  false;
-                                                              isVolumeFocused =
-                                                                  true; // Thêm dòng này để hiện viền xanh
-                                                              isVolumeKeyboardOpen =
-                                                                  true; // Đánh dấu keyboard đang mở
-                                                            });
-                                                            // Start timer để đảm bảo tooltip luôn hiện
-                                                            _startTooltipTimer();
-                                                            showModalBottomSheet(
-                                                              context: context,
-                                                              backgroundColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              isScrollControlled:
-                                                                  true,
-                                                              barrierColor: Colors
-                                                                  .transparent,
-                                                              builder: (_) => Percentkeyboard(
-                                                                onTextInput: (value) {
-                                                                  if ([
-                                                                    "25%",
-                                                                    "50%",
-                                                                    "75%",
-                                                                    "100%",
-                                                                  ].contains(
-                                                                    value,
-                                                                  )) {
-                                                                    final percent =
-                                                                        int.tryParse(
-                                                                          value.replaceAll(
-                                                                            '%',
-                                                                            '',
-                                                                          ),
-                                                                        ) ??
-                                                                        0;
-                                                                    calculate_volume_with_percentages(
-                                                                      percent,
-                                                                    );
-                                                                    return;
-                                                                  }
-                                                                  if ([
-                                                                    "LO",
-                                                                    "MP",
-                                                                    "ATO",
-                                                                    "ATC",
-                                                                  ].contains(
-                                                                    value,
-                                                                  )) {
-                                                                    _avaController
-                                                                            .text =
-                                                                        value;
-                                                                    return;
-                                                                  }
-                                                                  if ([
-                                                                    "LO",
-                                                                    "MP",
-                                                                    "ATO",
-                                                                    "ATC",
-                                                                  ].contains(
-                                                                    _avaController
-                                                                        .text,
-                                                                  ))
-                                                                    return;
-                                                                  _avaController
-                                                                          .text +=
-                                                                      value;
-                                                                  // Đảm bảo focus được giữ khi nhập số
-                                                                  WidgetsBinding.instance.addPostFrameCallback((
-                                                                    _,
-                                                                  ) {
-                                                                    _volumeFocus
-                                                                        .requestFocus();
-                                                                    // Đảm bảo tooltip vẫn hiện
-                                                                    if (isVolumeKeyboardOpen) {
-                                                                      // Không gọi setState nữa, để tooltip tự động hiện
-                                                                    }
-                                                                  });
-                                                                },
-                                                                onBackspace: () {
-                                                                  if (_avaController
-                                                                      .text
-                                                                      .isNotEmpty) {
-                                                                    _avaController
-                                                                        .text = _avaController
-                                                                        .text
-                                                                        .substring(
-                                                                          0,
-                                                                          _avaController.text.length -
-                                                                              1,
-                                                                        );
-                                                                    // Đảm bảo focus được giữ khi xóa số
-                                                                    WidgetsBinding.instance.addPostFrameCallback((
-                                                                      _,
-                                                                    ) {
-                                                                      _volumeFocus
-                                                                          .requestFocus();
-                                                                      // Đảm bảo tooltip vẫn hiện
-                                                                      if (isVolumeKeyboardOpen) {
-                                                                        // Không gọi setState nữa, để tooltip tự động hiện
-                                                                      }
-                                                                    });
-                                                                  }
-                                                                },
-                                                                onPercentSelected: (percent) {
-                                                                  calculate_volume_with_percentages(
-                                                                    percent,
-                                                                  );
-                                                                  // Đảm bảo focus được giữ khi chọn phần trăm
-                                                                  WidgetsBinding
-                                                                      .instance
-                                                                      .addPostFrameCallback((
-                                                                        _,
-                                                                      ) {
-                                                                        _volumeFocus
-                                                                            .requestFocus();
-                                                                      });
-                                                                },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  child: SizedBox.shrink(),
+                                                ),
+                                                Container(
+                                                  width: 169.5,
+                                                  height: 40,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    color: const Color(
+                                                      0xFF3A4247,
+                                                    ),
+                                                    border: Border.all(
+                                                      color: isOverSucMua
+                                                          ? Colors.red
+                                                          : (isVolumeFocused
+                                                                ? Colors.green
+                                                                : Colors
+                                                                      .transparent),
+                                                      width: 1.5,
+                                                    ),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                        ),
+                                                    child: Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          onTap: () =>
+                                                              decreamentAvalbleController(
+                                                                _avaController,
                                                               ),
-                                                            ).whenComplete(() {
-                                                              // Tắt tooltip khi modal đóng
-                                                              final dynamic
-                                                              tooltip = _tooltipKey
-                                                                  .currentState;
-                                                              tooltip
-                                                                  ?.deactivate();
-
-                                                              setState(
-                                                                () =>
-                                                                    isTabBarVisible =
-                                                                        true,
-                                                              );
-                                                              setState(() {
-                                                                isTooltipVisible =
-                                                                    false;
-                                                                isVolumeFocused =
-                                                                    false; // Thêm dòng này để tắt viền xanh
-                                                                isVolumeKeyboardOpen =
-                                                                    false; // Đánh dấu keyboard đã đóng
-                                                              });
-                                                              // Stop timer
-                                                              _stopTooltipTimer();
-                                                              _volumeFocus
-                                                                  .unfocus();
-                                                            });
-
-                                                            // Hiển thị tooltip sau khi modal đã mở
-                                                            Future.delayed(
-                                                              const Duration(
-                                                                milliseconds:
-                                                                    100,
-                                                              ),
-                                                              () {
-                                                                final dynamic
-                                                                tooltip =
-                                                                    _tooltipKey
-                                                                        .currentState;
-                                                                tooltip
-                                                                    ?.ensureTooltipVisible();
-
-                                                                // Không tự động tắt tooltip, chỉ tắt khi tap ra ngoài
-                                                                // Tooltip sẽ tự động tắt khi modal đóng
-                                                              },
-                                                            );
-                                                          },
-                                                          child: Container(
-                                                            width:
-                                                                double.infinity,
-                                                            height:
-                                                                double.infinity,
-                                                            alignment: Alignment
-                                                                .center,
-                                                            child: Text(
-                                                              _avaController
-                                                                          .text
-                                                                          .isEmpty &&
-                                                                      !isTooltipVisible
-                                                                  ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
-                                                                  : _avaController
-                                                                        .text,
-                                                              style: GoogleFonts.manrope(
-                                                                color:
-                                                                    _avaController
-                                                                            .text
-                                                                            .isEmpty &&
-                                                                        !isTooltipVisible
-                                                                    ? Colors
-                                                                          .grey
-                                                                    : Colors
-                                                                          .white,
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500,
-                                                              ),
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
+                                                          child: SvgPicture.asset(
+                                                            "assets/icons/addbut.svg",
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    GestureDetector(
-                                                      onTap: () =>
-                                                          increamentAvalbleController(
-                                                            _avaController,
+                                                        Expanded(
+                                                          child: Builder(
+                                                            builder: (context) {
+                                                              return GestureDetector(
+                                                                behavior:
+                                                                    HitTestBehavior
+                                                                        .opaque,
+                                                                onTap: () async {
+                                                                  // Hiển thị tooltip
+                                                                  _tooltipController
+                                                                      .showTooltip();
+
+                                                                  setState(() {
+                                                                    isTooltipVisible =
+                                                                        true;
+                                                                    isTabBarVisible =
+                                                                        false;
+                                                                  });
+
+                                                                  await showModalBottomSheet(
+                                                                    context:
+                                                                        context,
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    isScrollControlled:
+                                                                        true,
+                                                                    barrierColor:
+                                                                        Colors
+                                                                            .transparent,
+                                                                    builder: (_) => Percentkeyboard(
+                                                                      onTextInput: (value) {
+                                                                        if ([
+                                                                          "25%",
+                                                                          "50%",
+                                                                          "75%",
+                                                                          "100%",
+                                                                        ].contains(
+                                                                          value,
+                                                                        )) {
+                                                                          final percent =
+                                                                              int.tryParse(
+                                                                                value.replaceAll(
+                                                                                  '%',
+                                                                                  '',
+                                                                                ),
+                                                                              ) ??
+                                                                              0;
+                                                                          calculate_volume_with_percentages(
+                                                                            percent,
+                                                                          );
+                                                                          return;
+                                                                        }
+                                                                        if ([
+                                                                          "LO",
+                                                                          "MP",
+                                                                          "ATO",
+                                                                          "ATC",
+                                                                        ].contains(
+                                                                          value,
+                                                                        )) {
+                                                                          _avaController.text =
+                                                                              value;
+                                                                          return;
+                                                                        }
+                                                                        if (![
+                                                                          "LO",
+                                                                          "MP",
+                                                                          "ATO",
+                                                                          "ATC",
+                                                                        ].contains(
+                                                                          _avaController
+                                                                              .text,
+                                                                        )) {
+                                                                          _avaController.text +=
+                                                                              value;
+                                                                        }
+                                                                      },
+                                                                      onBackspace: () {
+                                                                        if (_avaController
+                                                                            .text
+                                                                            .isNotEmpty) {
+                                                                          _avaController
+                                                                              .text = _avaController.text.substring(
+                                                                            0,
+                                                                            _avaController.text.length -
+                                                                                1,
+                                                                          );
+                                                                        }
+                                                                      },
+                                                                      onPercentSelected: (percent) {
+                                                                        calculate_volume_with_percentages(
+                                                                          percent,
+                                                                        );
+                                                                      },
+                                                                    ),
+                                                                  );
+
+                                                                  // Khi keyboard đóng
+                                                                  _tooltipController
+                                                                      .hideTooltip();
+                                                                  setState(() {
+                                                                    isTooltipVisible =
+                                                                        false;
+                                                                    isTabBarVisible =
+                                                                        true;
+                                                                  });
+                                                                },
+                                                                child: Container(
+                                                                  width: double
+                                                                      .infinity,
+                                                                  height: double
+                                                                      .infinity,
+                                                                  alignment:
+                                                                      Alignment
+                                                                          .center,
+                                                                  child: Text(
+                                                                    _avaController.text.isEmpty &&
+                                                                            !isTooltipVisible
+                                                                        ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
+                                                                        : _avaController
+                                                                              .text,
+                                                                    style: GoogleFonts.manrope(
+                                                                      color:
+                                                                          _avaController.text.isEmpty &&
+                                                                              !isTooltipVisible
+                                                                          ? Colors.grey
+                                                                          : Colors.white,
+                                                                      fontSize:
+                                                                          14,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                    ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            },
                                                           ),
-                                                      child: SvgPicture.asset(
-                                                        "assets/icons/plus.svg",
-                                                      ),
+                                                        ),
+
+                                                        GestureDetector(
+                                                          onTap: () =>
+                                                              increamentAvalbleController(
+                                                                _avaController,
+                                                              ),
+                                                          child: SvgPicture.asset(
+                                                            "assets/icons/plus.svg",
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
 
                                             if (isOverSucMua)
