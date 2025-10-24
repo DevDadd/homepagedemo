@@ -1777,6 +1777,8 @@ class _CommandorderState extends State<Commandorder>
                                                                         true;
                                                                     isTabBarVisible =
                                                                         false;
+                                                                    isVolumeFocused =
+                                                                        true;
                                                                   });
 
                                                                   await showModalBottomSheet(
@@ -1866,6 +1868,8 @@ class _CommandorderState extends State<Commandorder>
                                                                         false;
                                                                     isTabBarVisible =
                                                                         true;
+                                                                    isVolumeFocused =
+                                                                        false;
                                                                   });
                                                                 },
                                                                 child: Container(
