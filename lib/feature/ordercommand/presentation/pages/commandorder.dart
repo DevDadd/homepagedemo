@@ -12,6 +12,7 @@ import 'package:homepageintern/feature/ordercommand/presentation/widget/dottedli
 import 'package:homepageintern/feature/ordercommand/presentation/widget/keyboard.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/percentkeyboard.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/sellbuttonclipper.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/widget/totalkeyboard.dart';
 import 'package:intl/intl.dart';
 import 'package:marquee/marquee.dart';
 
@@ -2033,7 +2034,7 @@ class _CommandorderState extends State<Commandorder>
                                                             true,
                                                         barrierColor:
                                                             Colors.transparent,
-                                                        builder: (_) => Percentkeyboard(
+                                                        builder: (_) => TotalKeyboard(
                                                           onTextInput: (value) {
                                                             if ([
                                                               "LO",
