@@ -1710,7 +1710,7 @@ class _CommandorderState extends State<Commandorder>
                                                       child: Tooltip(
                                                         key: _tooltipKey,
                                                         message:
-                                                            "KL max:                        $priceMaxCanBuy",
+                                                            "KL max:                        ${numberFormat.format(priceMaxCanBuy ?? 0)}",
                                                         preferBelow: false,
                                                         verticalOffset: 50,
                                                         margin:
@@ -1904,7 +1904,7 @@ class _CommandorderState extends State<Commandorder>
                                                                           .text
                                                                           .isEmpty &&
                                                                       !isTooltipVisible
-                                                                  ? "Tối đa: $priceMaxCanBuy"
+                                                                  ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
                                                                   : _avaController
                                                                         .text,
                                                               style: GoogleFonts.manrope(
@@ -2095,6 +2095,7 @@ class _CommandorderState extends State<Commandorder>
                                                                 .requestFocus();
                                                           });
                                                     },
+                                                    readOnly: true,
                                                     cursorColor: Colors.green,
                                                     focusNode: _totalFocus,
                                                     style: GoogleFonts.manrope(
