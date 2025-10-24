@@ -1772,6 +1772,8 @@ class _CommandorderState extends State<Commandorder>
                                                                   true;
                                                               isTabBarVisible =
                                                                   false;
+                                                              isVolumeFocused =
+                                                                  true; // Thêm dòng này để hiện viền xanh
                                                             });
                                                             showModalBottomSheet(
                                                               context: context,
@@ -1869,6 +1871,8 @@ class _CommandorderState extends State<Commandorder>
                                                               setState(() {
                                                                 isTooltipVisible =
                                                                     false;
+                                                                isVolumeFocused =
+                                                                    false; // Thêm dòng này để tắt viền xanh
                                                               });
                                                               _volumeFocus
                                                                   .unfocus();
