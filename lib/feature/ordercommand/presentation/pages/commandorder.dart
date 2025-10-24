@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:async'; // Thêm import Timer
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_cubit.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_state.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
@@ -47,6 +48,8 @@ class _CommandorderState extends State<Commandorder>
   bool isOverSucMua = false;
   bool isTabBarVisible = true;
   bool isTooltipVisible = false;
+  bool isVolumeKeyboardOpen = false; // Thêm biến để track keyboard volume
+  Timer? _tooltipTimer; // Timer để đảm bảo tooltip hiện
   final GlobalKey<TooltipState> _tooltipKey = GlobalKey<TooltipState>();
   final NumberFormat numberFormat = NumberFormat("#,##0", "en_US");
   int? priceMaxCanBuy;
@@ -98,6 +101,26 @@ class _CommandorderState extends State<Commandorder>
     ).whenComplete(() {
       setState(() => isTabBarVisible = true);
     });
+  }
+
+  void _startTooltipTimer() {
+    _tooltipTimer?.cancel();
+    _tooltipTimer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+      if (isVolumeKeyboardOpen && mounted) {
+        setState(() {
+          isTooltipVisible = true;
+        });
+        final dynamic tooltip = _tooltipKey.currentState;
+        tooltip?.ensureTooltipVisible();
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  void _stopTooltipTimer() {
+    _tooltipTimer?.cancel();
+    _tooltipTimer = null;
   }
 
   void checkSucMua() {
@@ -440,8 +463,10 @@ class _CommandorderState extends State<Commandorder>
     });
 
     _volumeFocus.addListener(() {
+      print('Debug _volumeFocus listener: hasFocus=${_volumeFocus.hasFocus}');
       setState(() {
         isVolumeFocused = _volumeFocus.hasFocus;
+        // Không điều khiển tooltip ở đây nữa
       });
     });
 
@@ -465,6 +490,7 @@ class _CommandorderState extends State<Commandorder>
     _priceController.dispose();
     _totalController.dispose();
     _avaController.dispose();
+    _stopTooltipTimer(); // Cancel timer khi dispose
     super.dispose();
   }
 
@@ -1713,7 +1739,7 @@ class _CommandorderState extends State<Commandorder>
                                                         message:
                                                             "KL max:                        ${numberFormat.format(priceMaxCanBuy ?? 0)}",
                                                         preferBelow: false,
-                                                        verticalOffset: 50,
+                                                        verticalOffset: 10,
                                                         margin:
                                                             const EdgeInsets.only(
                                                               bottom: 20,
@@ -1774,7 +1800,11 @@ class _CommandorderState extends State<Commandorder>
                                                                   false;
                                                               isVolumeFocused =
                                                                   true; // Thêm dòng này để hiện viền xanh
+                                                              isVolumeKeyboardOpen =
+                                                                  true; // Đánh dấu keyboard đang mở
                                                             });
+                                                            // Start timer để đảm bảo tooltip luôn hiện
+                                                            _startTooltipTimer();
                                                             showModalBottomSheet(
                                                               context: context,
                                                               backgroundColor:
@@ -1833,6 +1863,17 @@ class _CommandorderState extends State<Commandorder>
                                                                   _avaController
                                                                           .text +=
                                                                       value;
+                                                                  // Đảm bảo focus được giữ khi nhập số
+                                                                  WidgetsBinding.instance.addPostFrameCallback((
+                                                                    _,
+                                                                  ) {
+                                                                    _volumeFocus
+                                                                        .requestFocus();
+                                                                    // Đảm bảo tooltip vẫn hiện
+                                                                    if (isVolumeKeyboardOpen) {
+                                                                      // Không gọi setState nữa, để tooltip tự động hiện
+                                                                    }
+                                                                  });
                                                                 },
                                                                 onBackspace: () {
                                                                   if (_avaController
@@ -1846,14 +1887,33 @@ class _CommandorderState extends State<Commandorder>
                                                                           _avaController.text.length -
                                                                               1,
                                                                         );
+                                                                    // Đảm bảo focus được giữ khi xóa số
+                                                                    WidgetsBinding.instance.addPostFrameCallback((
+                                                                      _,
+                                                                    ) {
+                                                                      _volumeFocus
+                                                                          .requestFocus();
+                                                                      // Đảm bảo tooltip vẫn hiện
+                                                                      if (isVolumeKeyboardOpen) {
+                                                                        // Không gọi setState nữa, để tooltip tự động hiện
+                                                                      }
+                                                                    });
                                                                   }
                                                                 },
-                                                                onPercentSelected:
-                                                                    (percent) {
-                                                                      calculate_volume_with_percentages(
-                                                                        percent,
-                                                                      );
-                                                                    },
+                                                                onPercentSelected: (percent) {
+                                                                  calculate_volume_with_percentages(
+                                                                    percent,
+                                                                  );
+                                                                  // Đảm bảo focus được giữ khi chọn phần trăm
+                                                                  WidgetsBinding
+                                                                      .instance
+                                                                      .addPostFrameCallback((
+                                                                        _,
+                                                                      ) {
+                                                                        _volumeFocus
+                                                                            .requestFocus();
+                                                                      });
+                                                                },
                                                               ),
                                                             ).whenComplete(() {
                                                               // Tắt tooltip khi modal đóng
@@ -1873,7 +1933,11 @@ class _CommandorderState extends State<Commandorder>
                                                                     false;
                                                                 isVolumeFocused =
                                                                     false; // Thêm dòng này để tắt viền xanh
+                                                                isVolumeKeyboardOpen =
+                                                                    false; // Đánh dấu keyboard đã đóng
                                                               });
+                                                              // Stop timer
+                                                              _stopTooltipTimer();
                                                               _volumeFocus
                                                                   .unfocus();
                                                             });
