@@ -2190,8 +2190,8 @@ class _CommandorderState extends State<Commandorder>
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: DraggableScrollableSheet(
-                      initialChildSize: 0.3,
-                      minChildSize: 0.3,
+                      initialChildSize: 0.35,
+                      minChildSize: 0.35,
                       maxChildSize: 0.92,
                       builder: (context, controller) => Container(
                         decoration: BoxDecoration(
