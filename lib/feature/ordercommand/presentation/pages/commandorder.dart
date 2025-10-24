@@ -47,7 +47,7 @@ class _CommandorderState extends State<Commandorder>
   bool isTabBarVisible = true;
   bool isTooltipVisible = false;
   final GlobalKey<TooltipState> _tooltipKey = GlobalKey<TooltipState>();
-  final NumberFormat numberFormat = NumberFormat.decimalPattern('vi');
+  final NumberFormat numberFormat = NumberFormat("#,##0", "en_US");
   int? priceMaxCanBuy;
 
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
@@ -100,7 +100,7 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void checkSucMua() {
-    final totalText = _totalController.text.replaceAll('.', '');
+    final totalText = _totalController.text.replaceAll(',', '');
     final total = int.tryParse(totalText) ?? 0;
     setState(() {
       isOverSucMua = total > sucmua;
@@ -156,11 +156,9 @@ class _CommandorderState extends State<Commandorder>
 
     final intVolume = volume.round();
 
-    final formatted = numberFormat.format(intVolume);
-
     _avaController.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
+      text: intVolume.toString(),
+      selection: TextSelection.collapsed(offset: intVolume.toString().length),
     );
 
     _totalValue();
@@ -173,7 +171,7 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void increamentAvalbleController(TextEditingController controller) {
-    final text = controller.text.replaceAll('.', '');
+    final text = controller.text.replaceAll(',', '');
     int current = int.tryParse(text) ?? 0;
 
     int newValue = current + 1;
@@ -187,7 +185,7 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void decreamentAvalbleController(TextEditingController controller) {
-    final text = controller.text.replaceAll('.', '');
+    final text = controller.text.replaceAll(',', '');
     int current = int.tryParse(text) ?? 0;
 
     int newValue = current > 0 ? current - 1 : 0;
@@ -211,9 +209,9 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void _totalValue() {
-    // Lấy text từ controller, loại bỏ dấu chấm phân cách hàng nghìn
-    String priceText = _priceController.text.replaceAll('.', '');
-    String volumeText = _avaController.text.replaceAll('.', '');
+    // Lấy text từ controller, loại bỏ dấu phẩy phân cách hàng nghìn
+    String priceText = _priceController.text.replaceAll(',', '');
+    String volumeText = _avaController.text; // Volume không có dấu phẩy
 
     double? price;
     int? volume;
@@ -222,21 +220,36 @@ class _CommandorderState extends State<Commandorder>
     if (_priceController.text == "MP" ||
         _priceController.text == "ATO" ||
         _priceController.text == "ATC") {
-      price = giatran; // giatran là double
+      price = giatran * 1000; // giatran là double, nhân với 1000
     } else {
       // Parse chuỗi sang số
       price = double.tryParse(priceText);
+      if (price != null) {
+        price = price * 1000; // Nhân với 1000 để tính đúng
+      }
     }
 
     volume = int.tryParse(volumeText);
 
-    if (price == null || volume == null) return;
+    // Debug: in ra console để kiểm tra
+    print('Debug _totalValue:');
+    print('priceText: $priceText, volumeText: $volumeText');
+    print('price: $price, volume: $volume');
+
+    if (price == null || volume == null) {
+      print('Return early: price=$price, volume=$volume');
+      return;
+    }
 
     // Tính tổng giá trị
     final total = (price * volume).round();
 
+    print('total: $total');
+
     // Format lại theo định dạng số
     final formatted = numberFormat.format(total);
+
+    print('formatted: $formatted');
 
     // Chỉ cập nhật nếu khác giá trị hiện tại
     if (_totalController.text != formatted) {
@@ -244,13 +257,14 @@ class _CommandorderState extends State<Commandorder>
         text: formatted,
         selection: TextSelection.collapsed(offset: formatted.length),
       );
+      print('Updated total to: $formatted');
     }
   }
 
   void findVolumeWhenKnowTotal() {
-    // Xóa dấu chấm phân cách hàng nghìn
-    String totalText = _totalController.text.replaceAll('.', '');
-    String priceText = _priceController.text.replaceAll('.', '');
+    // Xóa dấu phẩy phân cách hàng nghìn
+    String totalText = _totalController.text.replaceAll(',', '');
+    String priceText = _priceController.text.replaceAll(',', '');
 
     double? price;
     double? total;
@@ -259,29 +273,45 @@ class _CommandorderState extends State<Commandorder>
     if (_priceController.text == "MP" ||
         _priceController.text == "ATO" ||
         _priceController.text == "ATC") {
-      price = giatran; // giatran là double
+      price = giatran * 1000; // giatran là double, nhân với 1000
     } else {
       price = double.tryParse(priceText);
+      if (price != null) {
+        price = price * 1000; // Nhân với 1000 để tính đúng
+      }
     }
 
     total = double.tryParse(totalText);
 
+    // Debug: in ra console để kiểm tra
+    print('Debug findVolumeWhenKnowTotal:');
+    print('totalText: $totalText, priceText: $priceText');
+    print('total: $total, price: $price');
+
     // Tránh chia cho 0 hoặc lỗi parse
-    if (total == null || price == null || price == 0) return;
+    if (total == null || price == null || price == 0) {
+      print('Return early: total=$total, price=$price');
+      return;
+    }
 
     // Tính khối lượng
     final volume = total / price;
     final intVolume = volume.round();
 
-    // Định dạng lại
-    final formatted = numberFormat.format(intVolume);
+    print('volume: $volume, intVolume: $intVolume');
+
+    // Không format volume, chỉ giữ nguyên số
+    final volumeText = intVolume.toString();
+
+    print('volumeText: $volumeText');
 
     // Chỉ cập nhật nếu khác hiện tại
-    if (_avaController.text != formatted) {
+    if (_avaController.text != volumeText) {
       _avaController.value = TextEditingValue(
-        text: formatted,
-        selection: TextSelection.collapsed(offset: formatted.length),
+        text: volumeText,
+        selection: TextSelection.collapsed(offset: volumeText.length),
       );
+      print('Updated volume to: $volumeText');
     }
   }
 
@@ -313,45 +343,39 @@ class _CommandorderState extends State<Commandorder>
     _tabController1 = TabController(length: 4, vsync: this);
 
     // 🧮 Tự tính total khi nhập price/volume
-    _priceController.addListener(_totalValue);
+    _priceController.addListener(() {
+      print('Price changed: ${_priceController.text}');
+      _totalValue();
+    });
     _priceController.addListener(checkLimit);
     _priceController.addListener(() {
       updateGiaMax();
       setState(() {});
     });
 
-    // 🧮 Format volume khi người dùng nhập
+    // 🧮 Tính lại volume khi price thay đổi và total đã có giá trị
+    _priceController.addListener(() {
+      if (_totalController.text.isNotEmpty) {
+        print('Price changed, calling findVolumeWhenKnowTotal');
+        findVolumeWhenKnowTotal();
+      }
+    });
+
+    // 🧮 Volume không được format, luôn tính total khi volume thay đổi
     _avaController.addListener(() {
       // Update UI khi text thay đổi
       setState(() {});
 
-      if (_volumeFocus.hasFocus) {
-        final text = _avaController.text.replaceAll('.', '');
-        if (text.isEmpty) return;
-        final number = int.tryParse(text);
-        if (number == null) return;
+      print('Volume changed: ${_avaController.text}');
 
-        final newText = numberFormat.format(number);
-
-        final selectionIndexFromEnd =
-            _avaController.text.length - _avaController.selection.end;
-        if (_avaController.text != newText) {
-          _avaController.value = TextEditingValue(
-            text: newText,
-            selection: TextSelection.collapsed(
-              offset: newText.length - selectionIndexFromEnd,
-            ),
-          );
-        }
-
-        _totalValue();
-      }
+      // Luôn tính total khi volume thay đổi
+      _totalValue();
     });
     _totalController.addListener(checkSucMua);
 
     _totalController.addListener(() {
       if (_totalFocus.hasFocus) {
-        final text = _totalController.text.replaceAll('.', '');
+        final text = _totalController.text.replaceAll(',', '');
         if (text.isEmpty) return;
         final number = int.tryParse(text);
         if (number == null) return;
@@ -1406,10 +1430,9 @@ class _CommandorderState extends State<Commandorder>
                                         Text(
                                           state.isClickedSell
                                               ? limit.toString()
-                                              : NumberFormat(
-                                                  "#,##0.##",
-                                                  "en_US",
-                                                ).format(sucmua).toString(),
+                                              : numberFormat
+                                                    .format(sucmua)
+                                                    .toString(),
                                           style: GoogleFonts.manrope(
                                             color: Colors.white,
                                             fontSize: 12,
