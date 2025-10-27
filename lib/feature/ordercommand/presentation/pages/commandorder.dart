@@ -65,7 +65,9 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void checkLimit() {
-    final price = double.tryParse(_priceController.text);
+    // Bỏ dấu phẩy phân cách hàng nghìn trước khi parse
+    final priceText = _priceController.text.replaceAll(',', '');
+    final price = double.tryParse(priceText);
     if (price != null) {
       setState(() {
         _isOverLimit =
@@ -78,12 +80,20 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void updateGiaMax() {
+    // Nếu price vượt quá giới hạn, set priceMaxCanBuy về 0
+    if (_isOverLimit) {
+      priceMaxCanBuy = 0;
+      return;
+    }
+
     final priceText = _priceController.text.trim();
     double? price;
     if (priceText == "MP" || priceText == "ATO" || priceText == "ATC") {
       price = giatran;
     } else {
-      price = double.tryParse(priceText);
+      // Bỏ dấu phẩy phân cách hàng nghìn trước khi parse
+      final cleanPriceText = priceText.replaceAll(',', '');
+      price = double.tryParse(cleanPriceText);
     }
 
     final validPrice = (price != null && price > 0) ? price : giamin;
@@ -100,7 +110,14 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void calculate_volume_with_percentages(int percentages) {
-    final priceText = _priceController.text.trim();
+    // Nếu price vượt quá giới hạn, set volume về rỗng
+    if (_isOverLimit || priceMaxCanBuy == 0) {
+      _avaController.text = '';
+      _totalValue();
+      return;
+    }
+
+    final priceText = _priceController.text.replaceAll(',', '');
     final currentPrice = double.tryParse(priceText);
 
     final validPrice = (currentPrice != null && currentPrice > 0)
@@ -169,12 +186,16 @@ class _CommandorderState extends State<Commandorder>
 
     int newValue = current > 0 ? current - 1 : 0;
 
-    final formatted = numberFormat.format(newValue);
-
-    controller.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
+    if (newValue > 0) {
+      final formatted = numberFormat.format(newValue);
+      controller.value = TextEditingValue(
+        text: formatted,
+        selection: TextSelection.collapsed(offset: formatted.length),
+      );
+    } else {
+      // Nếu <= 0 thì set về rỗng
+      controller.text = '';
+    }
   }
 
   void decreasementController(TextEditingController controller) {
@@ -1834,9 +1855,8 @@ class _CommandorderState extends State<Commandorder>
                                                                       
                                                                       if (numValue != null && numValue > 0) {
                                                                         _avaController.text = numberFormat.format(numValue);
-                                                                      } else {
-                                                                        _avaController.text = newValue;
                                                                       }
+                                                                      // Nếu <= 0 thì không set gì cả, giữ nguyên giá trị hiện tại
                                                                     }
                                                                   },
                                                                   onBackspace: () {
@@ -1850,7 +1870,8 @@ class _CommandorderState extends State<Commandorder>
                                                                           if (numValue != null && numValue > 0) {
                                                                             _avaController.text = numberFormat.format(numValue);
                                                                           } else {
-                                                                            _avaController.text = newValue;
+                                                                            // Nếu <= 0 thì set về rỗng
+                                                                            _avaController.text = '';
                                                                           }
                                                                         } else {
                                                                           _avaController.text = '';
