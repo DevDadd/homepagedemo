@@ -155,7 +155,36 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   }
 
   Widget _buildModeButton(String label) {
-    final bool isActive = localSelectedMode == label;
+    // Xác định button nào active dựa trên currentText và localSelectedMode
+    bool isActive = false;
+    
+    // Nếu currentText rỗng, dùng localSelectedMode
+    if (currentText.isEmpty) {
+      isActive = localSelectedMode == label;
+    } 
+    // Nếu có giá trị
+    else {
+      if (label == "MP") {
+        // MP active nếu currentText = "MP" hoặc đang là "M" (đang xóa từ MP)
+        isActive = currentText == "MP" || currentText == "M";
+      } else if (label == "ATO") {
+        // ATO active nếu currentText = "ATO" hoặc đang bắt đầu bằng "A"
+        isActive = currentText == "ATO" || currentText == "AT" || currentText == "A";
+      } else if (label == "ATC") {
+        // ATC active nếu currentText = "ATC" hoặc đang bắt đầu bằng "A"
+        isActive = currentText == "ATC" || currentText == "AT";
+      } else if (label == "LO") {
+        // LO active nếu currentText là số (không phải MP/ATO/ATC và không phải chữ cái)
+        isActive = currentText != "MP" && 
+                   currentText != "ATO" && 
+                   currentText != "ATC" &&
+                   currentText != "M" &&
+                   currentText != "A" &&
+                   currentText != "AT" &&
+                   !currentText.contains(RegExp(r'^[A-Z]+$'));
+      }
+    }
+    
     final Color activeColor = const Color(0xFF1AAF74);
     final Color bgColor = isActive
         ? activeColor.withOpacity(0.1)
