@@ -372,15 +372,26 @@ class _CommandorderState extends State<Commandorder>
 
         final newText = numberFormat.format(number);
 
-        final selectionIndexFromEnd =
-            _totalController.text.length - _totalController.selection.end;
         if (_totalController.text != newText) {
-          _totalController.value = TextEditingValue(
-            text: newText,
-            selection: TextSelection.collapsed(
-              offset: newText.length - selectionIndexFromEnd,
-            ),
-          );
+          try {
+            final selectionIndexFromEnd =
+                _totalController.text.length - _totalController.selection.end;
+            
+            // Đảm bảo offset hợp lệ
+            final newOffset = newText.length - selectionIndexFromEnd;
+            final clampedOffset = newOffset.clamp(0, newText.length);
+            
+            _totalController.value = TextEditingValue(
+              text: newText,
+              selection: TextSelection.collapsed(offset: clampedOffset),
+            );
+          } catch (e) {
+            // Nếu có lỗi, chỉ set text không set selection
+            _totalController.value = TextEditingValue(
+              text: newText,
+              selection: TextSelection.collapsed(offset: newText.length),
+            );
+          }
         }
 
         // Không tính volume khi đang focus vào total
@@ -1523,7 +1534,7 @@ class _CommandorderState extends State<Commandorder>
                                                             giaTran: giatran,
                                                             selectedMode:
                                                                 selectedMode,
-                                                            initialValue: _priceController.text, // Truyền giá trị hiện tại
+                                                            initialValue: _priceController.text.replaceAll(',', ''), // Bỏ dấu phẩy để truyền vào keyboard
                                                             onModeChanged:
                                                                 (mode) {
                                                                   setState(() {
@@ -1533,7 +1544,27 @@ class _CommandorderState extends State<Commandorder>
                                                                 },
                                                             onTextInput: (value) {
                                                               setState(() {
-                                                                _priceController.text = value;
+                                                                // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
+                                                                if (value.contains('.')) {
+                                                                  final numValue = double.tryParse(value);
+                                                                  if (numValue != null) {
+                                                                    final parts = value.split('.');
+                                                                    final integerPart = parts[0].replaceAll(',', '');
+                                                                    final decimalPart = parts.length > 1 ? parts[1] : '';
+                                                                    final formattedInteger = numberFormat.format(int.tryParse(integerPart) ?? 0);
+                                                                    _priceController.text = '$formattedInteger.$decimalPart';
+                                                                  } else {
+                                                                    _priceController.text = value;
+                                                                  }
+                                                                } else {
+                                                                  // Format giá trị không có số thập phân
+                                                                  final numValue = double.tryParse(value);
+                                                                  if (numValue != null && numValue > 0) {
+                                                                    _priceController.text = numberFormat.format(numValue.toInt());
+                                                                  } else {
+                                                                    _priceController.text = value;
+                                                                  }
+                                                                }
                                                                 _priceController.selection = TextSelection.fromPosition(
                                                                   TextPosition(
                                                                     offset: _priceController.text.length,
@@ -1543,21 +1574,32 @@ class _CommandorderState extends State<Commandorder>
                                                             },
 
                                                             onBackspace: () {
-                                                              setState(() {
-                                                                if (_priceController.text.isNotEmpty) {
-                                                                  _priceController.text = _priceController.text.substring(
-                                                                    0,
-                                                                    _priceController.text.length - 1,
-                                                                  );
-                                                                  _priceController.selection = TextSelection.fromPosition(
-                                                                    TextPosition(offset: _priceController.text.length),
-                                                                  );
-                                                                }
-                                                              });
+                                                              // Keyboard sẽ xử lý backspace trong nội bộ
+                                                              // Chỉ cần update controller dựa trên giá trị từ keyboard
                                                             },
                                                             onConfirmed: (confirmedValue) {
                                                               setState(() {
-                                                                _priceController.text = confirmedValue;
+                                                                // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
+                                                                if (confirmedValue.contains('.')) {
+                                                                  final numValue = double.tryParse(confirmedValue);
+                                                                  if (numValue != null) {
+                                                                    final parts = confirmedValue.split('.');
+                                                                    final integerPart = parts[0].replaceAll(',', '');
+                                                                    final decimalPart = parts.length > 1 ? parts[1] : '';
+                                                                    final formattedInteger = numberFormat.format(int.tryParse(integerPart) ?? 0);
+                                                                    _priceController.text = '$formattedInteger.$decimalPart';
+                                                                  } else {
+                                                                    _priceController.text = confirmedValue;
+                                                                  }
+                                                                } else {
+                                                                  // Format giá trị không có số thập phân
+                                                                  final numValue = double.tryParse(confirmedValue);
+                                                                  if (numValue != null && numValue > 0) {
+                                                                    _priceController.text = numberFormat.format(numValue.toInt());
+                                                                  } else {
+                                                                    _priceController.text = confirmedValue;
+                                                                  }
+                                                                }
                                                               });
                                                             },
                                                           ),
@@ -1982,40 +2024,36 @@ class _CommandorderState extends State<Commandorder>
                                                               "ATO",
                                                               "ATC",
                                                             ].contains(value)) {
-                                                              _totalController
-                                                                      .text =
-                                                                  value;
+                                                              _totalController.text = value;
+                                                              return;
+                                                            }
+                                                            
+                                                            // Lấy giá trị hiện tại không có dấu phẩy
+                                                            final cleanValue = _totalController.text.replaceAll(',', '');
+                                                            final newValue = cleanValue + value;
+                                                            final numValue = int.tryParse(newValue);
+                                                            
+                                                            if (numValue != null) {
+                                                              _totalController.text = numberFormat.format(numValue);
                                                             } else {
-                                                              if ([
-                                                                "LO",
-                                                                "MP",
-                                                                "ATO",
-                                                                "ATC",
-                                                              ].contains(
-                                                                _totalController
-                                                                    .text,
-                                                              ))
-                                                                return;
-
-                                                              _totalController
-                                                                      .text +=
-                                                                  value;
+                                                              _totalController.text = newValue;
                                                             }
                                                           },
                                                           onBackspace: () {
-                                                            if (_totalController
-                                                                .text
-                                                                .isNotEmpty) {
-                                                              _totalController
-                                                                  .text = _totalController
-                                                                  .text
-                                                                  .substring(
-                                                                    0,
-                                                                    _totalController
-                                                                            .text
-                                                                            .length -
-                                                                        1,
-                                                                  );
+                                                            // Bỏ dấu phẩy, xóa 1 ký tự, format lại
+                                                            final cleanValue = _totalController.text.replaceAll(',', '');
+                                                            if (cleanValue.isNotEmpty) {
+                                                              final newValue = cleanValue.substring(0, cleanValue.length - 1);
+                                                              if (newValue.isNotEmpty) {
+                                                                final numValue = int.tryParse(newValue);
+                                                                if (numValue != null && numValue > 0) {
+                                                                  _totalController.text = numberFormat.format(numValue);
+                                                                } else {
+                                                                  _totalController.text = newValue;
+                                                                }
+                                                              } else {
+                                                                _totalController.text = '';
+                                                              }
                                                             }
                                                           },
                                                         ),

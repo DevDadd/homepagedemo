@@ -50,6 +50,11 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   }
 
   void _textInputHandler(String text) {
+    // Không cho nhập thêm số nếu đang là MP, ATO, ATC
+    if (currentText == "MP" || currentText == "ATO" || currentText == "ATC") {
+      return;
+    }
+    
     setState(() {
       currentText += text;
     });
@@ -71,16 +76,15 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
 
     widget.onModeChanged(mode);
 
-    // ✅ MP, ATO, ATC → hiển thị chữ nhưng logic hiểu là giá trần
+    // ✅ MP, ATO, ATC → hiển thị chữ
     if (mode == "MP" || mode == "ATO" || mode == "ATC") {
       widget.onTextInput(mode);
+      currentText = mode;
     } else if (mode == "LO") {
-      // Chỉ set giá trần nếu currentText rỗng
-      if (currentText.isEmpty) {
-        final value = widget.giaTran.toStringAsFixed(2);
-        currentText = value;
-        widget.onTextInput(value);
-      }
+      // Khi chọn LO, luôn set giá trần với format 2 chữ số thập phân
+      final value = widget.giaTran.toStringAsFixed(2);
+      currentText = value;
+      widget.onTextInput(value);
     }
   }
 
