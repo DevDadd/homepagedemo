@@ -1622,6 +1622,7 @@ class _CommandorderState extends State<Commandorder>
                                                           });
                                                     },
                                                     readOnly: true,
+                                                    showCursor: true,
                                                     cursorColor: Colors.green,
                                                     focusNode: _priceFocus,
                                                     style: GoogleFonts.manrope(
@@ -1753,161 +1754,167 @@ class _CommandorderState extends State<Commandorder>
                                                           ),
                                                         ),
                                                         Expanded(
-                                                          child: Builder(
-                                                            builder: (context) {
-                                                              return GestureDetector(
-                                                                behavior:
-                                                                    HitTestBehavior
-                                                                        .opaque,
-                                                                onTap: () async {
-                                                                  // Hiển thị tooltip
-                                                                  _tooltipController
-                                                                      .showTooltip();
+                                                          child: TextField(
+                                                            onTap: () async {
+                                                              setState(() {
+                                                                isTabBarVisible =
+                                                                    false;
+                                                              });
 
-                                                                  setState(() {
-                                                                    isTooltipVisible =
-                                                                        true;
-                                                                    isTabBarVisible =
-                                                                        false;
-                                                                    isVolumeFocused =
-                                                                        true;
-                                                                  });
+                                                              // Hiển thị tooltip
+                                                              _tooltipController
+                                                                  .showTooltip();
 
-                                                                  await showModalBottomSheet(
-                                                                    context:
-                                                                        context,
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    isScrollControlled:
-                                                                        true,
-                                                                    barrierColor:
-                                                                        Colors
-                                                                            .transparent,
-                                                                    builder: (_) => Percentkeyboard(
-                                                                      onTextInput: (value) {
-                                                                        if ([
-                                                                          "25%",
-                                                                          "50%",
-                                                                          "75%",
-                                                                          "100%",
-                                                                        ].contains(
-                                                                          value,
-                                                                        )) {
-                                                                          final percent =
-                                                                              int.tryParse(
-                                                                                value.replaceAll(
-                                                                                  '%',
-                                                                                  '',
-                                                                                ),
-                                                                              ) ??
-                                                                              0;
-                                                                          calculate_volume_with_percentages(
-                                                                            percent,
-                                                                          );
-                                                                          return;
-                                                                        }
-                                                                        if ([
-                                                                          "LO",
-                                                                          "MP",
-                                                                          "ATO",
-                                                                          "ATC",
-                                                                        ].contains(
-                                                                          value,
-                                                                        )) {
-                                                                          _avaController.text =
-                                                                              value;
-                                                                          return;
-                                                                        }
-                                                                        if (![
-                                                                          "LO",
-                                                                          "MP",
-                                                                          "ATO",
-                                                                          "ATC",
-                                                                        ].contains(
-                                                                          _avaController
-                                                                              .text,
-                                                                        )) {
-                                                                          _avaController.text +=
-                                                                              value;
-                                                                        }
-                                                                      },
-                                                                      onBackspace: () {
-                                                                        if (_avaController
-                                                                            .text
-                                                                            .isNotEmpty) {
-                                                                          _avaController
-                                                                              .text = _avaController.text.substring(
-                                                                            0,
-                                                                            _avaController.text.length -
-                                                                                1,
-                                                                          );
-                                                                        }
-                                                                      },
-                                                                      onPercentSelected: (percent) {
-                                                                        calculate_volume_with_percentages(
-                                                                          percent,
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  );
+                                                              setState(() {
+                                                                isTooltipVisible =
+                                                                    true;
+                                                                isVolumeFocused =
+                                                                    true;
+                                                              });
 
-                                                                  // Khi keyboard đóng
-                                                                  _tooltipController
-                                                                      .hideTooltip();
-                                                                  setState(() {
-                                                                    isTooltipVisible =
-                                                                        false;
-                                                                    isTabBarVisible =
-                                                                        true;
-                                                                    isVolumeFocused =
-                                                                        false;
-                                                                  });
-                                                                },
-                                                                child: Container(
-                                                                  width: double
-                                                                      .infinity,
-                                                                  height: double
-                                                                      .infinity,
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .center,
-                                                                  child: Text(
-                                                                    _avaController.text.isEmpty &&
-                                                                            !isTooltipVisible
-                                                                        ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
-                                                                        : _avaController
-                                                                              .text
-                                                                              .isEmpty
-                                                                        ? ""
-                                                                        : numberFormat.format(
-                                                                            int.tryParse(
-                                                                                  _avaController.text.replaceAll(
-                                                                                    ',',
-                                                                                    '',
-                                                                                  ),
-                                                                                ) ??
-                                                                                0,
-                                                                          ),
-                                                                    style: GoogleFonts.manrope(
-                                                                      color:
-                                                                          _avaController.text.isEmpty &&
-                                                                              !isTooltipVisible
-                                                                          ? Colors.grey
-                                                                          : Colors.white,
-                                                                      fontSize:
-                                                                          14,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500,
-                                                                    ),
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center,
-                                                                  ),
+                                                              // Request focus trước khi show modal
+                                                              _volumeFocus.requestFocus();
+
+                                                              showModalBottomSheet(
+                                                                context:
+                                                                    context,
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                isScrollControlled:
+                                                                    true,
+                                                                barrierColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                builder: (_) => Percentkeyboard(
+                                                                  onTextInput: (value) {
+                                                                    if ([
+                                                                      "25%",
+                                                                      "50%",
+                                                                      "75%",
+                                                                      "100%",
+                                                                    ].contains(
+                                                                      value,
+                                                                    )) {
+                                                                      final percent =
+                                                                          int.tryParse(
+                                                                            value.replaceAll(
+                                                                              '%',
+                                                                              '',
+                                                                            ),
+                                                                          ) ??
+                                                                          0;
+                                                                      calculate_volume_with_percentages(
+                                                                        percent,
+                                                                      );
+                                                                      return;
+                                                                    }
+                                                                    if ([
+                                                                      "LO",
+                                                                      "MP",
+                                                                      "ATO",
+                                                                      "ATC",
+                                                                    ].contains(
+                                                                      value,
+                                                                    )) {
+                                                                      _avaController.text =
+                                                                          value;
+                                                                      return;
+                                                                    }
+                                                                    if (![
+                                                                      "LO",
+                                                                      "MP",
+                                                                      "ATO",
+                                                                      "ATC",
+                                                                    ].contains(
+                                                                      _avaController
+                                                                          .text,
+                                                                    )) {
+                                                                      // Bỏ dấu phẩy, thêm ký tự mới, format lại
+                                                                      final cleanValue = _avaController.text.replaceAll(',', '');
+                                                                      final newValue = cleanValue + value;
+                                                                      final numValue = int.tryParse(newValue);
+                                                                      
+                                                                      if (numValue != null && numValue > 0) {
+                                                                        _avaController.text = numberFormat.format(numValue);
+                                                                      } else {
+                                                                        _avaController.text = newValue;
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  onBackspace: () {
+                                                                    if (_avaController.text.isNotEmpty) {
+                                                                      // Bỏ dấu phẩy, xóa 1 ký tự, format lại
+                                                                      final cleanValue = _avaController.text.replaceAll(',', '');
+                                                                      if (cleanValue.isNotEmpty) {
+                                                                        final newValue = cleanValue.substring(0, cleanValue.length - 1);
+                                                                        if (newValue.isNotEmpty) {
+                                                                          final numValue = int.tryParse(newValue);
+                                                                          if (numValue != null && numValue > 0) {
+                                                                            _avaController.text = numberFormat.format(numValue);
+                                                                          } else {
+                                                                            _avaController.text = newValue;
+                                                                          }
+                                                                        } else {
+                                                                          _avaController.text = '';
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  onPercentSelected: (percent) {
+                                                                    calculate_volume_with_percentages(
+                                                                      percent,
+                                                                    );
+                                                                  },
                                                                 ),
-                                                              );
+                                                              ).whenComplete(() {
+                                                                setState(() {
+                                                                  isTabBarVisible =
+                                                                      true;
+                                                                });
+
+                                                                _tooltipController
+                                                                    .hideTooltip();
+
+                                                                setState(() {
+                                                                  isTooltipVisible =
+                                                                      false;
+                                                                  isVolumeFocused =
+                                                                      false;
+                                                                });
+                                                                
+                                                                _volumeFocus.unfocus();
+                                                                
+                                                                // Request focus lại sau khi modal đóng
+                                                                WidgetsBinding.instance
+                                                                    .addPostFrameCallback((_) {
+                                                                  _volumeFocus
+                                                                      .requestFocus();
+                                                                });
+                                                              });
                                                             },
+                                                            readOnly: true,
+                                                            showCursor: true,
+                                                            cursorColor: Colors.green,
+                                                            focusNode: _volumeFocus,
+                                                            controller: _avaController,
+                                                            style: GoogleFonts.manrope(
+                                                              color: Colors.white,
+                                                              fontSize: 14,
+                                                              fontWeight: FontWeight.w500,
+                                                            ),
+                                                            decoration: InputDecoration(
+                                                              hintText: _avaController.text.isEmpty && !isTooltipVisible
+                                                                  ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
+                                                                  : "",
+                                                              hintStyle: GoogleFonts.manrope(
+                                                                color: Colors.grey,
+                                                                fontSize: 14,
+                                                              ),
+                                                              border: InputBorder.none,
+                                                              contentPadding: EdgeInsets.only(bottom: 12),
+                                                            ),
+                                                            textAlign: TextAlign.center,
                                                           ),
                                                         ),
 
@@ -2075,6 +2082,7 @@ class _CommandorderState extends State<Commandorder>
                                                           });
                                                     },
                                                     readOnly: true,
+                                                    showCursor: true,
                                                     cursorColor: Colors.green,
                                                     focusNode: _totalFocus,
                                                     style: GoogleFonts.manrope(
