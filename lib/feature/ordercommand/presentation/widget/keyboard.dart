@@ -6,16 +6,20 @@ class CustomKeyboard extends StatefulWidget {
   final Function(String) onTextInput;
   final Function onBackspace;
   final Function(String?) onModeChanged;
+  final Function(String)? onConfirmed; // Callback khi ấn Xong
   final String? selectedMode;
   final double giaTran;
+  final String? initialValue; // Giá trị ban đầu để khởi tạo currentText
 
   const CustomKeyboard({
     Key? key,
     required this.onTextInput,
     required this.onBackspace,
     required this.onModeChanged,
+    this.onConfirmed,
     required this.selectedMode,
     required this.giaTran,
+    this.initialValue,
   }) : super(key: key);
 
   @override
@@ -24,16 +28,17 @@ class CustomKeyboard extends StatefulWidget {
 
 class _CustomKeyboardState extends State<CustomKeyboard> {
   String? localSelectedMode;
-  String currentText = ""; // ✅ giữ text hiện tại để nối thêm số
+  String currentText = ""; 
 
   @override
   void initState() {
     super.initState();
 
-    // ✅ Khi mở bàn phím, mặc định chọn LO
     localSelectedMode = widget.selectedMode ?? "LO";
-
-    // Không tự động set giá trần khi mở keyboard lần đầu
+    // Khởi tạo currentText với giá trị ban đầu (nếu có)
+    if (widget.initialValue != null) {
+      currentText = widget.initialValue!;
+    }
   }
 
   @override
@@ -45,7 +50,6 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   }
 
   void _textInputHandler(String text) {
-    // ✅ nối thêm ký tự mới vào chuỗi hiện tại
     setState(() {
       currentText += text;
     });
@@ -63,7 +67,6 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   void _modeTap(String mode) {
     setState(() {
       localSelectedMode = mode;
-      // Không reset currentText khi đổi mode để giữ lại số đã nhập
     });
 
     widget.onModeChanged(mode);
@@ -112,7 +115,13 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
 
                 InkWell(
                   borderRadius: BorderRadius.circular(8),
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () {
+                    // Gọi callback khi ấn Xong để xác nhận giá trị
+                    if (widget.onConfirmed != null) {
+                      widget.onConfirmed!(currentText);
+                    }
+                    Navigator.of(context).pop();
+                  },
                   splashColor: Colors.white.withOpacity(0.2),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(

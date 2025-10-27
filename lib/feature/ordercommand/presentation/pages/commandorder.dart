@@ -5,8 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:async'; // Thêm import Timer
-import 'package:just_the_tooltip/just_the_tooltip.dart'; // Thay đổi import
+import 'package:just_the_tooltip/just_the_tooltip.dart'; 
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_cubit.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_state.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
@@ -56,53 +55,6 @@ class _CommandorderState extends State<Commandorder>
   int? priceMaxCanBuy;
 
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
-
-  void _openCustomKeyboard(BuildContext context) {
-    FocusScope.of(context).unfocus();
-    setState(() => isTabBarVisible = false);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      builder: (_) {
-        return CustomKeyboard(
-          giaTran: giatran,
-          selectedMode: selectedMode,
-          onModeChanged: (mode) {
-            setState(() {
-              selectedMode = mode;
-            });
-          },
-          onTextInput: (value) {
-            setState(() {
-              _priceController.text = value; // Gán cứng, không append
-              _priceController.selection = TextSelection.fromPosition(
-                TextPosition(offset: _priceController.text.length),
-              );
-            });
-          },
-
-          onBackspace: () {
-            setState(() {
-              if (_priceController.text.isNotEmpty) {
-                _priceController.text = _priceController.text.substring(
-                  0,
-                  _priceController.text.length - 1,
-                );
-                _priceController.selection = TextSelection.fromPosition(
-                  TextPosition(offset: _priceController.text.length),
-                );
-              }
-            });
-          },
-        );
-      },
-    ).whenComplete(() {
-      setState(() => isTabBarVisible = true);
-    });
-  }
 
   void checkSucMua() {
     final totalText = _totalController.text.replaceAll(',', '');
@@ -1571,6 +1523,7 @@ class _CommandorderState extends State<Commandorder>
                                                             giaTran: giatran,
                                                             selectedMode:
                                                                 selectedMode,
+                                                            initialValue: _priceController.text, // Truyền giá trị hiện tại
                                                             onModeChanged:
                                                                 (mode) {
                                                                   setState(() {
@@ -1580,15 +1533,10 @@ class _CommandorderState extends State<Commandorder>
                                                                 },
                                                             onTextInput: (value) {
                                                               setState(() {
-                                                                _priceController
-                                                                        .text =
-                                                                    value; // Gán cứng, không append
-                                                                _priceController
-                                                                    .selection = TextSelection.fromPosition(
+                                                                _priceController.text = value;
+                                                                _priceController.selection = TextSelection.fromPosition(
                                                                   TextPosition(
-                                                                    offset: _priceController
-                                                                        .text
-                                                                        .length,
+                                                                    offset: _priceController.text.length,
                                                                   ),
                                                                 );
                                                               });
@@ -1596,18 +1544,20 @@ class _CommandorderState extends State<Commandorder>
 
                                                             onBackspace: () {
                                                               setState(() {
-                                                                if (_priceController
-                                                                    .text
-                                                                    .isNotEmpty) {
-                                                                  _priceController
-                                                                      .text = _priceController
-                                                                      .text
-                                                                      .substring(
-                                                                        0,
-                                                                        _priceController.text.length -
-                                                                            1,
-                                                                      );
+                                                                if (_priceController.text.isNotEmpty) {
+                                                                  _priceController.text = _priceController.text.substring(
+                                                                    0,
+                                                                    _priceController.text.length - 1,
+                                                                  );
+                                                                  _priceController.selection = TextSelection.fromPosition(
+                                                                    TextPosition(offset: _priceController.text.length),
+                                                                  );
                                                                 }
+                                                              });
+                                                            },
+                                                            onConfirmed: (confirmedValue) {
+                                                              setState(() {
+                                                                _priceController.text = confirmedValue;
                                                               });
                                                             },
                                                           ),
@@ -2190,8 +2140,8 @@ class _CommandorderState extends State<Commandorder>
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: DraggableScrollableSheet(
-                      initialChildSize: 0.35,
-                      minChildSize: 0.35,
+                      initialChildSize: 0.25,
+                      minChildSize: 0.25,
                       maxChildSize: 0.92,
                       builder: (context, controller) => Container(
                         decoration: BoxDecoration(
