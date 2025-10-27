@@ -1755,7 +1755,7 @@ class _CommandorderState extends State<Commandorder>
                                                         ),
                                                         Expanded(
                                                           child: TextField(
-                                                            onTap: () async {
+                                                            onTap: () {
                                                               setState(() {
                                                                 isTabBarVisible =
                                                                     false;
@@ -1771,9 +1771,6 @@ class _CommandorderState extends State<Commandorder>
                                                                 isVolumeFocused =
                                                                     true;
                                                               });
-
-                                                              // Request focus trước khi show modal
-                                                              _volumeFocus.requestFocus();
 
                                                               showModalBottomSheet(
                                                                 context:
@@ -1884,13 +1881,12 @@ class _CommandorderState extends State<Commandorder>
                                                                 });
                                                                 
                                                                 _volumeFocus.unfocus();
-                                                                
-                                                                // Request focus lại sau khi modal đóng
-                                                                WidgetsBinding.instance
-                                                                    .addPostFrameCallback((_) {
-                                                                  _volumeFocus
-                                                                      .requestFocus();
-                                                                });
+                                                              });
+
+                                                              WidgetsBinding.instance
+                                                                  .addPostFrameCallback((_) {
+                                                                _volumeFocus
+                                                                    .requestFocus();
                                                               });
                                                             },
                                                             readOnly: true,
