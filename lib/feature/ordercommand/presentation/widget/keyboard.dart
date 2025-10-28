@@ -55,6 +55,11 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
       return;
     }
 
+    // Không cho nhập số 0 nếu currentText rỗng hoặc chỉ là "0"
+    if (text == '0' && (currentText.isEmpty || currentText == '0')) {
+      return;
+    }
+
     // Không cho nhập dấu chấm nếu priceController rỗng
     if (text == '.' && currentText.isEmpty) {
       return;
@@ -73,6 +78,16 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
 
   void _backspaceHandler() {
     if (currentText.isEmpty) return;
+
+    // Nếu đang là MP, ATO, hoặc ATC, set về rỗng
+    if (currentText == "MP" || currentText == "ATO" || currentText == "ATC") {
+      setState(() {
+        currentText = "";
+      });
+      widget.onTextInput(currentText);
+      return;
+    }
+
     setState(() {
       currentText = currentText.substring(0, currentText.length - 1);
     });

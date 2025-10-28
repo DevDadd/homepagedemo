@@ -427,6 +427,13 @@ class _CommandorderState extends State<Commandorder>
 
       print('Volume changed: ${_avaController.text}');
 
+      // Nếu volume rỗng thì set total về rỗng
+      if (_avaController.text.isEmpty && !isTotalFocused) {
+        _totalController.text = '';
+        checkSucMua();
+        return;
+      }
+
       // Kiểm tra volume có vượt quá maxCanBuy
       checkSucMua();
 
@@ -1595,18 +1602,11 @@ class _CommandorderState extends State<Commandorder>
                                                         useRootNavigator: true,
                                                         barrierColor:
                                                             Colors.transparent,
+                                                        enableDrag: false,
                                                         builder: (_) => GestureDetector(
                                                           behavior:
                                                               HitTestBehavior
-                                                                  .opaque,
-                                                          onTap: () {
-                                                            FocusScope.of(
-                                                              context,
-                                                            ).unfocus();
-                                                            Navigator.of(
-                                                              context,
-                                                            ).pop();
-                                                          },
+                                                                  .deferToChild,
                                                           child: CustomKeyboard(
                                                             giaTran: giatran,
                                                             selectedMode:
@@ -1716,7 +1716,9 @@ class _CommandorderState extends State<Commandorder>
                                                                         confirmedValue,
                                                                       );
                                                                   if (numValue !=
-                                                                      null) {
+                                                                          null &&
+                                                                      numValue >
+                                                                          0) {
                                                                     final parts =
                                                                         confirmedValue
                                                                             .split(
@@ -1733,15 +1735,41 @@ class _CommandorderState extends State<Commandorder>
                                                                             1
                                                                         ? parts[1]
                                                                         : '';
-                                                                    final formattedInteger = numberFormat.format(
-                                                                      int.tryParse(
+
+                                                                    // Nếu decimalPart rỗng hoặc toàn số 0, bỏ dấu chấm
+                                                                    final isDecimalZero =
+                                                                        decimalPart
+                                                                            .isEmpty ||
+                                                                        decimalPart
+                                                                            .replaceAll(
+                                                                              '0',
+                                                                              '',
+                                                                            )
+                                                                            .isEmpty;
+
+                                                                    if (isDecimalZero) {
+                                                                      // Bỏ dấu chấm, format như số nguyên
+                                                                      final intValue =
+                                                                          int.tryParse(
                                                                             integerPart,
                                                                           ) ??
-                                                                          0,
-                                                                    );
-                                                                    _priceController
-                                                                            .text =
-                                                                        '$formattedInteger.$decimalPart';
+                                                                          0;
+                                                                      _priceController
+                                                                          .text = numberFormat
+                                                                          .format(
+                                                                            intValue,
+                                                                          );
+                                                                    } else {
+                                                                      final formattedInteger = numberFormat.format(
+                                                                        int.tryParse(
+                                                                              integerPart,
+                                                                            ) ??
+                                                                            0,
+                                                                      );
+                                                                      _priceController
+                                                                              .text =
+                                                                          '$formattedInteger.$decimalPart';
+                                                                    }
                                                                   } else {
                                                                     _priceController
                                                                             .text =
@@ -1858,28 +1886,33 @@ class _CommandorderState extends State<Commandorder>
                                                   tailLength: 0,
                                                   preferredDirection:
                                                       AxisDirection.up,
-                                                  content: Container(
-                                                    height: 35,
-                                                    width: 160,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                      color: Color(0xFF33383F),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        "KL max:                   ${numberFormat.format(priceMaxCanBuy ?? 0)}",
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
+                                                  content: Transform.translate(
+                                                    offset: Offset(0, -4),
+                                                    child: Container(
+                                                      height: 35,
+                                                      width: 160,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              10,
                                                             ),
+                                                        color: Color(
+                                                          0xFF33383F,
+                                                        ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "KL max:                   ${numberFormat.format(priceMaxCanBuy ?? 0)}",
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
@@ -2505,8 +2538,8 @@ class _CommandorderState extends State<Commandorder>
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: DraggableScrollableSheet(
-                      initialChildSize: 0.25,
-                      minChildSize: 0.25,
+                      initialChildSize: 0.35,
+                      minChildSize: 0.35,
                       maxChildSize: 0.92,
                       builder: (context, controller) => Container(
                         decoration: BoxDecoration(
@@ -2537,15 +2570,14 @@ class _CommandorderState extends State<Commandorder>
                                 ),
                                 unselectedLabelColor: Color(0xFF6F767E),
                                 dividerColor: Colors.transparent,
+                                indicatorSize: TabBarIndicatorSize.label,
                                 indicator: UnderlineTabIndicator(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide(
                                     width: 3,
                                     color: Color(0xFF1AAF74),
                                   ),
-                                  insets: EdgeInsetsGeometry.symmetric(
-                                    horizontal: 3,
-                                  ),
+                                  insets: EdgeInsets.symmetric(horizontal: 60),
                                 ),
                               ),
                               Expanded(
