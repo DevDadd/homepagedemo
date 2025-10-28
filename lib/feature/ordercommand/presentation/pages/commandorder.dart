@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart'; 
+import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_cubit.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/cubit/ordercommand_state.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/buybuttonclipper.dart';
@@ -46,6 +46,7 @@ class _CommandorderState extends State<Commandorder>
   final FocusNode _totalFocus = FocusNode();
   bool isTotalFocused = false;
   bool isOverSucMua = false;
+  String errorMessage = "";
   bool isTabBarVisible = true;
   bool isTooltipVisible = false;
   bool isVolumeKeyboardOpen = false; // Thêm biến để track keyboard volume
@@ -59,8 +60,46 @@ class _CommandorderState extends State<Commandorder>
   void checkSucMua() {
     final totalText = _totalController.text.replaceAll(',', '');
     final total = int.tryParse(totalText) ?? 0;
+
+    // Lấy volume hiện tại (bỏ dấu phẩy)
+    final volumeText = _avaController.text.replaceAll(',', '');
+    final volume = int.tryParse(volumeText);
+
+    // Tính maxCanBuy dựa trên price hiện tại hoặc giá tối thiểu
+    int maxCanBuy = 0;
+
+    // Nếu price vượt quá giới hạn, không cho phép nhập volume
+    if (_isOverLimit) {
+      setState(() {
+        isOverSucMua = (volume != null && volume > 0);
+      });
+      return;
+    }
+
+    if (_priceController.text.isNotEmpty) {
+      // Nếu có price, dùng maxCanBuy từ price
+      maxCanBuy = priceMaxCanBuy ?? 0;
+    } else {
+      // Nếu chưa có price, dùng giá tối thiểu để tính maxCanBuy
+      final double totalMoney = sucmua.toDouble();
+      final double maxVolume = totalMoney / (giamin * 1000);
+      maxCanBuy = maxVolume.floor();
+    }
+
+    // Kiểm tra volume vượt quá maxCanBuy HOẶC total vượt quá sucmua
+    final isVolumeOverMax = (volume != null && volume > maxCanBuy);
+
     setState(() {
-      isOverSucMua = total > sucmua;
+      isOverSucMua = total > sucmua || isVolumeOverMax;
+
+      // Set error message phù hợp
+      if (isVolumeOverMax && total <= sucmua) {
+        errorMessage = "Vượt quá khối lượng tối đa";
+      } else if (total > sucmua) {
+        errorMessage = "Vượt quá khối lượng tối đa";
+      } else {
+        errorMessage = "";
+      }
     });
   }
 
@@ -217,7 +256,10 @@ class _CommandorderState extends State<Commandorder>
   void _totalValue() {
     // Lấy text từ controller, loại bỏ dấu phẩy phân cách hàng nghìn
     String priceText = _priceController.text.replaceAll(',', '');
-    String volumeText = _avaController.text; // Volume không có dấu phẩy
+    String volumeText = _avaController.text.replaceAll(
+      ',',
+      '',
+    ); // Volume cũng có dấu phẩy
 
     double? price;
     int? volume;
@@ -351,23 +393,31 @@ class _CommandorderState extends State<Commandorder>
     // 🧮 Chỉ tính total khi cả price và volume đều có giá trị
     _priceController.addListener(() {
       print('Price changed: ${_priceController.text}');
-      // Không tính total ngay khi price thay đổi, chỉ khi cả price và volume đều có giá trị
-      if (_priceController.text.isNotEmpty && _avaController.text.isNotEmpty) {
+
+      // Không tính gì khi đang focus vào total field (người dùng đang nhập total thủ công)
+      if (isTotalFocused) {
+        return;
+      }
+
+      // Nếu đang focus vào volume field VÀ có total, tính lại volume từ price và total
+      if (isVolumeFocused && _totalController.text.isNotEmpty) {
+        print(
+          'Price changed with volume focused, calling findVolumeWhenKnowTotal',
+        );
+        findVolumeWhenKnowTotal();
+      }
+      // Nếu có cả price và volume (bất kể focus vào đâu), tính total
+      else if (_priceController.text.isNotEmpty &&
+          _avaController.text.isNotEmpty) {
+        print('Price changed, calculating total from price and volume');
         _totalValue();
       }
     });
     _priceController.addListener(checkLimit);
     _priceController.addListener(() {
       updateGiaMax();
+      checkSucMua(); // Kiểm tra lại volume khi price thay đổi
       setState(() {});
-    });
-
-    // 🧮 Tính lại volume khi price thay đổi và total đã có giá trị
-    _priceController.addListener(() {
-      if (_totalController.text.isNotEmpty) {
-        print('Price changed, calling findVolumeWhenKnowTotal');
-        findVolumeWhenKnowTotal();
-      }
     });
 
     // 🧮 Volume không được format, chỉ tính total khi cả price và volume đều có giá trị
@@ -377,8 +427,14 @@ class _CommandorderState extends State<Commandorder>
 
       print('Volume changed: ${_avaController.text}');
 
+      // Kiểm tra volume có vượt quá maxCanBuy
+      checkSucMua();
+
       // Chỉ tính total khi cả price và volume đều có giá trị
-      if (_priceController.text.isNotEmpty && _avaController.text.isNotEmpty) {
+      // Nhưng không tính nếu đang focus vào total field
+      if (_priceController.text.isNotEmpty &&
+          _avaController.text.isNotEmpty &&
+          !isTotalFocused) {
         _totalValue();
       }
     });
@@ -397,11 +453,11 @@ class _CommandorderState extends State<Commandorder>
           try {
             final selectionIndexFromEnd =
                 _totalController.text.length - _totalController.selection.end;
-            
+
             // Đảm bảo offset hợp lệ
             final newOffset = newText.length - selectionIndexFromEnd;
             final clampedOffset = newOffset.clamp(0, newText.length);
-            
+
             _totalController.value = TextEditingValue(
               text: newText,
               selection: TextSelection.collapsed(offset: clampedOffset),
@@ -1555,7 +1611,13 @@ class _CommandorderState extends State<Commandorder>
                                                             giaTran: giatran,
                                                             selectedMode:
                                                                 selectedMode,
-                                                            initialValue: _priceController.text.replaceAll(',', ''), // Bỏ dấu phẩy để truyền vào keyboard
+                                                            initialValue:
+                                                                _priceController
+                                                                    .text
+                                                                    .replaceAll(
+                                                                      ',',
+                                                                      '',
+                                                                    ), // Bỏ dấu phẩy để truyền vào keyboard
                                                             onModeChanged:
                                                                 (mode) {
                                                                   setState(() {
@@ -1566,29 +1628,73 @@ class _CommandorderState extends State<Commandorder>
                                                             onTextInput: (value) {
                                                               setState(() {
                                                                 // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
-                                                                if (value.contains('.')) {
-                                                                  final numValue = double.tryParse(value);
-                                                                  if (numValue != null) {
-                                                                    final parts = value.split('.');
-                                                                    final integerPart = parts[0].replaceAll(',', '');
-                                                                    final decimalPart = parts.length > 1 ? parts[1] : '';
-                                                                    final formattedInteger = numberFormat.format(int.tryParse(integerPart) ?? 0);
-                                                                    _priceController.text = '$formattedInteger.$decimalPart';
+                                                                if (value
+                                                                    .contains(
+                                                                      '.',
+                                                                    )) {
+                                                                  final numValue =
+                                                                      double.tryParse(
+                                                                        value,
+                                                                      );
+                                                                  if (numValue !=
+                                                                      null) {
+                                                                    final parts =
+                                                                        value.split(
+                                                                          '.',
+                                                                        );
+                                                                    final integerPart =
+                                                                        parts[0]
+                                                                            .replaceAll(
+                                                                              ',',
+                                                                              '',
+                                                                            );
+                                                                    final decimalPart =
+                                                                        parts.length >
+                                                                            1
+                                                                        ? parts[1]
+                                                                        : '';
+                                                                    final formattedInteger = numberFormat.format(
+                                                                      int.tryParse(
+                                                                            integerPart,
+                                                                          ) ??
+                                                                          0,
+                                                                    );
+                                                                    _priceController
+                                                                            .text =
+                                                                        '$formattedInteger.$decimalPart';
                                                                   } else {
-                                                                    _priceController.text = value;
+                                                                    _priceController
+                                                                            .text =
+                                                                        value;
                                                                   }
                                                                 } else {
                                                                   // Format giá trị không có số thập phân
-                                                                  final numValue = double.tryParse(value);
-                                                                  if (numValue != null && numValue > 0) {
-                                                                    _priceController.text = numberFormat.format(numValue.toInt());
+                                                                  final numValue =
+                                                                      double.tryParse(
+                                                                        value,
+                                                                      );
+                                                                  if (numValue !=
+                                                                          null &&
+                                                                      numValue >
+                                                                          0) {
+                                                                    _priceController
+                                                                        .text = numberFormat
+                                                                        .format(
+                                                                          numValue
+                                                                              .toInt(),
+                                                                        );
                                                                   } else {
-                                                                    _priceController.text = value;
+                                                                    _priceController
+                                                                            .text =
+                                                                        value;
                                                                   }
                                                                 }
-                                                                _priceController.selection = TextSelection.fromPosition(
+                                                                _priceController
+                                                                    .selection = TextSelection.fromPosition(
                                                                   TextPosition(
-                                                                    offset: _priceController.text.length,
+                                                                    offset: _priceController
+                                                                        .text
+                                                                        .length,
                                                                   ),
                                                                 );
                                                               });
@@ -1601,24 +1707,66 @@ class _CommandorderState extends State<Commandorder>
                                                             onConfirmed: (confirmedValue) {
                                                               setState(() {
                                                                 // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
-                                                                if (confirmedValue.contains('.')) {
-                                                                  final numValue = double.tryParse(confirmedValue);
-                                                                  if (numValue != null) {
-                                                                    final parts = confirmedValue.split('.');
-                                                                    final integerPart = parts[0].replaceAll(',', '');
-                                                                    final decimalPart = parts.length > 1 ? parts[1] : '';
-                                                                    final formattedInteger = numberFormat.format(int.tryParse(integerPart) ?? 0);
-                                                                    _priceController.text = '$formattedInteger.$decimalPart';
+                                                                if (confirmedValue
+                                                                    .contains(
+                                                                      '.',
+                                                                    )) {
+                                                                  final numValue =
+                                                                      double.tryParse(
+                                                                        confirmedValue,
+                                                                      );
+                                                                  if (numValue !=
+                                                                      null) {
+                                                                    final parts =
+                                                                        confirmedValue
+                                                                            .split(
+                                                                              '.',
+                                                                            );
+                                                                    final integerPart =
+                                                                        parts[0]
+                                                                            .replaceAll(
+                                                                              ',',
+                                                                              '',
+                                                                            );
+                                                                    final decimalPart =
+                                                                        parts.length >
+                                                                            1
+                                                                        ? parts[1]
+                                                                        : '';
+                                                                    final formattedInteger = numberFormat.format(
+                                                                      int.tryParse(
+                                                                            integerPart,
+                                                                          ) ??
+                                                                          0,
+                                                                    );
+                                                                    _priceController
+                                                                            .text =
+                                                                        '$formattedInteger.$decimalPart';
                                                                   } else {
-                                                                    _priceController.text = confirmedValue;
+                                                                    _priceController
+                                                                            .text =
+                                                                        confirmedValue;
                                                                   }
                                                                 } else {
                                                                   // Format giá trị không có số thập phân
-                                                                  final numValue = double.tryParse(confirmedValue);
-                                                                  if (numValue != null && numValue > 0) {
-                                                                    _priceController.text = numberFormat.format(numValue.toInt());
+                                                                  final numValue =
+                                                                      double.tryParse(
+                                                                        confirmedValue,
+                                                                      );
+                                                                  if (numValue !=
+                                                                          null &&
+                                                                      numValue >
+                                                                          0) {
+                                                                    _priceController
+                                                                        .text = numberFormat
+                                                                        .format(
+                                                                          numValue
+                                                                              .toInt(),
+                                                                        );
                                                                   } else {
-                                                                    _priceController.text = confirmedValue;
+                                                                    _priceController
+                                                                            .text =
+                                                                        confirmedValue;
                                                                   }
                                                                 }
                                                               });
@@ -1801,9 +1949,8 @@ class _CommandorderState extends State<Commandorder>
                                                                         .transparent,
                                                                 isScrollControlled:
                                                                     true,
-                                                                barrierColor:
-                                                                    Colors
-                                                                        .transparent,
+                                                                barrierColor: Colors
+                                                                    .transparent,
                                                                 builder: (_) => Percentkeyboard(
                                                                   onTextInput: (value) {
                                                                     if ([
@@ -1835,7 +1982,8 @@ class _CommandorderState extends State<Commandorder>
                                                                     ].contains(
                                                                       value,
                                                                     )) {
-                                                                      _avaController.text =
+                                                                      _avaController
+                                                                              .text =
                                                                           value;
                                                                       return;
                                                                     }
@@ -1849,41 +1997,82 @@ class _CommandorderState extends State<Commandorder>
                                                                           .text,
                                                                     )) {
                                                                       // Bỏ dấu phẩy, thêm ký tự mới, format lại
-                                                                      final cleanValue = _avaController.text.replaceAll(',', '');
-                                                                      final newValue = cleanValue + value;
-                                                                      final numValue = int.tryParse(newValue);
-                                                                      
-                                                                      if (numValue != null && numValue > 0) {
-                                                                        _avaController.text = numberFormat.format(numValue);
+                                                                      final cleanValue = _avaController
+                                                                          .text
+                                                                          .replaceAll(
+                                                                            ',',
+                                                                            '',
+                                                                          );
+                                                                      final newValue =
+                                                                          cleanValue +
+                                                                          value;
+                                                                      final numValue =
+                                                                          int.tryParse(
+                                                                            newValue,
+                                                                          );
+
+                                                                      if (numValue !=
+                                                                              null &&
+                                                                          numValue >
+                                                                              0) {
+                                                                        _avaController
+                                                                            .text = numberFormat.format(
+                                                                          numValue,
+                                                                        );
                                                                       }
                                                                       // Nếu <= 0 thì không set gì cả, giữ nguyên giá trị hiện tại
                                                                     }
                                                                   },
                                                                   onBackspace: () {
-                                                                    if (_avaController.text.isNotEmpty) {
+                                                                    if (_avaController
+                                                                        .text
+                                                                        .isNotEmpty) {
                                                                       // Bỏ dấu phẩy, xóa 1 ký tự, format lại
-                                                                      final cleanValue = _avaController.text.replaceAll(',', '');
-                                                                      if (cleanValue.isNotEmpty) {
-                                                                        final newValue = cleanValue.substring(0, cleanValue.length - 1);
-                                                                        if (newValue.isNotEmpty) {
-                                                                          final numValue = int.tryParse(newValue);
-                                                                          if (numValue != null && numValue > 0) {
-                                                                            _avaController.text = numberFormat.format(numValue);
+                                                                      final cleanValue = _avaController
+                                                                          .text
+                                                                          .replaceAll(
+                                                                            ',',
+                                                                            '',
+                                                                          );
+                                                                      if (cleanValue
+                                                                          .isNotEmpty) {
+                                                                        final newValue = cleanValue.substring(
+                                                                          0,
+                                                                          cleanValue.length -
+                                                                              1,
+                                                                        );
+                                                                        if (newValue
+                                                                            .isNotEmpty) {
+                                                                          final numValue = int.tryParse(
+                                                                            newValue,
+                                                                          );
+                                                                          if (numValue !=
+                                                                                  null &&
+                                                                              numValue >
+                                                                                  0) {
+                                                                            _avaController.text = numberFormat.format(
+                                                                              numValue,
+                                                                            );
                                                                           } else {
                                                                             // Nếu <= 0 thì set về rỗng
-                                                                            _avaController.text = '';
+                                                                            _avaController.text =
+                                                                                '';
                                                                           }
                                                                         } else {
-                                                                          _avaController.text = '';
+                                                                          _avaController.text =
+                                                                              '';
                                                                         }
                                                                       }
                                                                     }
                                                                   },
-                                                                  onPercentSelected: (percent) {
-                                                                    calculate_volume_with_percentages(
-                                                                      percent,
-                                                                    );
-                                                                  },
+                                                                  onPercentSelected:
+                                                                      (
+                                                                        percent,
+                                                                      ) {
+                                                                        calculate_volume_with_percentages(
+                                                                          percent,
+                                                                        );
+                                                                      },
                                                                 ),
                                                               ).whenComplete(() {
                                                                 setState(() {
@@ -1900,38 +2089,62 @@ class _CommandorderState extends State<Commandorder>
                                                                   isVolumeFocused =
                                                                       false;
                                                                 });
-                                                                
-                                                                _volumeFocus.unfocus();
+
+                                                                _volumeFocus
+                                                                    .unfocus();
                                                               });
 
-                                                              WidgetsBinding.instance
-                                                                  .addPostFrameCallback((_) {
-                                                                _volumeFocus
-                                                                    .requestFocus();
-                                                              });
+                                                              WidgetsBinding
+                                                                  .instance
+                                                                  .addPostFrameCallback((
+                                                                    _,
+                                                                  ) {
+                                                                    _volumeFocus
+                                                                        .requestFocus();
+                                                                  });
                                                             },
                                                             readOnly: true,
                                                             showCursor: true,
-                                                            cursorColor: Colors.green,
-                                                            focusNode: _volumeFocus,
-                                                            controller: _avaController,
-                                                            style: GoogleFonts.manrope(
-                                                              color: Colors.white,
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.w500,
-                                                            ),
+                                                            cursorColor:
+                                                                Colors.green,
+                                                            focusNode:
+                                                                _volumeFocus,
+                                                            controller:
+                                                                _avaController,
+                                                            style:
+                                                                GoogleFonts.manrope(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
                                                             decoration: InputDecoration(
-                                                              hintText: _avaController.text.isEmpty && !isTooltipVisible
+                                                              hintText:
+                                                                  _avaController
+                                                                          .text
+                                                                          .isEmpty &&
+                                                                      !isTooltipVisible
                                                                   ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
                                                                   : "",
-                                                              hintStyle: GoogleFonts.manrope(
-                                                                color: Colors.grey,
-                                                                fontSize: 14,
-                                                              ),
-                                                              border: InputBorder.none,
-                                                              contentPadding: EdgeInsets.only(bottom: 12),
+                                                              hintStyle:
+                                                                  GoogleFonts.manrope(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                              contentPadding:
+                                                                  EdgeInsets.only(
+                                                                    bottom: 12,
+                                                                  ),
                                                             ),
-                                                            textAlign: TextAlign.center,
+                                                            textAlign: TextAlign
+                                                                .center,
                                                           ),
                                                         ),
 
@@ -1958,7 +2171,7 @@ class _CommandorderState extends State<Commandorder>
                                                 right: 0,
                                                 child: Center(
                                                   child: Text(
-                                                    "Vượt quá khối lượng tối đa",
+                                                    errorMessage,
                                                     style: GoogleFonts.manrope(
                                                       fontSize: 12,
                                                       fontWeight:
@@ -2048,35 +2261,85 @@ class _CommandorderState extends State<Commandorder>
                                                               "ATO",
                                                               "ATC",
                                                             ].contains(value)) {
-                                                              _totalController.text = value;
+                                                              _totalController
+                                                                      .text =
+                                                                  value;
                                                               return;
                                                             }
-                                                            
+
                                                             // Lấy giá trị hiện tại không có dấu phẩy
-                                                            final cleanValue = _totalController.text.replaceAll(',', '');
-                                                            final newValue = cleanValue + value;
-                                                            final numValue = int.tryParse(newValue);
-                                                            
-                                                            if (numValue != null) {
-                                                              _totalController.text = numberFormat.format(numValue);
+                                                            final cleanValue =
+                                                                _totalController
+                                                                    .text
+                                                                    .replaceAll(
+                                                                      ',',
+                                                                      '',
+                                                                    );
+                                                            final newValue =
+                                                                cleanValue +
+                                                                value;
+                                                            final numValue =
+                                                                int.tryParse(
+                                                                  newValue,
+                                                                );
+
+                                                            if (numValue !=
+                                                                null) {
+                                                              _totalController
+                                                                      .text =
+                                                                  numberFormat
+                                                                      .format(
+                                                                        numValue,
+                                                                      );
                                                             } else {
-                                                              _totalController.text = newValue;
+                                                              _totalController
+                                                                      .text =
+                                                                  newValue;
                                                             }
                                                           },
                                                           onBackspace: () {
                                                             // Bỏ dấu phẩy, xóa 1 ký tự, format lại
-                                                            final cleanValue = _totalController.text.replaceAll(',', '');
-                                                            if (cleanValue.isNotEmpty) {
-                                                              final newValue = cleanValue.substring(0, cleanValue.length - 1);
-                                                              if (newValue.isNotEmpty) {
-                                                                final numValue = int.tryParse(newValue);
-                                                                if (numValue != null && numValue > 0) {
-                                                                  _totalController.text = numberFormat.format(numValue);
+                                                            final cleanValue =
+                                                                _totalController
+                                                                    .text
+                                                                    .replaceAll(
+                                                                      ',',
+                                                                      '',
+                                                                    );
+                                                            if (cleanValue
+                                                                .isNotEmpty) {
+                                                              final newValue =
+                                                                  cleanValue
+                                                                      .substring(
+                                                                        0,
+                                                                        cleanValue.length -
+                                                                            1,
+                                                                      );
+                                                              if (newValue
+                                                                  .isNotEmpty) {
+                                                                final numValue =
+                                                                    int.tryParse(
+                                                                      newValue,
+                                                                    );
+                                                                if (numValue !=
+                                                                        null &&
+                                                                    numValue >
+                                                                        0) {
+                                                                  _totalController
+                                                                          .text =
+                                                                      numberFormat
+                                                                          .format(
+                                                                            numValue,
+                                                                          );
                                                                 } else {
-                                                                  _totalController.text = newValue;
+                                                                  _totalController
+                                                                          .text =
+                                                                      newValue;
                                                                 }
                                                               } else {
-                                                                _totalController.text = '';
+                                                                _totalController
+                                                                        .text =
+                                                                    '';
                                                               }
                                                             }
                                                           },
