@@ -657,12 +657,18 @@ class _CommandorderState extends State<Commandorder>
                                   ],
                                 ),
                                 const Spacer(),
-                                Text(
-                                  giahientai.toString(),
-                                  style: GoogleFonts.manrope(
-                                    color: const Color(0xFFF34859),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
+                                GestureDetector(
+                                  onTap: () {
+                                    _priceController.text = giahientai
+                                        .toStringAsFixed(2);
+                                  },
+                                  child: Text(
+                                    giahientai.toStringAsFixed(2),
+                                    style: GoogleFonts.manrope(
+                                      color: const Color(0xFFF34859),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 4),
@@ -969,19 +975,30 @@ class _CommandorderState extends State<Commandorder>
                                                     Align(
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: Text(
-                                                        giahientai
-                                                            .toStringAsFixed(2),
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              color: Color(
-                                                                0xFFF34859,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          _priceController
+                                                              .text = giahientai
+                                                              .toStringAsFixed(
+                                                                2,
+                                                              );
+                                                        },
+                                                        child: Text(
+                                                          giahientai
+                                                              .toStringAsFixed(
+                                                                2,
                                                               ),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14,
-                                                            ),
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                color: Color(
+                                                                  0xFFF34859,
+                                                                ),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 14,
+                                                              ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1022,19 +1039,30 @@ class _CommandorderState extends State<Commandorder>
                                                           const EdgeInsets.only(
                                                             left: 14,
                                                           ),
-                                                      child: Text(
-                                                        thamchieu
-                                                            .toStringAsFixed(2),
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              color: Color(
-                                                                0xFFFF9F41,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          _priceController
+                                                              .text = thamchieu
+                                                              .toStringAsFixed(
+                                                                2,
+                                                              );
+                                                        },
+                                                        child: Text(
+                                                          thamchieu
+                                                              .toStringAsFixed(
+                                                                2,
                                                               ),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14,
-                                                            ),
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                color: Color(
+                                                                  0xFFFF9F41,
+                                                                ),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 14,
+                                                              ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1092,18 +1120,25 @@ class _CommandorderState extends State<Commandorder>
                                                           const EdgeInsets.only(
                                                             left: 34,
                                                           ),
-                                                      child: Text(
-                                                        "94.10",
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14,
-                                                              color: Color(
-                                                                0xFFF34859,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          _priceController
+                                                                  .text =
+                                                              "94.10";
+                                                        },
+                                                        child: Text(
+                                                          "94.10",
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 14,
+                                                                color: Color(
+                                                                  0xFFF34859,
+                                                                ),
                                                               ),
-                                                            ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1135,18 +1170,25 @@ class _CommandorderState extends State<Commandorder>
                                                           const EdgeInsets.only(
                                                             left: 14,
                                                           ),
-                                                      child: Text(
-                                                        "94.40",
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14,
-                                                              color: Color(
-                                                                0xFFF34859,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          _priceController
+                                                                  .text =
+                                                              "94.40";
+                                                        },
+                                                        child: Text(
+                                                          "94.40",
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 14,
+                                                                color: Color(
+                                                                  0xFFF34859,
+                                                                ),
                                                               ),
-                                                            ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1204,18 +1246,25 @@ class _CommandorderState extends State<Commandorder>
                                                           const EdgeInsets.only(
                                                             left: 56,
                                                           ),
-                                                      child: Text(
-                                                        "94.00",
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14,
-                                                              color: Color(
-                                                                0xFFF34859,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          _priceController
+                                                                  .text =
+                                                              "94.00";
+                                                        },
+                                                        child: Text(
+                                                          "94.00",
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 14,
+                                                                color: Color(
+                                                                  0xFFF34859,
+                                                                ),
                                                               ),
-                                                            ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -1247,18 +1296,25 @@ class _CommandorderState extends State<Commandorder>
                                                           const EdgeInsets.only(
                                                             left: 14,
                                                           ),
-                                                      child: Text(
-                                                        "94.50",
-                                                        style:
-                                                            GoogleFonts.manrope(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              fontSize: 14,
-                                                              color: Color(
-                                                                0xFFF34859,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          _priceController
+                                                                  .text =
+                                                              "94.50";
+                                                        },
+                                                        child: Text(
+                                                          "94.50",
+                                                          style:
+                                                              GoogleFonts.manrope(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                fontSize: 14,
+                                                                color: Color(
+                                                                  0xFFF34859,
+                                                                ),
                                                               ),
-                                                            ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
