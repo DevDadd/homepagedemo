@@ -6,12 +6,14 @@ class Percentkeyboard extends StatefulWidget {
   final Function(String) onTextInput;
   final Function onBackspace;
   final Function(int)? onPercentSelected; // ✅ callback khi chọn phần trăm
+  final String? initialValue; // Giá trị hiện tại để check đã có dấu chấm chưa
 
   const Percentkeyboard({
     Key? key,
     required this.onTextInput,
     required this.onBackspace,
     this.onPercentSelected,
+    this.initialValue,
   }) : super(key: key);
 
   @override
@@ -20,8 +22,30 @@ class Percentkeyboard extends StatefulWidget {
 
 class _PercentkeyboardState extends State<Percentkeyboard> {
   String? selectedMode;
+  String currentText = "";
 
-  void _textInputHandler(String text) => widget.onTextInput.call(text);
+  @override
+  void initState() {
+    super.initState();
+    // Khởi tạo currentText với giá trị ban đầu (nếu có)
+    if (widget.initialValue != null) {
+      currentText = widget.initialValue!;
+    }
+  }
+
+  void _textInputHandler(String text) {
+    // Nếu là dấu chấm, chỉ cho phép nhập nếu chưa có dấu chấm
+    if (text == '.' && currentText.contains('.')) {
+      return; // Đã có dấu chấm rồi, không cho nhập thêm
+    }
+
+    setState(() {
+      currentText += text;
+    });
+
+    // Chỉ truyền currentText, logic bên ngoài sẽ set trực tiếp
+    widget.onTextInput.call(currentText);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +83,10 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
                   onTap: () => Navigator.of(context).pop(),
                   splashColor: Colors.white.withOpacity(0.2),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     child: Text(
                       "Xong",
                       style: GoogleFonts.manrope(
@@ -90,8 +116,9 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
     final bool isActive = selectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
 
-    final Color bgColor =
-        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
+    final Color bgColor = isActive
+        ? activeColor.withOpacity(0.1)
+        : const Color(0xFF33383F);
     final Color textColor = isActive ? activeColor : Colors.white;
 
     return Padding(
@@ -152,6 +179,9 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
 
   // 🟩 Nút số / backspace
   Widget _buildKey(String label, {bool isBackspace = false}) {
+    // Tắt nút dấu chấm cho volume keyboard
+    final isDisabled = label == '.';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Material(
@@ -159,25 +189,44 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          splashColor: Colors.white.withOpacity(0.25),
-          highlightColor: Colors.white.withOpacity(0.1),
-          onTap: () {
-            if (isBackspace) {
-              widget.onBackspace.call();
-            } else {
-              _textInputHandler(label);
-            }
-          },
+          splashColor: isDisabled
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.25),
+          highlightColor: isDisabled
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.1),
+          onTap: isDisabled
+              ? () {}
+              : () {
+                  if (isBackspace) {
+                    // Xử lý xóa ký tự
+                    if (currentText.isNotEmpty) {
+                      setState(() {
+                        currentText = currentText.substring(
+                          0,
+                          currentText.length - 1,
+                        );
+                      });
+                      widget.onBackspace.call();
+                      // Cập nhật giá trị ra ngoài sau khi xóa
+                      widget.onTextInput.call(currentText);
+                    }
+                  } else if (label.isNotEmpty) {
+                    _textInputHandler(label);
+                  }
+                },
           child: SizedBox(
             width: 111.67,
             height: 40,
             child: Center(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6F767E),
+                  color: isDisabled
+                      ? const Color(0xFF3A3E42)
+                      : const Color(0xFF6F767E),
                 ),
               ),
             ),

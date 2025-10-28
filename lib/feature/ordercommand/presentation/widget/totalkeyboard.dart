@@ -51,8 +51,10 @@ class _TotalKeyboardState extends State<TotalKeyboard> {
                     onTap: () => Navigator.of(context).pop(),
                     splashColor: Colors.white.withOpacity(0.2),
                     child: Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       child: Text(
                         "Xong",
                         style: GoogleFonts.manrope(
@@ -78,57 +80,6 @@ class _TotalKeyboardState extends State<TotalKeyboard> {
     );
   }
 
-  // 🟩 Nút phần trăm (25%, 50%, 75%, 100%)
-  Widget _buildPercentButton(String label) {
-    final bool isActive = selectedMode == label;
-    final Color activeColor = const Color(0xFF1AAF74);
-
-    final Color bgColor =
-        isActive ? activeColor.withOpacity(0.1) : const Color(0xFF33383F);
-    final Color textColor = isActive ? activeColor : Colors.white;
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 10, top: 14),
-      child: Material(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          splashColor: Colors.white.withOpacity(0.2),
-          highlightColor: Colors.white.withOpacity(0.05),
-          onTap: () {
-            setState(() {
-              selectedMode = label;
-            });
-
-            // ✅ Gọi callback phần trăm nếu có
-            final percent = int.tryParse(label.replaceAll('%', ''));
-            if (percent != null) {
-              widget.onPercentSelected?.call(percent);
-            }
-
-            // Gửi text ra ngoài nếu cần xử lý thêm
-            _textInputHandler(label);
-          },
-          child: SizedBox(
-            width: 55,
-            height: 28,
-            child: Center(
-              child: Text(
-                label,
-                style: GoogleFonts.manrope(
-                  color: textColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   // 🟩 Hàng số
   Widget _buildRow(List<String> labels) {
     return Padding(
@@ -145,6 +96,9 @@ class _TotalKeyboardState extends State<TotalKeyboard> {
 
   // 🟩 Nút số / backspace
   Widget _buildKey(String label, {bool isBackspace = false}) {
+    // Tắt nút dấu chấm cho total keyboard
+    final isDisabled = label == '.';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Material(
@@ -152,25 +106,33 @@ class _TotalKeyboardState extends State<TotalKeyboard> {
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          splashColor: Colors.white.withOpacity(0.25),
-          highlightColor: Colors.white.withOpacity(0.1),
-          onTap: () {
-            if (isBackspace) {
-              widget.onBackspace.call();
-            } else {
-              _textInputHandler(label);
-            }
-          },
+          splashColor: isDisabled
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.25),
+          highlightColor: isDisabled
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.1),
+          onTap: isDisabled
+              ? () {} // Empty function để không làm gì
+              : () {
+                  if (isBackspace) {
+                    widget.onBackspace.call();
+                  } else {
+                    _textInputHandler(label);
+                  }
+                },
           child: SizedBox(
             width: 111.67,
             height: 40,
             child: Center(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6F767E),
+                  color: isDisabled
+                      ? const Color(0xFF3A3E42)
+                      : const Color(0xFF6F767E),
                 ),
               ),
             ),

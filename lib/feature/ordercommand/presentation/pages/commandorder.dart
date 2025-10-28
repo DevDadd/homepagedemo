@@ -63,7 +63,7 @@ class _CommandorderState extends State<Commandorder>
 
     // Lấy volume hiện tại (bỏ dấu phẩy)
     final volumeText = _avaController.text.replaceAll(',', '');
-    final volume = int.tryParse(volumeText);
+    final volume = double.tryParse(volumeText);
 
     // Tính maxCanBuy dựa trên price hiện tại hoặc giá tối thiểu
     int maxCanBuy = 0;
@@ -87,7 +87,7 @@ class _CommandorderState extends State<Commandorder>
     }
 
     // Kiểm tra volume vượt quá maxCanBuy HOẶC total vượt quá sucmua
-    final isVolumeOverMax = (volume != null && volume > maxCanBuy);
+    final isVolumeOverMax = (volume != null && volume > maxCanBuy.toDouble());
 
     setState(() {
       isOverSucMua = total > sucmua || isVolumeOverMax;
@@ -262,7 +262,7 @@ class _CommandorderState extends State<Commandorder>
     ); // Volume cũng có dấu phẩy
 
     double? price;
-    int? volume;
+    double? volume;
 
     // Nếu người dùng chọn mode đặc biệt thì dùng giá trần
     if (_priceController.text == "MP" ||
@@ -277,7 +277,7 @@ class _CommandorderState extends State<Commandorder>
       }
     }
 
-    volume = int.tryParse(volumeText);
+    volume = double.tryParse(volumeText);
 
     // Debug: in ra console để kiểm tra
     print('Debug _totalValue:');
@@ -1996,29 +1996,39 @@ class _CommandorderState extends State<Commandorder>
                                                                       _avaController
                                                                           .text,
                                                                     )) {
-                                                                      // Bỏ dấu phẩy, thêm ký tự mới, format lại
-                                                                      final cleanValue = _avaController
-                                                                          .text
-                                                                          .replaceAll(
-                                                                            ',',
-                                                                            '',
+                                                                      // Nhận toàn bộ giá trị từ keyboard và xử lý
+                                                                      // Kiểm tra xem có dấu chấm không
+                                                                      if (value
+                                                                          .contains(
+                                                                            '.',
+                                                                          )) {
+                                                                        // Nếu có dấu chấm, parse thành double và giữ nguyên dấu chấm
+                                                                        final doubleValue =
+                                                                            double.tryParse(
+                                                                              value,
+                                                                            );
+                                                                        if (doubleValue !=
+                                                                                null &&
+                                                                            doubleValue >
+                                                                                0) {
+                                                                          _avaController.text =
+                                                                              value;
+                                                                        }
+                                                                      } else {
+                                                                        // Nếu không có dấu chấm, parse thành int và format với dấu phẩy
+                                                                        final intValue =
+                                                                            int.tryParse(
+                                                                              value,
+                                                                            );
+                                                                        if (intValue !=
+                                                                                null &&
+                                                                            intValue >
+                                                                                0) {
+                                                                          _avaController
+                                                                              .text = numberFormat.format(
+                                                                            intValue,
                                                                           );
-                                                                      final newValue =
-                                                                          cleanValue +
-                                                                          value;
-                                                                      final numValue =
-                                                                          int.tryParse(
-                                                                            newValue,
-                                                                          );
-
-                                                                      if (numValue !=
-                                                                              null &&
-                                                                          numValue >
-                                                                              0) {
-                                                                        _avaController
-                                                                            .text = numberFormat.format(
-                                                                          numValue,
-                                                                        );
+                                                                        }
                                                                       }
                                                                       // Nếu <= 0 thì không set gì cả, giữ nguyên giá trị hiện tại
                                                                     }
@@ -2027,37 +2037,63 @@ class _CommandorderState extends State<Commandorder>
                                                                     if (_avaController
                                                                         .text
                                                                         .isNotEmpty) {
-                                                                      // Bỏ dấu phẩy, xóa 1 ký tự, format lại
-                                                                      final cleanValue = _avaController
-                                                                          .text
-                                                                          .replaceAll(
-                                                                            ',',
-                                                                            '',
+                                                                      // Xóa 1 ký tự
+                                                                      final currentValue =
+                                                                          _avaController
+                                                                              .text;
+                                                                      final newValue =
+                                                                          currentValue.substring(
+                                                                            0,
+                                                                            currentValue.length -
+                                                                                1,
                                                                           );
-                                                                      if (cleanValue
-                                                                          .isNotEmpty) {
-                                                                        final newValue = cleanValue.substring(
-                                                                          0,
-                                                                          cleanValue.length -
-                                                                              1,
-                                                                        );
-                                                                        if (newValue
-                                                                            .isNotEmpty) {
-                                                                          final numValue = int.tryParse(
-                                                                            newValue,
-                                                                          );
-                                                                          if (numValue !=
-                                                                                  null &&
-                                                                              numValue >
-                                                                                  0) {
-                                                                            _avaController.text = numberFormat.format(
-                                                                              numValue,
+
+                                                                      if (newValue
+                                                                          .isEmpty) {
+                                                                        _avaController.text =
+                                                                            '';
+                                                                        return;
+                                                                      }
+
+                                                                      // Kiểm tra xem có dấu chấm không
+                                                                      if (newValue
+                                                                          .contains(
+                                                                            '.',
+                                                                          )) {
+                                                                        // Nếu có dấu chấm, giữ nguyên
+                                                                        final doubleValue =
+                                                                            double.tryParse(
+                                                                              newValue,
                                                                             );
-                                                                          } else {
-                                                                            // Nếu <= 0 thì set về rỗng
-                                                                            _avaController.text =
-                                                                                '';
-                                                                          }
+                                                                        if (doubleValue !=
+                                                                                null &&
+                                                                            doubleValue >
+                                                                                0) {
+                                                                          _avaController.text =
+                                                                              newValue;
+                                                                        } else {
+                                                                          _avaController.text =
+                                                                              '';
+                                                                        }
+                                                                      } else {
+                                                                        // Nếu không có dấu chấm, parse thành int và format
+                                                                        final cleanValue =
+                                                                            newValue.replaceAll(
+                                                                              ',',
+                                                                              '',
+                                                                            );
+                                                                        final intValue =
+                                                                            int.tryParse(
+                                                                              cleanValue,
+                                                                            );
+                                                                        if (intValue !=
+                                                                                null &&
+                                                                            intValue >
+                                                                                0) {
+                                                                          _avaController
+                                                                              .text = numberFormat.format(
+                                                                            intValue,
+                                                                          );
                                                                         } else {
                                                                           _avaController.text =
                                                                               '';
@@ -2073,6 +2109,9 @@ class _CommandorderState extends State<Commandorder>
                                                                           percent,
                                                                         );
                                                                       },
+                                                                  initialValue:
+                                                                      _avaController
+                                                                          .text,
                                                                 ),
                                                               ).whenComplete(() {
                                                                 setState(() {

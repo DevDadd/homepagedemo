@@ -28,7 +28,7 @@ class CustomKeyboard extends StatefulWidget {
 
 class _CustomKeyboardState extends State<CustomKeyboard> {
   String? localSelectedMode;
-  String currentText = ""; 
+  String currentText = "";
 
   @override
   void initState() {
@@ -54,7 +54,17 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     if (currentText == "MP" || currentText == "ATO" || currentText == "ATC") {
       return;
     }
-    
+
+    // Không cho nhập dấu chấm nếu priceController rỗng
+    if (text == '.' && currentText.isEmpty) {
+      return;
+    }
+
+    // Nếu là dấu chấm và đã có dấu chấm rồi, không cho nhập thêm
+    if (text == '.' && currentText.contains('.')) {
+      return;
+    }
+
     setState(() {
       currentText += text;
     });
@@ -157,11 +167,11 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   Widget _buildModeButton(String label) {
     // Xác định button nào active dựa trên currentText và localSelectedMode
     bool isActive = false;
-    
+
     // Nếu currentText rỗng, dùng localSelectedMode
     if (currentText.isEmpty) {
       isActive = localSelectedMode == label;
-    } 
+    }
     // Nếu có giá trị
     else {
       if (label == "MP") {
@@ -169,22 +179,24 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
         isActive = currentText == "MP" || currentText == "M";
       } else if (label == "ATO") {
         // ATO active nếu currentText = "ATO" hoặc đang bắt đầu bằng "A"
-        isActive = currentText == "ATO" || currentText == "AT" || currentText == "A";
+        isActive =
+            currentText == "ATO" || currentText == "AT" || currentText == "A";
       } else if (label == "ATC") {
         // ATC active nếu currentText = "ATC" hoặc đang bắt đầu bằng "A"
         isActive = currentText == "ATC" || currentText == "AT";
       } else if (label == "LO") {
         // LO active nếu currentText là số (không phải MP/ATO/ATC và không phải chữ cái)
-        isActive = currentText != "MP" && 
-                   currentText != "ATO" && 
-                   currentText != "ATC" &&
-                   currentText != "M" &&
-                   currentText != "A" &&
-                   currentText != "AT" &&
-                   !currentText.contains(RegExp(r'^[A-Z]+$'));
+        isActive =
+            currentText != "MP" &&
+            currentText != "ATO" &&
+            currentText != "ATC" &&
+            currentText != "M" &&
+            currentText != "A" &&
+            currentText != "AT" &&
+            !currentText.contains(RegExp(r'^[A-Z]+$'));
       }
     }
-    
+
     final Color activeColor = const Color(0xFF1AAF74);
     final Color bgColor = isActive
         ? activeColor.withOpacity(0.1)
@@ -234,6 +246,10 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   }
 
   Widget _buildKey(String label, {bool isBackspace = false}) {
+    // Tắt nút dấu chấm nếu đã có dấu chấm hoặc currentText rỗng
+    final hasDot = currentText.contains('.');
+    final isDisabled = label == '.' && (hasDot || currentText.isEmpty);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Material(
@@ -241,25 +257,33 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          splashColor: Colors.white.withOpacity(0.25),
-          highlightColor: Colors.white.withOpacity(0.1),
-          onTap: () {
-            if (isBackspace) {
-              _backspaceHandler(); // ✅ sửa dùng hàm mới
-            } else {
-              _textInputHandler(label);
-            }
-          },
+          splashColor: isDisabled
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.25),
+          highlightColor: isDisabled
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.1),
+          onTap: isDisabled
+              ? () {} // Empty function để không làm gì
+              : () {
+                  if (isBackspace) {
+                    _backspaceHandler(); // ✅ sửa dùng hàm mới
+                  } else {
+                    _textInputHandler(label);
+                  }
+                },
           child: SizedBox(
             width: 111.67,
             height: 40,
             child: Center(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6F767E),
+                  color: isDisabled
+                      ? const Color(0xFF3A3E42)
+                      : const Color(0xFF6F767E),
                 ),
               ),
             ),
