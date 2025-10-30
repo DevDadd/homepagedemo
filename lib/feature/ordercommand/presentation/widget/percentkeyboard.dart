@@ -54,28 +54,36 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
     if (text == '.' && currentText.contains('.')) return;
 
     setState(() {
+      // ✅ Nếu vừa chọn phần trăm thì reset text để bắt đầu nhập mới
+      if (selectedMode != null) {
+        selectedMode = null;
+        currentText = "";
+      }
+
       currentText += text;
     });
     widget.onTextInput.call(currentText);
   }
 
   void _applyPercent(int percent) {
-    // Lấy giá trị hiện tại (nếu có)
+    // ✅ Lấy base value từ currentText hiện tại để hiển thị ngay
     final base = double.tryParse(currentText.replaceAll(',', '')) ?? 0;
-
-    // Tính giá trị sau phần trăm (để hiển thị ngay)
     final result = base * percent / 100;
 
-    // Cập nhật UI trước
+    // ✅ Cập nhật giao diện ngay (không cần chờ cha)
     setState(() {
       selectedMode = "$percent%";
-      currentText = result.toStringAsFixed(2);
+      currentText = (result % 1 == 0)
+          ? result
+                .toInt()
+                .toString() // Nếu là số nguyên → bỏ .0
+          : result.toStringAsFixed(2); // Nếu có phần thập phân → giữ 2 chữ số
     });
 
-    // Gửi giá trị mới ra ngoài
+    // ✅ Gửi giá trị mới ra ngoài để textfield cập nhật ngay
     widget.onTextInput.call(currentText);
 
-    // Gọi callback tính toán bên ngoài
+    // ✅ Gọi callback phần trăm để cha tính toán (ví dụ calculate_volume_with_percentages)
     widget.onPercentSelected?.call(percent);
   }
 
