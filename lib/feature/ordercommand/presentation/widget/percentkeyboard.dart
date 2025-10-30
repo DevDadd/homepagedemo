@@ -5,8 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 class Percentkeyboard extends StatefulWidget {
   final Function(String) onTextInput;
   final Function onBackspace;
-  final Function(int)? onPercentSelected; // ✅ callback khi chọn phần trăm
-  final String? initialValue; // Giá trị hiện tại để check đã có dấu chấm chưa
+  final Function(int)? onPercentSelected;
+  final String? initialValue;
+  final String?
+  externalValue; // Giá trị cập nhật từ ngoài sau khi tính phần trăm
 
   const Percentkeyboard({
     Key? key,
@@ -14,6 +16,7 @@ class Percentkeyboard extends StatefulWidget {
     required this.onBackspace,
     this.onPercentSelected,
     this.initialValue,
+    this.externalValue,
   }) : super(key: key);
 
   @override
@@ -27,24 +30,53 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
   @override
   void initState() {
     super.initState();
-    // Khởi tạo currentText với giá trị ban đầu (nếu có)
     if (widget.initialValue != null) {
       currentText = widget.initialValue!;
     }
   }
 
-  void _textInputHandler(String text) {
-    // Nếu là dấu chấm, chỉ cho phép nhập nếu chưa có dấu chấm
-    if (text == '.' && currentText.contains('.')) {
-      return; // Đã có dấu chấm rồi, không cho nhập thêm
+  @override
+  void didUpdateWidget(covariant Percentkeyboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Cập nhật khi externalValue đổi (ví dụ sau khi tính toán ngoài)
+    final ext = widget.externalValue;
+    if (ext != null && ext.isNotEmpty) {
+      final normalized = ext.replaceAll(',', '');
+      if (normalized != currentText) {
+        setState(() {
+          currentText = normalized;
+        });
+      }
     }
+  }
+
+  void _textInputHandler(String text) {
+    if (text == '.' && currentText.contains('.')) return;
 
     setState(() {
       currentText += text;
     });
-
-    // Chỉ truyền currentText, logic bên ngoài sẽ set trực tiếp
     widget.onTextInput.call(currentText);
+  }
+
+  void _applyPercent(int percent) {
+    // Lấy giá trị hiện tại (nếu có)
+    final base = double.tryParse(currentText.replaceAll(',', '')) ?? 0;
+
+    // Tính giá trị sau phần trăm (để hiển thị ngay)
+    final result = base * percent / 100;
+
+    // Cập nhật UI trước
+    setState(() {
+      selectedMode = "$percent%";
+      currentText = result.toStringAsFixed(2);
+    });
+
+    // Gửi giá trị mới ra ngoài
+    widget.onTextInput.call(currentText);
+
+    // Gọi callback tính toán bên ngoài
+    widget.onPercentSelected?.call(percent);
   }
 
   @override
@@ -68,16 +100,11 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
                   child: SvgPicture.asset("assets/icons/rightarr.svg"),
                 ),
                 const SizedBox(width: 12),
-
-                // 🔹 Các nút phần trăm
                 _buildPercentButton("25%"),
                 _buildPercentButton("50%"),
                 _buildPercentButton("75%"),
                 _buildPercentButton("100%"),
-
                 const SizedBox(width: 12),
-
-                // 🔹 Nút "Xong"
                 InkWell(
                   borderRadius: BorderRadius.circular(8),
                   onTap: () => Navigator.of(context).pop(),
@@ -99,8 +126,6 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
                 ),
               ],
             ),
-
-            // 🔹 Các hàng số
             _buildRow(['1', '2', '3']),
             _buildRow(['4', '5', '6']),
             _buildRow(['7', '8', '9']),
@@ -111,11 +136,9 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
     );
   }
 
-  // 🟩 Nút phần trăm (25%, 50%, 75%, 100%)
   Widget _buildPercentButton(String label) {
     final bool isActive = selectedMode == label;
     final Color activeColor = const Color(0xFF1AAF74);
-
     final Color bgColor = isActive
         ? activeColor.withOpacity(0.1)
         : const Color(0xFF33383F);
@@ -131,18 +154,10 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
           splashColor: Colors.white.withOpacity(0.2),
           highlightColor: Colors.white.withOpacity(0.05),
           onTap: () {
-            setState(() {
-              selectedMode = label;
-            });
-
-            // ✅ Gọi callback phần trăm nếu có
             final percent = int.tryParse(label.replaceAll('%', ''));
             if (percent != null) {
-              widget.onPercentSelected?.call(percent);
+              _applyPercent(percent);
             }
-
-            // Gửi text ra ngoài nếu cần xử lý thêm
-            _textInputHandler(label);
           },
           child: SizedBox(
             width: 55,
@@ -163,7 +178,6 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
     );
   }
 
-  // 🟩 Hàng số
   Widget _buildRow(List<String> labels) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -177,9 +191,7 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
     );
   }
 
-  // 🟩 Nút số / backspace
   Widget _buildKey(String label, {bool isBackspace = false}) {
-    // Tắt nút dấu chấm cho volume keyboard
     final isDisabled = label == '.';
 
     return Padding(
@@ -196,10 +208,9 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
               ? Colors.transparent
               : Colors.white.withOpacity(0.1),
           onTap: isDisabled
-              ? () {}
+              ? null
               : () {
                   if (isBackspace) {
-                    // Xử lý xóa ký tự
                     if (currentText.isNotEmpty) {
                       setState(() {
                         currentText = currentText.substring(
@@ -208,10 +219,9 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
                         );
                       });
                       widget.onBackspace.call();
-                      // Cập nhật giá trị ra ngoài sau khi xóa
                       widget.onTextInput.call(currentText);
                     }
-                  } else if (label.isNotEmpty) {
+                  } else {
                     _textInputHandler(label);
                   }
                 },
