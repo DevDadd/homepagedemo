@@ -167,7 +167,10 @@ class _CommandorderState extends State<Commandorder>
 
     final volume = total / validPrice;
 
-    final intVolume = volume.floor();
+    int intVolume = volume.floor();
+    if (priceMaxCanBuy != null && priceMaxCanBuy! > 0) {
+      if (intVolume > priceMaxCanBuy!) intVolume = priceMaxCanBuy!;
+    }
 
     final formatted = numberFormat.format(intVolume);
     _avaController.value = TextEditingValue(
@@ -345,7 +348,10 @@ class _CommandorderState extends State<Commandorder>
 
     // Tính khối lượng
     final volume = total / price;
-    final intVolume = volume.round();
+    int intVolume = volume.round();
+    if (priceMaxCanBuy != null && priceMaxCanBuy! > 0) {
+      if (intVolume > priceMaxCanBuy!) intVolume = priceMaxCanBuy!;
+    }
 
     print('volume: $volume, intVolume: $intVolume');
 
@@ -1636,20 +1642,24 @@ class _CommandorderState extends State<Commandorder>
                                               children: [
                                                 Builder(
                                                   builder: (context) {
-                                                    final currentPrice = double.tryParse(
+                                                    final currentPrice =
+                                                        double.tryParse(
                                                           _priceController.text,
                                                         ) ??
                                                         0.0;
-                                                    final bool isAtFloor = currentPrice <= giamin;
+                                                    final bool isAtFloor =
+                                                        currentPrice <= giamin;
 
                                                     return GestureDetector(
                                                       onTap: isAtFloor
                                                           ? null
                                                           : () => decreasementController(
-                                                                _priceController,
-                                                              ),
+                                                              _priceController,
+                                                            ),
                                                       child: Opacity(
-                                                        opacity: isAtFloor ? 0.4 : 1.0,
+                                                        opacity: isAtFloor
+                                                            ? 0.4
+                                                            : 1.0,
                                                         child: SvgPicture.asset(
                                                           "assets/icons/addbut.svg",
                                                         ),
@@ -1923,20 +1933,24 @@ class _CommandorderState extends State<Commandorder>
                                                 ),
                                                 Builder(
                                                   builder: (context) {
-                                                    final currentPrice = double.tryParse(
+                                                    final currentPrice =
+                                                        double.tryParse(
                                                           _priceController.text,
                                                         ) ??
                                                         0.0;
-                                                    final bool isAtCeiling = currentPrice >= giatran;
+                                                    final bool isAtCeiling =
+                                                        currentPrice >= giatran;
 
                                                     return GestureDetector(
                                                       onTap: isAtCeiling
                                                           ? null
                                                           : () => increamentController(
-                                                                _priceController,
-                                                              ),
+                                                              _priceController,
+                                                            ),
                                                       child: Opacity(
-                                                        opacity: isAtCeiling ? 0.4 : 1.0,
+                                                        opacity: isAtCeiling
+                                                            ? 0.4
+                                                            : 1.0,
                                                         child: SvgPicture.asset(
                                                           "assets/icons/plus.svg",
                                                         ),
@@ -2070,7 +2084,8 @@ class _CommandorderState extends State<Commandorder>
                                                                 barrierColor: Colors
                                                                     .transparent,
                                                                 builder: (_) => PercentKeyboard(
-                                                                  priceMaxCanBuy: priceMaxCanBuy,
+                                                                  priceMaxCanBuy:
+                                                                      priceMaxCanBuy,
                                                                   onTextInput: (value) {
                                                                     if ([
                                                                       "LO",
@@ -2417,7 +2432,9 @@ class _CommandorderState extends State<Commandorder>
                                                                 value;
 
                                                             // Giới hạn tối đa 11 chữ số
-                                                            if (newValue.length > 11) {
+                                                            if (newValue
+                                                                    .length >
+                                                                11) {
                                                               return;
                                                             }
                                                             final numValue =
