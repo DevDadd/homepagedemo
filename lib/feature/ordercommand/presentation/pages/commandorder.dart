@@ -169,9 +169,10 @@ class _CommandorderState extends State<Commandorder>
 
     final intVolume = volume.round();
 
+    final formatted = numberFormat.format(intVolume);
     _avaController.value = TextEditingValue(
-      text: intVolume.toString(),
-      selection: TextSelection.collapsed(offset: intVolume.toString().length),
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
 
     _totalValue();

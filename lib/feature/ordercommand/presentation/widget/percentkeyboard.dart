@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class PercentKeyboard extends StatefulWidget {
   final Function(String) onTextInput;
@@ -47,21 +48,29 @@ class _PercentKeyboardState extends State<PercentKeyboard> {
   }
 
   void _textInputHandler(String text) {
-    if (text == '.' && controller.text.contains('.')) return;
+    final currentRaw = controller.text.replaceAll(',', '');
+    if (text == '.' && currentRaw.contains('.')) return;
+
+    final newRaw = currentRaw + text;
+
+    String displayText;
+    if (newRaw.contains('.')) {
+      displayText = newRaw;
+    } else {
+      final parsed = int.tryParse(newRaw) ?? 0;
+      displayText = NumberFormat('#,##0', 'en_US').format(parsed);
+    }
 
     setState(() {
-      if (justCalculated) justCalculated = false; // nhập tiếp sau %
-
+      if (justCalculated) justCalculated = false;
       selectedMode = null;
       controller.value = TextEditingValue(
-        text: controller.text + text,
-        selection: TextSelection.collapsed(
-          offset: controller.text.length + text.length,
-        ),
+        text: displayText,
+        selection: TextSelection.collapsed(offset: displayText.length),
       );
     });
 
-    widget.onTextInput(controller.text);
+    widget.onTextInput(newRaw);
   }
 
   // _applyPercent removed; percent buttons now input digits via _textInputHandler.
@@ -154,7 +163,18 @@ class _PercentKeyboardState extends State<PercentKeyboard> {
             if (percent != null) {
               final maxCanBuy = widget.priceMaxCanBuy ?? 0;
               final computed = ((maxCanBuy * percent) / 100).floor();
-              _textInputHandler(computed.toString());
+              final formatted = NumberFormat('#,##0', 'en_US').format(computed);
+
+              setState(() {
+                selectedMode = label;
+                justCalculated = true;
+                controller.value = TextEditingValue(
+                  text: formatted,
+                  selection: TextSelection.collapsed(offset: formatted.length),
+                );
+              });
+
+              widget.onTextInput(computed.toString());
               widget.onPercentSelected?.call(percent);
             }
           },
