@@ -167,7 +167,7 @@ class _CommandorderState extends State<Commandorder>
 
     final volume = total / validPrice;
 
-    final intVolume = volume.round();
+    final intVolume = volume.floor();
 
     final formatted = numberFormat.format(intVolume);
     _avaController.value = TextEditingValue(
@@ -1634,14 +1634,28 @@ class _CommandorderState extends State<Commandorder>
                                             ),
                                             child: Row(
                                               children: [
-                                                GestureDetector(
-                                                  onTap: () =>
-                                                      decreasementController(
-                                                        _priceController,
+                                                Builder(
+                                                  builder: (context) {
+                                                    final currentPrice = double.tryParse(
+                                                          _priceController.text,
+                                                        ) ??
+                                                        0.0;
+                                                    final bool isAtFloor = currentPrice <= giamin;
+
+                                                    return GestureDetector(
+                                                      onTap: isAtFloor
+                                                          ? null
+                                                          : () => decreasementController(
+                                                                _priceController,
+                                                              ),
+                                                      child: Opacity(
+                                                        opacity: isAtFloor ? 0.4 : 1.0,
+                                                        child: SvgPicture.asset(
+                                                          "assets/icons/addbut.svg",
+                                                        ),
                                                       ),
-                                                  child: SvgPicture.asset(
-                                                    "assets/icons/addbut.svg",
-                                                  ),
+                                                    );
+                                                  },
                                                 ),
                                                 Expanded(
                                                   child: TextField(
@@ -1907,14 +1921,28 @@ class _CommandorderState extends State<Commandorder>
                                                     textAlign: TextAlign.center,
                                                   ),
                                                 ),
-                                                GestureDetector(
-                                                  onTap: () =>
-                                                      increamentController(
-                                                        _priceController,
+                                                Builder(
+                                                  builder: (context) {
+                                                    final currentPrice = double.tryParse(
+                                                          _priceController.text,
+                                                        ) ??
+                                                        0.0;
+                                                    final bool isAtCeiling = currentPrice >= giatran;
+
+                                                    return GestureDetector(
+                                                      onTap: isAtCeiling
+                                                          ? null
+                                                          : () => increamentController(
+                                                                _priceController,
+                                                              ),
+                                                      child: Opacity(
+                                                        opacity: isAtCeiling ? 0.4 : 1.0,
+                                                        child: SvgPicture.asset(
+                                                          "assets/icons/plus.svg",
+                                                        ),
                                                       ),
-                                                  child: SvgPicture.asset(
-                                                    "assets/icons/plus.svg",
-                                                  ),
+                                                    );
+                                                  },
                                                 ),
                                               ],
                                             ),
@@ -2387,6 +2415,11 @@ class _CommandorderState extends State<Commandorder>
                                                             final newValue =
                                                                 cleanValue +
                                                                 value;
+
+                                                            // Giới hạn tối đa 11 chữ số
+                                                            if (newValue.length > 11) {
+                                                              return;
+                                                            }
                                                             final numValue =
                                                                 int.tryParse(
                                                                   newValue,

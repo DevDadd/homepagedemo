@@ -48,8 +48,8 @@ class _PercentKeyboardState extends State<PercentKeyboard> {
   }
 
   void _textInputHandler(String text) {
+    if (text == '.') return; // disallow dot entirely
     final currentRaw = controller.text.replaceAll(',', '');
-    if (text == '.' && currentRaw.contains('.')) return;
 
     final newRaw = currentRaw + text;
 
@@ -217,25 +217,33 @@ class _PercentKeyboardState extends State<PercentKeyboard> {
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          splashColor: Colors.white.withOpacity(0.25),
-          highlightColor: Colors.white.withOpacity(0.1),
-          onTap: () {
-            if (isBackspace) {
-              _onBackspace();
-            } else {
-              _textInputHandler(label);
-            }
-          },
+          splashColor: label == '.'
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.25),
+          highlightColor: label == '.'
+              ? Colors.transparent
+              : Colors.white.withOpacity(0.1),
+          onTap: label == '.'
+              ? null
+              : () {
+                  if (isBackspace) {
+                    _onBackspace();
+                  } else {
+                    _textInputHandler(label);
+                  }
+                },
           child: SizedBox(
             width: 111.67,
             height: 40,
             child: Center(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF6F767E),
+                  color: label == '.'
+                      ? const Color(0xFF33383F)
+                      : const Color(0xFF6F767E),
                 ),
               ),
             ),
