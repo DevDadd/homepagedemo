@@ -2,89 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Percentkeyboard extends StatefulWidget {
+class PercentKeyboard extends StatefulWidget {
   final Function(String) onTextInput;
   final Function onBackspace;
   final Function(int)? onPercentSelected;
   final String? initialValue;
-  final String?
-  externalValue; // Giá trị cập nhật từ ngoài sau khi tính phần trăm
+  final int? priceMaxCanBuy;
 
-  const Percentkeyboard({
+  const PercentKeyboard({
     Key? key,
     required this.onTextInput,
     required this.onBackspace,
     this.onPercentSelected,
     this.initialValue,
-    this.externalValue,
+    this.priceMaxCanBuy,
   }) : super(key: key);
 
   @override
-  State<Percentkeyboard> createState() => _PercentkeyboardState();
+  State<PercentKeyboard> createState() => _PercentKeyboardState();
 }
 
-class _PercentkeyboardState extends State<Percentkeyboard> {
+class _PercentKeyboardState extends State<PercentKeyboard> {
+  late TextEditingController controller;
   String? selectedMode;
-  String currentText = "";
+  bool justCalculated = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialValue != null) {
-      currentText = widget.initialValue!;
-    }
+    controller = TextEditingController(text: widget.initialValue ?? "");
   }
 
   @override
-  void didUpdateWidget(covariant Percentkeyboard oldWidget) {
+  void didUpdateWidget(covariant PercentKeyboard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Cập nhật khi externalValue đổi (ví dụ sau khi tính toán ngoài)
-    final ext = widget.externalValue;
-    if (ext != null && ext.isNotEmpty) {
-      final normalized = ext.replaceAll(',', '');
-      if (normalized != currentText) {
-        setState(() {
-          currentText = normalized;
-        });
-      }
+    if (!justCalculated &&
+        widget.initialValue != null &&
+        widget.initialValue != oldWidget.initialValue) {
+      controller.value = TextEditingValue(
+        text: widget.initialValue!,
+        selection: TextSelection.collapsed(offset: widget.initialValue!.length),
+      );
     }
   }
 
   void _textInputHandler(String text) {
-    if (text == '.' && currentText.contains('.')) return;
+    if (text == '.' && controller.text.contains('.')) return;
 
     setState(() {
-      // ✅ Nếu vừa chọn phần trăm thì reset text để bắt đầu nhập mới
-      if (selectedMode != null) {
-        selectedMode = null;
-        currentText = "";
-      }
+      if (justCalculated) justCalculated = false; // nhập tiếp sau %
 
-      currentText += text;
+      selectedMode = null;
+      controller.value = TextEditingValue(
+        text: controller.text + text,
+        selection: TextSelection.collapsed(
+          offset: controller.text.length + text.length,
+        ),
+      );
     });
-    widget.onTextInput.call(currentText);
+
+    widget.onTextInput(controller.text);
   }
 
-  void _applyPercent(int percent) {
-    // ✅ Lấy base value từ currentText hiện tại để hiển thị ngay
-    final base = double.tryParse(currentText.replaceAll(',', '')) ?? 0;
-    final result = base * percent / 100;
+  // _applyPercent removed; percent buttons now input digits via _textInputHandler.
 
-    // ✅ Cập nhật giao diện ngay (không cần chờ cha)
-    setState(() {
-      selectedMode = "$percent%";
-      currentText = (result % 1 == 0)
-          ? result
-                .toInt()
-                .toString() // Nếu là số nguyên → bỏ .0
-          : result.toStringAsFixed(2); // Nếu có phần thập phân → giữ 2 chữ số
-    });
-
-    // ✅ Gửi giá trị mới ra ngoài để textfield cập nhật ngay
-    widget.onTextInput.call(currentText);
-
-    // ✅ Gọi callback phần trăm để cha tính toán (ví dụ calculate_volume_with_percentages)
-    widget.onPercentSelected?.call(percent);
+  void _onBackspace() {
+    if (controller.text.isNotEmpty) {
+      final newText = controller.text.substring(0, controller.text.length - 1);
+      controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(offset: newText.length),
+      );
+    }
+    widget.onBackspace();
   }
 
   @override
@@ -145,12 +135,11 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
   }
 
   Widget _buildPercentButton(String label) {
-    final bool isActive = selectedMode == label;
-    final Color activeColor = const Color(0xFF1AAF74);
-    final Color bgColor = isActive
-        ? activeColor.withOpacity(0.1)
+    final isActive = selectedMode == label;
+    final bgColor = isActive
+        ? const Color(0xFF1AAF74).withOpacity(0.1)
         : const Color(0xFF33383F);
-    final Color textColor = isActive ? activeColor : Colors.white;
+    final textColor = isActive ? const Color(0xFF1AAF74) : Colors.white;
 
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 10, top: 14),
@@ -160,11 +149,13 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           splashColor: Colors.white.withOpacity(0.2),
-          highlightColor: Colors.white.withOpacity(0.05),
           onTap: () {
             final percent = int.tryParse(label.replaceAll('%', ''));
             if (percent != null) {
-              _applyPercent(percent);
+              final maxCanBuy = widget.priceMaxCanBuy ?? 0;
+              final computed = ((maxCanBuy * percent) / 100).floor();
+              _textInputHandler(computed.toString());
+              widget.onPercentSelected?.call(percent);
             }
           },
           child: SizedBox(
@@ -191,17 +182,14 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: labels.map((label) {
-          final isBackspace = label == '⌫';
-          return _buildKey(label, isBackspace: isBackspace);
-        }).toList(),
+        children: labels
+            .map((label) => _buildKey(label, isBackspace: label == '⌫'))
+            .toList(),
       ),
     );
   }
 
   Widget _buildKey(String label, {bool isBackspace = false}) {
-    final isDisabled = label == '.';
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
       child: Material(
@@ -209,42 +197,25 @@ class _PercentkeyboardState extends State<Percentkeyboard> {
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
-          splashColor: isDisabled
-              ? Colors.transparent
-              : Colors.white.withOpacity(0.25),
-          highlightColor: isDisabled
-              ? Colors.transparent
-              : Colors.white.withOpacity(0.1),
-          onTap: isDisabled
-              ? null
-              : () {
-                  if (isBackspace) {
-                    if (currentText.isNotEmpty) {
-                      setState(() {
-                        currentText = currentText.substring(
-                          0,
-                          currentText.length - 1,
-                        );
-                      });
-                      widget.onBackspace.call();
-                      widget.onTextInput.call(currentText);
-                    }
-                  } else {
-                    _textInputHandler(label);
-                  }
-                },
+          splashColor: Colors.white.withOpacity(0.25),
+          highlightColor: Colors.white.withOpacity(0.1),
+          onTap: () {
+            if (isBackspace) {
+              _onBackspace();
+            } else {
+              _textInputHandler(label);
+            }
+          },
           child: SizedBox(
             width: 111.67,
             height: 40,
             child: Center(
               child: Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: isDisabled
-                      ? const Color(0xFF3A3E42)
-                      : const Color(0xFF6F767E),
+                  color: Color(0xFF6F767E),
                 ),
               ),
             ),

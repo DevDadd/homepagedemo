@@ -2040,29 +2040,9 @@ class _CommandorderState extends State<Commandorder>
                                                                     true,
                                                                 barrierColor: Colors
                                                                     .transparent,
-                                                                builder: (_) => Percentkeyboard(
+                                                                builder: (_) => PercentKeyboard(
+                                                                  priceMaxCanBuy: priceMaxCanBuy,
                                                                   onTextInput: (value) {
-                                                                    if ([
-                                                                      "25%",
-                                                                      "50%",
-                                                                      "75%",
-                                                                      "100%",
-                                                                    ].contains(
-                                                                      value,
-                                                                    )) {
-                                                                      final percent =
-                                                                          int.tryParse(
-                                                                            value.replaceAll(
-                                                                              '%',
-                                                                              '',
-                                                                            ),
-                                                                          ) ??
-                                                                          0;
-                                                                      calculate_volume_with_percentages(
-                                                                        percent,
-                                                                      );
-                                                                      return;
-                                                                    }
                                                                     if ([
                                                                       "LO",
                                                                       "MP",
