@@ -56,10 +56,9 @@ class _CommandorderState extends State<Commandorder>
   final NumberFormat numberFormat = NumberFormat("#,##0", "en_US");
   int? priceMaxCanBuy;
   double remainHeight = 0;
-  Size? widgetSize1;
-  Size? widgetSize2;
-  Size? widgetSize3;
-
+  double? widgetSize1;
+  double? widgetSize2;
+  double? widgetSize3;
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
 
   void checkSucMua() {
@@ -106,6 +105,23 @@ class _CommandorderState extends State<Commandorder>
         errorMessage = "";
       }
     });
+  }
+
+  void calculateRemainHeight(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final appBarHeight = 5.0; // toolbarHeight từ AppBar
+    
+    final double size1 = widgetSize1 ?? 0;
+    final double size2 = widgetSize2 ?? 0;
+    final double size3 = widgetSize3 ?? 0;
+    
+    // Tính tổng chiều cao đã sử dụng: AppBar + SafeArea + các widget + spacing
+    // remainHeight = phần còn lại từ dưới Container màu xám (sau spacing) đến bottom của màn hình
+    // Công thức này sẽ đặt DraggableScrollableSheet bắt đầu ngay dưới Container màu xám
+    remainHeight = screenHeight - ( appBarHeight + size1 + size2 + size3);
+    
+    // Đảm bảo remainHeight không âm
+    if (remainHeight < 0) remainHeight = 0;
   }
 
   void checkLimit() {
@@ -402,6 +418,12 @@ class _CommandorderState extends State<Commandorder>
     _tabController = TabController(length: 2, vsync: this);
     _tabController1 = TabController(length: 4, vsync: this);
 
+    _tabController1.addListener(() {
+      if (_tabController1.indexIsChanging == false) {
+        setState(() {});
+      }
+    });
+
     // 🧮 Chỉ tính total khi cả price và volume đều có giá trị
     _priceController.addListener(() {
       print('Price changed: ${_priceController.text}');
@@ -506,7 +528,6 @@ class _CommandorderState extends State<Commandorder>
       print('Debug _volumeFocus listener: hasFocus=${_volumeFocus.hasFocus}');
       setState(() {
         isVolumeFocused = _volumeFocus.hasFocus;
-        // Không điều khiển tooltip ở đây nữa
       });
     });
 
@@ -515,28 +536,10 @@ class _CommandorderState extends State<Commandorder>
         isTotalFocused = _totalFocus.hasFocus;
       });
 
-      // Tính volume khi không focus vào total nữa và total có giá trị
       if (!_totalFocus.hasFocus && _totalController.text.isNotEmpty) {
         print('Total focus lost, calculating volume');
         findVolumeWhenKnowTotal();
       }
-    });
-
-    // Recompute remainHeight when tabs change (content height can change)
-    _tabController.addListener(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _recomputeRemainHeight(context);
-      });
-    });
-    _tabController1.addListener(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _recomputeRemainHeight(context);
-      });
-    });
-
-    // Compute once right after first layout
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _recomputeRemainHeight(context);
     });
   }
 
@@ -551,48 +554,9 @@ class _CommandorderState extends State<Commandorder>
     super.dispose();
   }
 
-  void _recomputeRemainHeight(BuildContext context) {
-    final double screenHeight = MediaQuery.of(context).size.height;
-    if (widgetSize1 != null && widgetSize2 != null && widgetSize3 != null) {
-      final double sumHeights =
-          widgetSize1!.height + widgetSize2!.height + widgetSize3!.height;
-      final double newRemain = screenHeight - sumHeights;
-      setState(() {
-        remainHeight = newRemain < 0 ? 0 : newRemain;
-      });
-      print(
-        'remainHeight recomputed (tabs/change): ' + remainHeight.toString(),
-      );
-    } else {
-      // Try again next frame if sizes not ready yet
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _recomputeRemainHeight(context);
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    if (widgetSize1 != null && widgetSize2 != null && widgetSize3 != null) {
-      remainHeight =
-          screenHeight -
-          (widgetSize1!.height + widgetSize2!.height + widgetSize3!.height);
-    }
-    // Compute a safe fraction for DraggableScrollableSheet using remainHeight/screenHeight with offset
-    final double sheetSizeFraction = (() {
-      if (screenHeight > 0) {
-        final double base =
-            remainHeight / screenHeight; // remainHeight is non-null (default 0)
-        final double withOffset = base - 0.13; // adjust if you need spacing
-        final double clamped = withOffset.clamp(
-          0.1,
-          0.92,
-        ); // keep > 0 to satisfy assertions
-        return clamped;
-      }
-      return 0.35; // fallback when sizes are not ready yet
-    })();
     print('remainHeight: $remainHeight');
     return GestureDetector(
       behavior: HitTestBehavior.deferToChild,
@@ -690,13 +654,10 @@ class _CommandorderState extends State<Commandorder>
                         onChange: (size) {
                           if (widgetSize1 != size) {
                             setState(() {
-                              widgetSize1 = size;
+                              widgetSize1 = size.height;
                             });
-                            _recomputeRemainHeight(context);
-                            print(
-                              'remainHeight updated (widgetSize1): ' +
-                                  remainHeight.toString(),
-                            );
+                            print("widgetSize1 $widgetSize1");
+                            calculateRemainHeight(context);
                           }
                         },
                         child: Container(
@@ -902,80 +863,75 @@ class _CommandorderState extends State<Commandorder>
                       isTabBarVisible
                           ? SizedBox(height: 21)
                           : SizedBox(height: 0),
-                      MeasureSize(
-                        onChange: (size) {
-                          if (widgetSize2 != size) {
-                            setState(() {
-                              widgetSize2 = size;
-                            });
-                            _recomputeRemainHeight(context);
-                            print(
-                              'remainHeight updated (widgetSize2): ' +
-                                  remainHeight.toString(),
-                            );
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(),
-                          child: Column(
-                            children: [
-                              AnimatedSize(
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                child: ClipRRect(
-                                  child: SizedBox(
-                                    height: isTabBarVisible ? 50 : 0,
-                                    child: IgnorePointer(
-                                      ignoring:
-                                          !isTabBarVisible, // không nhận tương tác khi ẩn
-                                      child: TabBar(
-                                        controller: _tabController1,
-                                        isScrollable: true,
-                                        tabAlignment: TabAlignment.start,
-                                        labelPadding: EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                        ),
-                                        labelColor: Colors.white,
-                                        unselectedLabelColor: Colors.white60,
-                                        indicatorColor: Colors.white,
-                                        dividerColor: Colors.transparent,
-                                        labelStyle: GoogleFonts.manrope(
-                                          fontWeight: FontWeight.w700,
-                                          color: Color(0xFFB8B3B3),
-                                          fontSize: 14,
-                                        ),
-                                        unselectedLabelStyle:
-                                            GoogleFonts.manrope(
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF6F767E),
-                                              fontSize: 12,
-                                            ),
-                                        indicator: UnderlineTabIndicator(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          borderSide: BorderSide(
-                                            width: 3,
-                                            color: Color(0xFF1AAF74),
-                                          ),
-                                          insets: EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                          ),
-                                        ),
-                                        tabs: const [
-                                          Tab(text: "Giá"),
-                                          Tab(text: "Biểu đồ"),
-                                          Tab(text: "Khớp lệnh"),
-                                          Tab(text: "Thanh khoản"),
-                                        ],
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(),
+                        child: Column(
+                          children: [
+                            AnimatedSize(
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              child: ClipRRect(
+                                child: SizedBox(
+                                  height: isTabBarVisible ? 50 : 0,
+                                  child: IgnorePointer(
+                                    ignoring:
+                                        !isTabBarVisible, // không nhận tương tác khi ẩn
+                                    child: TabBar(
+                                      controller: _tabController1,
+                                      isScrollable: true,
+                                      tabAlignment: TabAlignment.start,
+                                      labelPadding: EdgeInsets.symmetric(
+                                        horizontal: 20,
                                       ),
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.white60,
+                                      indicatorColor: Colors.white,
+                                      dividerColor: Colors.transparent,
+                                      labelStyle: GoogleFonts.manrope(
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFFB8B3B3),
+                                        fontSize: 14,
+                                      ),
+                                      unselectedLabelStyle: GoogleFonts.manrope(
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFF6F767E),
+                                        fontSize: 12,
+                                      ),
+                                      indicator: UnderlineTabIndicator(
+                                        borderRadius: BorderRadius.circular(8),
+                                        borderSide: BorderSide(
+                                          width: 3,
+                                          color: Color(0xFF1AAF74),
+                                        ),
+                                        insets: EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                        ),
+                                      ),
+                                      tabs: const [
+                                        Tab(text: "Giá"),
+                                        Tab(text: "Biểu đồ"),
+                                        Tab(text: "Khớp lệnh"),
+                                        Tab(text: "Thanh khoản"),
+                                      ],
                                     ),
                                   ),
                                 ),
                               ),
+                            ),
 
-                              AutoScaleTabBarView(
+                            MeasureSize(
+                              onChange: (size) {
+                                if (size.height > 0 &&
+                                    widgetSize2 != size.height) {
+                                  setState(() {
+                                    widgetSize2 = size.height;
+                                  });
+                                  calculateRemainHeight(context);
+                                }
+                                print("Height $widgetSize2");
+                              },
+                              child: AutoScaleTabBarView(
                                 controller: _tabController1,
                                 children: [
                                   Padding(
@@ -1471,8 +1427,8 @@ class _CommandorderState extends State<Commandorder>
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(height: 25),
@@ -1480,16 +1436,11 @@ class _CommandorderState extends State<Commandorder>
                         builder: (context, state) {
                           return MeasureSize(
                             onChange: (size) {
-                              if (widgetSize3 != size) {
-                                setState(() {
-                                  widgetSize3 = size;
-                                });
-                                _recomputeRemainHeight(context);
-                                print(
-                                  'remainHeight updated (widgetSize3): ' +
-                                      remainHeight.toString(),
-                                );
-                              }
+                              setState(() {
+                                widgetSize3 = size.height;
+                              });
+                              print("WidgetSize3 $widgetSize3");
+                              calculateRemainHeight(context);
                             },
                             child: Container(
                               height: 200,
@@ -2751,8 +2702,8 @@ class _CommandorderState extends State<Commandorder>
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: DraggableScrollableSheet(
-                      initialChildSize: sheetSizeFraction,
-                      minChildSize: sheetSizeFraction,
+                      initialChildSize: (remainHeight / screenHeight - 0.2),
+                      minChildSize: (remainHeight / screenHeight - 0.2),
                       maxChildSize: 0.92,
                       builder: (context, controller) => Container(
                         decoration: BoxDecoration(
