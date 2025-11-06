@@ -29,6 +29,7 @@ class _CommandorderState extends State<Commandorder>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late TabController _tabController1;
+  late TabController _tabController2;
   String? selectedMode;
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
@@ -59,9 +60,14 @@ class _CommandorderState extends State<Commandorder>
   double? widgetSize1;
   double? widgetSize2;
   double? widgetSize3;
-  late ValueNotifier<double> remainHeightNotifier = ValueNotifier(300);
+  late ValueNotifier<double> remainHeightNotifier = ValueNotifier(200);
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
-
+  final ValueNotifier<double> _position = ValueNotifier(275);
+  final double orderWidgetHeight = 500;
+  final ValueNotifier<bool> isAllowScroll = ValueNotifier(true);
+  final ValueNotifier<bool> isShowBuySell = ValueNotifier(true);
+  final double minPosition = -270;
+  final double maxPosition = 800;
   void checkSucMua() {
     final totalText = _totalController.text.replaceAll(',', '');
     final total = int.tryParse(totalText) ?? 0;
@@ -413,7 +419,7 @@ class _CommandorderState extends State<Commandorder>
   void initState() {
     super.initState();
     updateGiaMax();
-
+    _tabController2 = TabController(length: 3, vsync: this);
     _tabController = TabController(length: 2, vsync: this);
     _tabController1 = TabController(length: 4, vsync: this);
 
@@ -546,6 +552,7 @@ class _CommandorderState extends State<Commandorder>
   void dispose() {
     _tabController.dispose();
     _tabController1.dispose();
+    _tabController2.dispose();
     _priceController.dispose();
     _totalController.dispose();
     _avaController.dispose();
@@ -645,6 +652,7 @@ class _CommandorderState extends State<Commandorder>
             controller: _tabController,
             children: [
               Stack(
+                clipBehavior: Clip.none,
                 children: [
                   Column(
                     children: [
@@ -861,75 +869,74 @@ class _CommandorderState extends State<Commandorder>
                       isTabBarVisible
                           ? SizedBox(height: 21)
                           : SizedBox(height: 0),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(),
-                        child: Column(
-                          children: [
-                            AnimatedSize(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              child: ClipRRect(
-                                child: SizedBox(
-                                  height: isTabBarVisible ? 50 : 0,
-                                  child: IgnorePointer(
-                                    ignoring:
-                                        !isTabBarVisible, // không nhận tương tác khi ẩn
-                                    child: TabBar(
-                                      controller: _tabController1,
-                                      isScrollable: true,
-                                      tabAlignment: TabAlignment.start,
-                                      labelPadding: EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                      ),
-                                      labelColor: Colors.white,
-                                      unselectedLabelColor: Colors.white60,
-                                      indicatorColor: Colors.white,
-                                      dividerColor: Colors.transparent,
-                                      labelStyle: GoogleFonts.manrope(
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFFB8B3B3),
-                                        fontSize: 14,
-                                      ),
-                                      unselectedLabelStyle: GoogleFonts.manrope(
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xFF6F767E),
-                                        fontSize: 12,
-                                      ),
-                                      indicator: UnderlineTabIndicator(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: BorderSide(
-                                          width: 3,
-                                          color: Color(0xFF1AAF74),
+                      MeasureSize(
+                        onChange: (size) {
+                          //setState(() {
+                          widgetSize2 = size.height;
+                          _position.value = widgetSize2! + 100;
+                          //});
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(),
+                          child: Column(
+                            children: [
+                              AnimatedSize(
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                child: ClipRRect(
+                                  child: SizedBox(
+                                    height: isTabBarVisible ? 50 : 0,
+                                    child: IgnorePointer(
+                                      ignoring:
+                                          !isTabBarVisible, // không nhận tương tác khi ẩn
+                                      child: TabBar(
+                                        controller: _tabController1,
+                                        isScrollable: true,
+                                        tabAlignment: TabAlignment.start,
+                                        labelPadding: EdgeInsets.symmetric(
+                                          horizontal: 20,
                                         ),
-                                        insets: EdgeInsets.symmetric(
-                                          horizontal: 5,
+                                        labelColor: Colors.white,
+                                        unselectedLabelColor: Colors.white60,
+                                        indicatorColor: Colors.white,
+                                        dividerColor: Colors.transparent,
+                                        labelStyle: GoogleFonts.manrope(
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFFB8B3B3),
+                                          fontSize: 14,
                                         ),
+                                        unselectedLabelStyle:
+                                            GoogleFonts.manrope(
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFF6F767E),
+                                              fontSize: 12,
+                                            ),
+                                        indicator: UnderlineTabIndicator(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: BorderSide(
+                                            width: 3,
+                                            color: Color(0xFF1AAF74),
+                                          ),
+                                          insets: EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                          ),
+                                        ),
+                                        tabs: const [
+                                          Tab(text: "Giá"),
+                                          Tab(text: "Biểu đồ"),
+                                          Tab(text: "Khớp lệnh"),
+                                          Tab(text: "Thanh khoản"),
+                                        ],
                                       ),
-                                      tabs: const [
-                                        Tab(text: "Giá"),
-                                        Tab(text: "Biểu đồ"),
-                                        Tab(text: "Khớp lệnh"),
-                                        Tab(text: "Thanh khoản"),
-                                      ],
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
 
-                            MeasureSize(
-                              onChange: (size) {
-                                if (size.height > 0 &&
-                                    widgetSize2 != size.height) {
-                                  setState(() {
-                                    widgetSize2 = size.height;
-                                  });
-                                  calculateRemainHeight(context);
-                                }
-                                print("Height $widgetSize2");
-                              },
-                              child: AutoScaleTabBarView(
+                              AutoScaleTabBarView(
                                 controller: _tabController1,
                                 children: [
                                   Padding(
@@ -1425,651 +1432,280 @@ class _CommandorderState extends State<Commandorder>
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 25),
-                      BlocBuilder<OrdercommandCubit, OrdercommandState>(
-                        builder: (context, state) {
-                          return Container(
-                            height: 200,
-                            width: 375,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF2F3437),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.4),
-                                  spreadRadius: -16,
-                                  blurRadius: 24,
-                                  offset: Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    top: 12,
-                                    right: 12,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            context
-                                                .read<OrdercommandCubit>()
-                                                .clickBuyButton();
-                                          },
-                                          child: ClipPath(
-                                            clipper: MuaButtonClipper(),
-                                            child: Container(
-                                              width: 84.75,
-                                              height: 36,
-                                              decoration: BoxDecoration(
-                                                color: state.isClickedSell
-                                                    ? Color(0xFF3A4247)
-                                                    : Color(
-                                                        0xFF1AAF74,
-                                                      ).withOpacity(0.3),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  "Mua",
-                                                  style: GoogleFonts.manrope(
-                                                    fontWeight:
-                                                        state.isClickedSell
-                                                        ? FontWeight.w500
-                                                        : FontWeight.w700,
-                                                    fontSize: 14,
-                                                    color: state.isClickedSell
-                                                        ? Color(0xFFC4C4C4)
-                                                        : Color(0xFF1AAF74),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          context
-                                              .read<OrdercommandCubit>()
-                                              .clickSellButton();
-                                        },
-                                        child: ClipPath(
-                                          clipper: SellButtonFlippedClipper(),
-                                          child: Container(
-                                            width: 84.75,
-                                            height: 36,
-                                            decoration: BoxDecoration(
-                                              color: state.isClickedSell
-                                                  ? Color(
-                                                      0xFFF34859,
-                                                    ).withOpacity(0.3)
-                                                  : Color(0xFF3A4247),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                "Bán",
-                                                style: GoogleFonts.manrope(
-                                                  fontWeight:
-                                                      state.isClickedSell
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w500,
-                                                  fontSize: 14,
-                                                  color: state.isClickedSell
-                                                      ? Color(0xFFF34859)
-                                                      : Color(0xFFC4C4C4),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Spacer(),
-                                      Column(
-                                        children: [
-                                          SvgPicture.asset(
-                                            "assets/icons/orderwaiting.svg",
-                                          ),
-                                          SizedBox(height: 2),
-                                          Text(
-                                            "Lệnh chờ",
-                                            style: GoogleFonts.manrope(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFFC7C7C7),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(width: 20),
-                                      Column(
-                                        children: [
-                                          SvgPicture.asset(
-                                            "assets/icons/sodu.svg",
-                                          ),
-                                          SizedBox(height: 2),
-                                          Text(
-                                            "Số dư CK",
-                                            style: GoogleFonts.manrope(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFFC7C7C7),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 12,
-                                      right: 12,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "Lệnh thường",
-                                          style: GoogleFonts.manrope(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 12,
-                                            color: Color(0xFFC7C7C7),
-                                          ),
-                                        ),
-                                        SizedBox(width: 4),
-                                        SvgPicture.asset(
-                                          "assets/icons/arrowdown.svg",
-                                        ),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          "Tiền mặt",
-                                          style: GoogleFonts.manrope(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 12,
-                                            color: Color(0xFFC7C7C7),
-                                          ),
-                                        ),
-                                        Spacer(),
-                                        Stack(
-                                          children: [
-                                            state.isClickedSell
-                                                ? Text(
-                                                    "Lãi Lỗ:",
-                                                    style: GoogleFonts.manrope(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Color(0xFF6F767E),
-                                                    ),
-                                                  )
-                                                : Text(
-                                                    "Sức mua:",
-                                                    style: GoogleFonts.manrope(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Color(0xFF6F767E),
-                                                    ),
-                                                  ),
-                                            Positioned(
-                                              bottom: 0,
-                                              left: 0,
-                                              right: 0,
-                                              child: CustomPaint(
-                                                size: const Size(
-                                                  double.infinity,
-                                                  0.5,
-                                                ),
-                                                painter: DottedLinePainter(),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          state.isClickedSell
-                                              ? limit.toString()
-                                              : numberFormat
-                                                    .format(sucmua)
-                                                    .toString(),
-                                          style: GoogleFonts.manrope(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        SizedBox(width: 4),
-                                        SvgPicture.asset(
-                                          "assets/icons/add.svg",
+                              SizedBox(height: 25),
+                              BlocBuilder<OrdercommandCubit, OrdercommandState>(
+                                builder: (context, state) {
+                                  return Container(
+                                    height: 200,
+                                    width: 375,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF2F3437),
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.4),
+                                          spreadRadius: -16,
+                                          blurRadius: 24,
+                                          offset: Offset(0, 8),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 12,
-                                      right: 12,
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    child: Column(
                                       children: [
-                                        // Ô giá
-                                        Container(
-                                          width: 169.5,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            color: const Color(0xFF3A4247),
-                                            border: Border.all(
-                                              color: _isOverLimit
-                                                  ? Colors.red
-                                                  : (isPriceFocused
-                                                        ? Colors.green
-                                                        : Colors.transparent),
-                                              width: 1.5,
-                                            ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 12,
+                                            top: 12,
+                                            right: 12,
                                           ),
+                                          child: Row(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    context
+                                                        .read<
+                                                          OrdercommandCubit
+                                                        >()
+                                                        .clickBuyButton();
+                                                  },
+                                                  child: ClipPath(
+                                                    clipper: MuaButtonClipper(),
+                                                    child: Container(
+                                                      width: 84.75,
+                                                      height: 36,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            state.isClickedSell
+                                                            ? Color(0xFF3A4247)
+                                                            : Color(
+                                                                0xFF1AAF74,
+                                                              ).withOpacity(
+                                                                0.3,
+                                                              ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          "Mua",
+                                                          style: GoogleFonts.manrope(
+                                                            fontWeight:
+                                                                state
+                                                                    .isClickedSell
+                                                                ? FontWeight
+                                                                      .w500
+                                                                : FontWeight
+                                                                      .w700,
+                                                            fontSize: 14,
+                                                            color:
+                                                                state
+                                                                    .isClickedSell
+                                                                ? Color(
+                                                                    0xFFC4C4C4,
+                                                                  )
+                                                                : Color(
+                                                                    0xFF1AAF74,
+                                                                  ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  context
+                                                      .read<OrdercommandCubit>()
+                                                      .clickSellButton();
+                                                },
+                                                child: ClipPath(
+                                                  clipper:
+                                                      SellButtonFlippedClipper(),
+                                                  child: Container(
+                                                    width: 84.75,
+                                                    height: 36,
+                                                    decoration: BoxDecoration(
+                                                      color: state.isClickedSell
+                                                          ? Color(
+                                                              0xFFF34859,
+                                                            ).withOpacity(0.3)
+                                                          : Color(0xFF3A4247),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Bán",
+                                                        style: GoogleFonts.manrope(
+                                                          fontWeight:
+                                                              state
+                                                                  .isClickedSell
+                                                              ? FontWeight.w700
+                                                              : FontWeight.w500,
+                                                          fontSize: 14,
+                                                          color:
+                                                              state
+                                                                  .isClickedSell
+                                                              ? Color(
+                                                                  0xFFF34859,
+                                                                )
+                                                              : Color(
+                                                                  0xFFC4C4C4,
+                                                                ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Spacer(),
+                                              Column(
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    "assets/icons/orderwaiting.svg",
+                                                  ),
+                                                  SizedBox(height: 2),
+                                                  Text(
+                                                    "Lệnh chờ",
+                                                    style: GoogleFonts.manrope(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Color(0xFFC7C7C7),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(width: 20),
+                                              Column(
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    "assets/icons/sodu.svg",
+                                                  ),
+                                                  SizedBox(height: 2),
+                                                  Text(
+                                                    "Số dư CK",
+                                                    style: GoogleFonts.manrope(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Color(0xFFC7C7C7),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 12),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
+                                            padding: const EdgeInsets.only(
+                                              left: 12,
+                                              right: 12,
                                             ),
                                             child: Row(
                                               children: [
-                                                Builder(
-                                                  builder: (context) {
-                                                    final currentPrice =
-                                                        double.tryParse(
-                                                          _priceController.text,
-                                                        ) ??
-                                                        0.0;
-                                                    final bool isAtFloor =
-                                                        currentPrice <= giamin;
-
-                                                    return GestureDetector(
-                                                      onTap: isAtFloor
-                                                          ? null
-                                                          : () => decreasementController(
-                                                              _priceController,
-                                                            ),
-                                                      child: Opacity(
-                                                        opacity: isAtFloor
-                                                            ? 0.4
-                                                            : 1.0,
-                                                        child: SvgPicture.asset(
-                                                          "assets/icons/addbut.svg",
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                                Expanded(
-                                                  child: TextField(
-                                                    onTap: () {
-                                                      setState(
-                                                        () => isTabBarVisible =
-                                                            false,
-                                                      );
-                                                      showModalBottomSheet(
-                                                        context: context,
-                                                        backgroundColor:
-                                                            Colors.transparent,
-                                                        isScrollControlled:
-                                                            true,
-                                                        useRootNavigator: true,
-                                                        barrierColor:
-                                                            Colors.transparent,
-                                                        enableDrag: false,
-                                                        builder: (_) => GestureDetector(
-                                                          behavior:
-                                                              HitTestBehavior
-                                                                  .deferToChild,
-                                                          child: CustomKeyboard(
-                                                            giaTran: giatran,
-                                                            selectedMode:
-                                                                selectedMode,
-                                                            initialValue:
-                                                                _priceController
-                                                                    .text
-                                                                    .replaceAll(
-                                                                      ',',
-                                                                      '',
-                                                                    ), // Bỏ dấu phẩy để truyền vào keyboard
-                                                            onModeChanged:
-                                                                (mode) {
-                                                                  setState(() {
-                                                                    selectedMode =
-                                                                        mode;
-                                                                  });
-                                                                },
-                                                            onTextInput: (value) {
-                                                              setState(() {
-                                                                // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
-                                                                if (value
-                                                                    .contains(
-                                                                      '.',
-                                                                    )) {
-                                                                  final numValue =
-                                                                      double.tryParse(
-                                                                        value,
-                                                                      );
-                                                                  if (numValue !=
-                                                                      null) {
-                                                                    final parts =
-                                                                        value.split(
-                                                                          '.',
-                                                                        );
-                                                                    final integerPart =
-                                                                        parts[0]
-                                                                            .replaceAll(
-                                                                              ',',
-                                                                              '',
-                                                                            );
-                                                                    final decimalPart =
-                                                                        parts.length >
-                                                                            1
-                                                                        ? parts[1]
-                                                                        : '';
-                                                                    final formattedInteger = numberFormat.format(
-                                                                      int.tryParse(
-                                                                            integerPart,
-                                                                          ) ??
-                                                                          0,
-                                                                    );
-                                                                    _priceController
-                                                                            .text =
-                                                                        '$formattedInteger.$decimalPart';
-                                                                  } else {
-                                                                    _priceController
-                                                                            .text =
-                                                                        value;
-                                                                  }
-                                                                } else {
-                                                                  // Format giá trị không có số thập phân
-                                                                  final numValue =
-                                                                      double.tryParse(
-                                                                        value,
-                                                                      );
-                                                                  if (numValue !=
-                                                                          null &&
-                                                                      numValue >
-                                                                          0) {
-                                                                    _priceController
-                                                                        .text = numberFormat
-                                                                        .format(
-                                                                          numValue
-                                                                              .toInt(),
-                                                                        );
-                                                                  } else {
-                                                                    _priceController
-                                                                            .text =
-                                                                        value;
-                                                                  }
-                                                                }
-                                                                _priceController
-                                                                    .selection = TextSelection.fromPosition(
-                                                                  TextPosition(
-                                                                    offset: _priceController
-                                                                        .text
-                                                                        .length,
-                                                                  ),
-                                                                );
-                                                              });
-                                                            },
-
-                                                            onBackspace: () {
-                                                              // Keyboard sẽ xử lý backspace trong nội bộ
-                                                              // Chỉ cần update controller dựa trên giá trị từ keyboard
-                                                            },
-                                                            onConfirmed: (confirmedValue) {
-                                                              setState(() {
-                                                                // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
-                                                                if (confirmedValue
-                                                                    .contains(
-                                                                      '.',
-                                                                    )) {
-                                                                  final numValue =
-                                                                      double.tryParse(
-                                                                        confirmedValue,
-                                                                      );
-                                                                  if (numValue !=
-                                                                          null &&
-                                                                      numValue >
-                                                                          0) {
-                                                                    final parts =
-                                                                        confirmedValue
-                                                                            .split(
-                                                                              '.',
-                                                                            );
-                                                                    final integerPart =
-                                                                        parts[0]
-                                                                            .replaceAll(
-                                                                              ',',
-                                                                              '',
-                                                                            );
-                                                                    final decimalPart =
-                                                                        parts.length >
-                                                                            1
-                                                                        ? parts[1]
-                                                                        : '';
-
-                                                                    // Nếu decimalPart rỗng hoặc toàn số 0, bỏ dấu chấm
-                                                                    final isDecimalZero =
-                                                                        decimalPart
-                                                                            .isEmpty ||
-                                                                        decimalPart
-                                                                            .replaceAll(
-                                                                              '0',
-                                                                              '',
-                                                                            )
-                                                                            .isEmpty;
-
-                                                                    if (isDecimalZero) {
-                                                                      // Bỏ dấu chấm, format như số nguyên
-                                                                      final intValue =
-                                                                          int.tryParse(
-                                                                            integerPart,
-                                                                          ) ??
-                                                                          0;
-                                                                      _priceController
-                                                                          .text = numberFormat
-                                                                          .format(
-                                                                            intValue,
-                                                                          );
-                                                                    } else {
-                                                                      final formattedInteger = numberFormat.format(
-                                                                        int.tryParse(
-                                                                              integerPart,
-                                                                            ) ??
-                                                                            0,
-                                                                      );
-                                                                      _priceController
-                                                                              .text =
-                                                                          '$formattedInteger.$decimalPart';
-                                                                    }
-                                                                  } else {
-                                                                    _priceController
-                                                                            .text =
-                                                                        confirmedValue;
-                                                                  }
-                                                                } else {
-                                                                  // Format giá trị không có số thập phân
-                                                                  final numValue =
-                                                                      double.tryParse(
-                                                                        confirmedValue,
-                                                                      );
-                                                                  if (numValue !=
-                                                                          null &&
-                                                                      numValue >
-                                                                          0) {
-                                                                    _priceController
-                                                                        .text = numberFormat
-                                                                        .format(
-                                                                          numValue
-                                                                              .toInt(),
-                                                                        );
-                                                                  } else {
-                                                                    _priceController
-                                                                            .text =
-                                                                        confirmedValue;
-                                                                  }
-                                                                }
-                                                              });
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ).whenComplete(() {
-                                                        setState(
-                                                          () =>
-                                                              isTabBarVisible =
-                                                                  true,
-                                                        );
-                                                        _priceFocus.unfocus();
-                                                      });
-
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback((
-                                                            _,
-                                                          ) {
-                                                            _priceFocus
-                                                                .requestFocus();
-                                                          });
-                                                    },
-                                                    readOnly: true,
-                                                    showCursor: true,
-                                                    cursorColor: Colors.green,
-                                                    focusNode: _priceFocus,
-                                                    style: GoogleFonts.manrope(
-                                                      color: Colors.white,
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                    controller:
-                                                        _priceController,
-                                                    decoration: InputDecoration(
-                                                      hintText: "Giá",
-                                                      hintStyle:
-                                                          GoogleFonts.manrope(
-                                                            color: Colors.grey,
-                                                            fontSize: 14,
-                                                          ),
-                                                      border: InputBorder.none,
-                                                      contentPadding:
-                                                          const EdgeInsets.only(
-                                                            top: 11,
-                                                            bottom: 12,
-                                                          ),
-                                                    ),
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    textAlign: TextAlign.center,
+                                                Text(
+                                                  "Lệnh thường",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 12,
+                                                    color: Color(0xFFC7C7C7),
                                                   ),
                                                 ),
-                                                Builder(
-                                                  builder: (context) {
-                                                    final currentPrice =
-                                                        double.tryParse(
-                                                          _priceController.text,
-                                                        ) ??
-                                                        0.0;
-                                                    final bool isAtCeiling =
-                                                        currentPrice >= giatran;
-
-                                                    return GestureDetector(
-                                                      onTap: isAtCeiling
-                                                          ? null
-                                                          : () => increamentController(
-                                                              _priceController,
-                                                            ),
-                                                      child: Opacity(
-                                                        opacity: isAtCeiling
-                                                            ? 0.4
-                                                            : 1.0,
-                                                        child: SvgPicture.asset(
-                                                          "assets/icons/plus.svg",
+                                                SizedBox(width: 4),
+                                                SvgPicture.asset(
+                                                  "assets/icons/arrowdown.svg",
+                                                ),
+                                                SizedBox(width: 12),
+                                                Text(
+                                                  "Tiền mặt",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 12,
+                                                    color: Color(0xFFC7C7C7),
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                Stack(
+                                                  children: [
+                                                    state.isClickedSell
+                                                        ? Text(
+                                                            "Lãi Lỗ:",
+                                                            style:
+                                                                GoogleFonts.manrope(
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: Color(
+                                                                    0xFF6F767E,
+                                                                  ),
+                                                                ),
+                                                          )
+                                                        : Text(
+                                                            "Sức mua:",
+                                                            style:
+                                                                GoogleFonts.manrope(
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: Color(
+                                                                    0xFF6F767E,
+                                                                  ),
+                                                                ),
+                                                          ),
+                                                    Positioned(
+                                                      bottom: 0,
+                                                      left: 0,
+                                                      right: 0,
+                                                      child: CustomPaint(
+                                                        size: const Size(
+                                                          double.infinity,
+                                                          0.5,
                                                         ),
+                                                        painter:
+                                                            DottedLinePainter(),
                                                       ),
-                                                    );
-                                                  },
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  state.isClickedSell
+                                                      ? limit.toString()
+                                                      : numberFormat
+                                                            .format(sucmua)
+                                                            .toString(),
+                                                  style: GoogleFonts.manrope(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 4),
+                                                SvgPicture.asset(
+                                                  "assets/icons/add.svg",
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ),
-
-                                        const SizedBox(width: 12),
-
-                                        // Ô khối lượng (volume) + cảnh báo
-                                        // Khai báo global key ở trên cùng của State
-                                        Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            Column(
+                                        SizedBox(height: 12),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 12,
+                                              right: 12,
+                                            ),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                JustTheTooltip(
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  controller:
-                                                      _tooltipController,
-                                                  isModal: true,
-                                                  barrierDismissible: false,
-                                                  triggerMode:
-                                                      TooltipTriggerMode.tap,
-                                                  tailBaseWidth: 0,
-                                                  tailLength: 0,
-                                                  preferredDirection:
-                                                      AxisDirection.up,
-                                                  content: Transform.translate(
-                                                    offset: Offset(0, -4),
-                                                    child: Container(
-                                                      height: 35,
-                                                      width: 160,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
-                                                        color: Color(
-                                                          0xFF33383F,
-                                                        ),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          "KL max:                   ${numberFormat.format(priceMaxCanBuy ?? 0)}",
-                                                          style:
-                                                              GoogleFonts.manrope(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  child: SizedBox.shrink(),
-                                                ),
+                                                // Ô giá
                                                 Container(
                                                   width: 169.5,
                                                   height: 40,
@@ -2082,9 +1718,9 @@ class _CommandorderState extends State<Commandorder>
                                                       0xFF3A4247,
                                                     ),
                                                     border: Border.all(
-                                                      color: isOverSucMua
+                                                      color: _isOverLimit
                                                           ? Colors.red
-                                                          : (isVolumeFocused
+                                                          : (isPriceFocused
                                                                 ? Colors.green
                                                                 : Colors
                                                                       .transparent),
@@ -2098,34 +1734,756 @@ class _CommandorderState extends State<Commandorder>
                                                         ),
                                                     child: Row(
                                                       children: [
-                                                        GestureDetector(
-                                                          onTap: () =>
-                                                              decreamentAvalbleController(
-                                                                _avaController,
+                                                        Builder(
+                                                          builder: (context) {
+                                                            final currentPrice =
+                                                                double.tryParse(
+                                                                  _priceController
+                                                                      .text,
+                                                                ) ??
+                                                                0.0;
+                                                            final bool
+                                                            isAtFloor =
+                                                                currentPrice <=
+                                                                giamin;
+
+                                                            return GestureDetector(
+                                                              onTap: isAtFloor
+                                                                  ? null
+                                                                  : () => decreasementController(
+                                                                      _priceController,
+                                                                    ),
+                                                              child: Opacity(
+                                                                opacity:
+                                                                    isAtFloor
+                                                                    ? 0.4
+                                                                    : 1.0,
+                                                                child: SvgPicture.asset(
+                                                                  "assets/icons/addbut.svg",
+                                                                ),
                                                               ),
-                                                          child: SvgPicture.asset(
-                                                            "assets/icons/addbut.svg",
-                                                          ),
+                                                            );
+                                                          },
                                                         ),
                                                         Expanded(
                                                           child: TextField(
+                                                            onTap: () {
+                                                              setState(
+                                                                () =>
+                                                                    isTabBarVisible =
+                                                                        false,
+                                                              );
+                                                              showModalBottomSheet(
+                                                                context:
+                                                                    context,
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .transparent,
+                                                                isScrollControlled:
+                                                                    true,
+                                                                useRootNavigator:
+                                                                    true,
+                                                                barrierColor: Colors
+                                                                    .transparent,
+                                                                enableDrag:
+                                                                    false,
+                                                                builder: (_) => GestureDetector(
+                                                                  behavior:
+                                                                      HitTestBehavior
+                                                                          .deferToChild,
+                                                                  child: CustomKeyboard(
+                                                                    giaTran:
+                                                                        giatran,
+                                                                    selectedMode:
+                                                                        selectedMode,
+                                                                    initialValue: _priceController
+                                                                        .text
+                                                                        .replaceAll(
+                                                                          ',',
+                                                                          '',
+                                                                        ), // Bỏ dấu phẩy để truyền vào keyboard
+                                                                    onModeChanged: (mode) {
+                                                                      setState(() {
+                                                                        selectedMode =
+                                                                            mode;
+                                                                      });
+                                                                    },
+                                                                    onTextInput: (value) {
+                                                                      setState(() {
+                                                                        // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
+                                                                        if (value
+                                                                            .contains(
+                                                                              '.',
+                                                                            )) {
+                                                                          final numValue = double.tryParse(
+                                                                            value,
+                                                                          );
+                                                                          if (numValue !=
+                                                                              null) {
+                                                                            final parts = value.split(
+                                                                              '.',
+                                                                            );
+                                                                            final integerPart = parts[0].replaceAll(
+                                                                              ',',
+                                                                              '',
+                                                                            );
+                                                                            final decimalPart =
+                                                                                parts.length >
+                                                                                    1
+                                                                                ? parts[1]
+                                                                                : '';
+                                                                            final formattedInteger = numberFormat.format(
+                                                                              int.tryParse(
+                                                                                    integerPart,
+                                                                                  ) ??
+                                                                                  0,
+                                                                            );
+                                                                            _priceController.text =
+                                                                                '$formattedInteger.$decimalPart';
+                                                                          } else {
+                                                                            _priceController.text =
+                                                                                value;
+                                                                          }
+                                                                        } else {
+                                                                          // Format giá trị không có số thập phân
+                                                                          final numValue = double.tryParse(
+                                                                            value,
+                                                                          );
+                                                                          if (numValue !=
+                                                                                  null &&
+                                                                              numValue >
+                                                                                  0) {
+                                                                            _priceController.text = numberFormat.format(
+                                                                              numValue.toInt(),
+                                                                            );
+                                                                          } else {
+                                                                            _priceController.text =
+                                                                                value;
+                                                                          }
+                                                                        }
+                                                                        _priceController
+                                                                            .selection = TextSelection.fromPosition(
+                                                                          TextPosition(
+                                                                            offset:
+                                                                                _priceController.text.length,
+                                                                          ),
+                                                                        );
+                                                                      });
+                                                                    },
+
+                                                                    onBackspace: () {
+                                                                      // Keyboard sẽ xử lý backspace trong nội bộ
+                                                                      // Chỉ cần update controller dựa trên giá trị từ keyboard
+                                                                    },
+                                                                    onConfirmed:
+                                                                        (
+                                                                          confirmedValue,
+                                                                        ) {
+                                                                          setState(() {
+                                                                            // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
+                                                                            if (confirmedValue.contains(
+                                                                              '.',
+                                                                            )) {
+                                                                              final numValue = double.tryParse(
+                                                                                confirmedValue,
+                                                                              );
+                                                                              if (numValue !=
+                                                                                      null &&
+                                                                                  numValue >
+                                                                                      0) {
+                                                                                final parts = confirmedValue.split(
+                                                                                  '.',
+                                                                                );
+                                                                                final integerPart = parts[0].replaceAll(
+                                                                                  ',',
+                                                                                  '',
+                                                                                );
+                                                                                final decimalPart =
+                                                                                    parts.length >
+                                                                                        1
+                                                                                    ? parts[1]
+                                                                                    : '';
+
+                                                                                // Nếu decimalPart rỗng hoặc toàn số 0, bỏ dấu chấm
+                                                                                final isDecimalZero =
+                                                                                    decimalPart.isEmpty ||
+                                                                                    decimalPart
+                                                                                        .replaceAll(
+                                                                                          '0',
+                                                                                          '',
+                                                                                        )
+                                                                                        .isEmpty;
+
+                                                                                if (isDecimalZero) {
+                                                                                  // Bỏ dấu chấm, format như số nguyên
+                                                                                  final intValue =
+                                                                                      int.tryParse(
+                                                                                        integerPart,
+                                                                                      ) ??
+                                                                                      0;
+                                                                                  _priceController.text = numberFormat.format(
+                                                                                    intValue,
+                                                                                  );
+                                                                                } else {
+                                                                                  final formattedInteger = numberFormat.format(
+                                                                                    int.tryParse(
+                                                                                          integerPart,
+                                                                                        ) ??
+                                                                                        0,
+                                                                                  );
+                                                                                  _priceController.text = '$formattedInteger.$decimalPart';
+                                                                                }
+                                                                              } else {
+                                                                                _priceController.text = confirmedValue;
+                                                                              }
+                                                                            } else {
+                                                                              // Format giá trị không có số thập phân
+                                                                              final numValue = double.tryParse(
+                                                                                confirmedValue,
+                                                                              );
+                                                                              if (numValue !=
+                                                                                      null &&
+                                                                                  numValue >
+                                                                                      0) {
+                                                                                _priceController.text = numberFormat.format(
+                                                                                  numValue.toInt(),
+                                                                                );
+                                                                              } else {
+                                                                                _priceController.text = confirmedValue;
+                                                                              }
+                                                                            }
+                                                                          });
+                                                                        },
+                                                                  ),
+                                                                ),
+                                                              ).whenComplete(() {
+                                                                setState(
+                                                                  () =>
+                                                                      isTabBarVisible =
+                                                                          true,
+                                                                );
+                                                                _priceFocus
+                                                                    .unfocus();
+                                                              });
+
+                                                              WidgetsBinding
+                                                                  .instance
+                                                                  .addPostFrameCallback((
+                                                                    _,
+                                                                  ) {
+                                                                    _priceFocus
+                                                                        .requestFocus();
+                                                                  });
+                                                            },
+                                                            readOnly: true,
+                                                            showCursor: true,
+                                                            cursorColor:
+                                                                Colors.green,
+                                                            focusNode:
+                                                                _priceFocus,
+                                                            style:
+                                                                GoogleFonts.manrope(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                ),
+                                                            controller:
+                                                                _priceController,
+                                                            decoration: InputDecoration(
+                                                              hintText: "Giá",
+                                                              hintStyle:
+                                                                  GoogleFonts.manrope(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize:
+                                                                        14,
+                                                                  ),
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                              contentPadding:
+                                                                  const EdgeInsets.only(
+                                                                    top: 11,
+                                                                    bottom: 12,
+                                                                  ),
+                                                            ),
+                                                            textAlignVertical:
+                                                                TextAlignVertical
+                                                                    .center,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                        ),
+                                                        Builder(
+                                                          builder: (context) {
+                                                            final currentPrice =
+                                                                double.tryParse(
+                                                                  _priceController
+                                                                      .text,
+                                                                ) ??
+                                                                0.0;
+                                                            final bool
+                                                            isAtCeiling =
+                                                                currentPrice >=
+                                                                giatran;
+
+                                                            return GestureDetector(
+                                                              onTap: isAtCeiling
+                                                                  ? null
+                                                                  : () => increamentController(
+                                                                      _priceController,
+                                                                    ),
+                                                              child: Opacity(
+                                                                opacity:
+                                                                    isAtCeiling
+                                                                    ? 0.4
+                                                                    : 1.0,
+                                                                child: SvgPicture.asset(
+                                                                  "assets/icons/plus.svg",
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                const SizedBox(width: 12),
+
+                                                // Ô khối lượng (volume) + cảnh báo
+                                                // Khai báo global key ở trên cùng của State
+                                                Stack(
+                                                  clipBehavior: Clip.none,
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        JustTheTooltip(
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          controller:
+                                                              _tooltipController,
+                                                          isModal: true,
+                                                          barrierDismissible:
+                                                              false,
+                                                          triggerMode:
+                                                              TooltipTriggerMode
+                                                                  .tap,
+                                                          tailBaseWidth: 0,
+                                                          tailLength: 0,
+                                                          preferredDirection:
+                                                              AxisDirection.up,
+                                                          content: Transform.translate(
+                                                            offset: Offset(
+                                                              0,
+                                                              -4,
+                                                            ),
+                                                            child: Container(
+                                                              height: 35,
+                                                              width: 160,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          10,
+                                                                        ),
+                                                                    color: Color(
+                                                                      0xFF33383F,
+                                                                    ),
+                                                                  ),
+                                                              child: Center(
+                                                                child: Text(
+                                                                  "KL max:                   ${numberFormat.format(priceMaxCanBuy ?? 0)}",
+                                                                  style: GoogleFonts.manrope(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        12,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          child:
+                                                              SizedBox.shrink(),
+                                                        ),
+                                                        Container(
+                                                          width: 169.5,
+                                                          height: 40,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                            color: const Color(
+                                                              0xFF3A4247,
+                                                            ),
+                                                            border: Border.all(
+                                                              color:
+                                                                  isOverSucMua
+                                                                  ? Colors.red
+                                                                  : (isVolumeFocused
+                                                                        ? Colors
+                                                                              .green
+                                                                        : Colors
+                                                                              .transparent),
+                                                              width: 1.5,
+                                                            ),
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                ),
+                                                            child: Row(
+                                                              children: [
+                                                                GestureDetector(
+                                                                  onTap: () =>
+                                                                      decreamentAvalbleController(
+                                                                        _avaController,
+                                                                      ),
+                                                                  child: SvgPicture.asset(
+                                                                    "assets/icons/addbut.svg",
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child: TextField(
+                                                                    onTap: () {
+                                                                      setState(() {
+                                                                        isTabBarVisible =
+                                                                            false;
+                                                                      });
+
+                                                                      // Hiển thị tooltip
+                                                                      _tooltipController
+                                                                          .showTooltip();
+
+                                                                      setState(() {
+                                                                        isTooltipVisible =
+                                                                            true;
+                                                                        isVolumeFocused =
+                                                                            true;
+                                                                      });
+
+                                                                      showModalBottomSheet(
+                                                                        context:
+                                                                            context,
+                                                                        backgroundColor:
+                                                                            Colors.transparent,
+                                                                        isScrollControlled:
+                                                                            true,
+                                                                        barrierColor:
+                                                                            Colors.transparent,
+                                                                        builder: (_) => PercentKeyboard(
+                                                                          priceMaxCanBuy:
+                                                                              priceMaxCanBuy,
+                                                                          onTextInput:
+                                                                              (
+                                                                                value,
+                                                                              ) {
+                                                                                if ([
+                                                                                  "LO",
+                                                                                  "MP",
+                                                                                  "ATO",
+                                                                                  "ATC",
+                                                                                ].contains(
+                                                                                  value,
+                                                                                )) {
+                                                                                  _avaController.text = value;
+                                                                                  return;
+                                                                                }
+                                                                                if (![
+                                                                                  "LO",
+                                                                                  "MP",
+                                                                                  "ATO",
+                                                                                  "ATC",
+                                                                                ].contains(
+                                                                                  _avaController.text,
+                                                                                )) {
+                                                                                  // Nhận toàn bộ giá trị từ keyboard và xử lý
+                                                                                  // Kiểm tra xem có dấu chấm không
+                                                                                  if (value.contains(
+                                                                                    '.',
+                                                                                  )) {
+                                                                                    // Nếu có dấu chấm, parse thành double và giữ nguyên dấu chấm
+                                                                                    final doubleValue = double.tryParse(
+                                                                                      value,
+                                                                                    );
+                                                                                    if (doubleValue !=
+                                                                                            null &&
+                                                                                        doubleValue >
+                                                                                            0) {
+                                                                                      _avaController.text = value;
+                                                                                    }
+                                                                                  } else {
+                                                                                    // Nếu không có dấu chấm, parse thành int và format với dấu phẩy
+                                                                                    final intValue = int.tryParse(
+                                                                                      value,
+                                                                                    );
+                                                                                    if (intValue !=
+                                                                                            null &&
+                                                                                        intValue >
+                                                                                            0) {
+                                                                                      _avaController.text = numberFormat.format(
+                                                                                        intValue,
+                                                                                      );
+                                                                                    }
+                                                                                  }
+                                                                                  // Nếu <= 0 thì không set gì cả, giữ nguyên giá trị hiện tại
+                                                                                }
+                                                                              },
+                                                                          onBackspace: () {
+                                                                            if (_avaController.text.isNotEmpty) {
+                                                                              // Xóa 1 ký tự
+                                                                              final currentValue = _avaController.text;
+                                                                              final newValue = currentValue.substring(
+                                                                                0,
+                                                                                currentValue.length -
+                                                                                    1,
+                                                                              );
+
+                                                                              if (newValue.isEmpty) {
+                                                                                _avaController.text = '';
+                                                                                return;
+                                                                              }
+
+                                                                              // Kiểm tra xem có dấu chấm không
+                                                                              if (newValue.contains(
+                                                                                '.',
+                                                                              )) {
+                                                                                // Nếu có dấu chấm, giữ nguyên
+                                                                                final doubleValue = double.tryParse(
+                                                                                  newValue,
+                                                                                );
+                                                                                if (doubleValue !=
+                                                                                        null &&
+                                                                                    doubleValue >
+                                                                                        0) {
+                                                                                  _avaController.text = newValue;
+                                                                                } else {
+                                                                                  _avaController.text = '';
+                                                                                }
+                                                                              } else {
+                                                                                // Nếu không có dấu chấm, parse thành int và format
+                                                                                final cleanValue = newValue.replaceAll(
+                                                                                  ',',
+                                                                                  '',
+                                                                                );
+                                                                                final intValue = int.tryParse(
+                                                                                  cleanValue,
+                                                                                );
+                                                                                if (intValue !=
+                                                                                        null &&
+                                                                                    intValue >
+                                                                                        0) {
+                                                                                  _avaController.text = numberFormat.format(
+                                                                                    intValue,
+                                                                                  );
+                                                                                } else {
+                                                                                  _avaController.text = '';
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          onPercentSelected:
+                                                                              (
+                                                                                percent,
+                                                                              ) {
+                                                                                calculate_volume_with_percentages(
+                                                                                  percent,
+                                                                                );
+                                                                              },
+                                                                          initialValue:
+                                                                              _avaController.text,
+                                                                        ),
+                                                                      ).whenComplete(() {
+                                                                        setState(() {
+                                                                          isTabBarVisible =
+                                                                              true;
+                                                                        });
+
+                                                                        _tooltipController
+                                                                            .hideTooltip();
+
+                                                                        setState(() {
+                                                                          isTooltipVisible =
+                                                                              false;
+                                                                          isVolumeFocused =
+                                                                              false;
+                                                                        });
+
+                                                                        _volumeFocus
+                                                                            .unfocus();
+                                                                      });
+
+                                                                      WidgetsBinding
+                                                                          .instance
+                                                                          .addPostFrameCallback((
+                                                                            _,
+                                                                          ) {
+                                                                            _volumeFocus.requestFocus();
+                                                                          });
+                                                                    },
+                                                                    readOnly:
+                                                                        true,
+                                                                    showCursor:
+                                                                        true,
+                                                                    cursorColor:
+                                                                        Colors
+                                                                            .green,
+                                                                    focusNode:
+                                                                        _volumeFocus,
+                                                                    controller:
+                                                                        _avaController,
+                                                                    style: GoogleFonts.manrope(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          14,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w500,
+                                                                    ),
+                                                                    decoration: InputDecoration(
+                                                                      hintText:
+                                                                          _avaController.text.isEmpty &&
+                                                                              !isTooltipVisible
+                                                                          ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
+                                                                          : "",
+                                                                      hintStyle: GoogleFonts.manrope(
+                                                                        color: Colors
+                                                                            .grey,
+                                                                        fontSize:
+                                                                            14,
+                                                                      ),
+                                                                      border: InputBorder
+                                                                          .none,
+                                                                      contentPadding:
+                                                                          EdgeInsets.only(
+                                                                            bottom:
+                                                                                12,
+                                                                          ),
+                                                                    ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                  ),
+                                                                ),
+
+                                                                GestureDetector(
+                                                                  onTap: () =>
+                                                                      increamentAvalbleController(
+                                                                        _avaController,
+                                                                      ),
+                                                                  child: SvgPicture.asset(
+                                                                    "assets/icons/plus.svg",
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+
+                                                    if (isOverSucMua)
+                                                      Positioned(
+                                                        bottom: -17,
+                                                        left: -5,
+                                                        right: 0,
+                                                        child: Center(
+                                                          child: Text(
+                                                            errorMessage,
+                                                            style:
+                                                                GoogleFonts.manrope(
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: Colors
+                                                                      .red,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+
+                                        SizedBox(height: _isOverLimit ? 0 : 18),
+                                        if (_isOverLimit)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 12,
+                                              bottom: 8,
+                                            ),
+                                            child: Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "Giá không nằm trong biên độ",
+                                                style: GoogleFonts.manrope(
+                                                  color: Colors.red,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 12,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 169.5,
+                                                  height: 40,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: isTotalFocused
+                                                          ? Colors.green
+                                                          : Colors.transparent,
+                                                    ),
+                                                    color: Color(0xFF3A4247),
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          left: 12,
+                                                          right: 12,
+                                                        ),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: TextField(
+                                                            inputFormatters: [
+                                                              FilteringTextInputFormatter
+                                                                  .digitsOnly,
+                                                            ],
                                                             onTap: () {
                                                               setState(() {
                                                                 isTabBarVisible =
                                                                     false;
                                                               });
-
-                                                              // Hiển thị tooltip
-                                                              _tooltipController
-                                                                  .showTooltip();
-
-                                                              setState(() {
-                                                                isTooltipVisible =
-                                                                    true;
-                                                                isVolumeFocused =
-                                                                    true;
-                                                              });
-
                                                               showModalBottomSheet(
                                                                 context:
                                                                     context,
@@ -2136,9 +2494,7 @@ class _CommandorderState extends State<Commandorder>
                                                                     true,
                                                                 barrierColor: Colors
                                                                     .transparent,
-                                                                builder: (_) => PercentKeyboard(
-                                                                  priceMaxCanBuy:
-                                                                      priceMaxCanBuy,
+                                                                builder: (_) => TotalKeyboard(
                                                                   onTextInput: (value) {
                                                                     if ([
                                                                       "LO",
@@ -2148,154 +2504,97 @@ class _CommandorderState extends State<Commandorder>
                                                                     ].contains(
                                                                       value,
                                                                     )) {
-                                                                      _avaController
+                                                                      _totalController
                                                                               .text =
                                                                           value;
                                                                       return;
                                                                     }
-                                                                    if (![
-                                                                      "LO",
-                                                                      "MP",
-                                                                      "ATO",
-                                                                      "ATC",
-                                                                    ].contains(
-                                                                      _avaController
-                                                                          .text,
-                                                                    )) {
-                                                                      // Nhận toàn bộ giá trị từ keyboard và xử lý
-                                                                      // Kiểm tra xem có dấu chấm không
-                                                                      if (value
-                                                                          .contains(
-                                                                            '.',
-                                                                          )) {
-                                                                        // Nếu có dấu chấm, parse thành double và giữ nguyên dấu chấm
-                                                                        final doubleValue =
-                                                                            double.tryParse(
-                                                                              value,
-                                                                            );
-                                                                        if (doubleValue !=
-                                                                                null &&
-                                                                            doubleValue >
-                                                                                0) {
-                                                                          _avaController.text =
-                                                                              value;
-                                                                        }
-                                                                      } else {
-                                                                        // Nếu không có dấu chấm, parse thành int và format với dấu phẩy
-                                                                        final intValue =
-                                                                            int.tryParse(
-                                                                              value,
-                                                                            );
-                                                                        if (intValue !=
-                                                                                null &&
-                                                                            intValue >
-                                                                                0) {
-                                                                          _avaController
-                                                                              .text = numberFormat.format(
-                                                                            intValue,
-                                                                          );
-                                                                        }
-                                                                      }
-                                                                      // Nếu <= 0 thì không set gì cả, giữ nguyên giá trị hiện tại
-                                                                    }
-                                                                  },
-                                                                  onBackspace: () {
-                                                                    if (_avaController
-                                                                        .text
-                                                                        .isNotEmpty) {
-                                                                      // Xóa 1 ký tự
-                                                                      final currentValue =
-                                                                          _avaController
-                                                                              .text;
-                                                                      final newValue =
-                                                                          currentValue.substring(
-                                                                            0,
-                                                                            currentValue.length -
-                                                                                1,
-                                                                          );
 
-                                                                      if (newValue
-                                                                          .isEmpty) {
-                                                                        _avaController.text =
-                                                                            '';
-                                                                        return;
-                                                                      }
-
-                                                                      // Kiểm tra xem có dấu chấm không
-                                                                      if (newValue
-                                                                          .contains(
-                                                                            '.',
-                                                                          )) {
-                                                                        // Nếu có dấu chấm, giữ nguyên
-                                                                        final doubleValue =
-                                                                            double.tryParse(
-                                                                              newValue,
-                                                                            );
-                                                                        if (doubleValue !=
-                                                                                null &&
-                                                                            doubleValue >
-                                                                                0) {
-                                                                          _avaController.text =
-                                                                              newValue;
-                                                                        } else {
-                                                                          _avaController.text =
-                                                                              '';
-                                                                        }
-                                                                      } else {
-                                                                        // Nếu không có dấu chấm, parse thành int và format
-                                                                        final cleanValue =
-                                                                            newValue.replaceAll(
+                                                                    // Lấy giá trị hiện tại không có dấu phẩy
+                                                                    final cleanValue =
+                                                                        _totalController
+                                                                            .text
+                                                                            .replaceAll(
                                                                               ',',
                                                                               '',
                                                                             );
-                                                                        final intValue =
-                                                                            int.tryParse(
-                                                                              cleanValue,
+                                                                    final newValue =
+                                                                        cleanValue +
+                                                                        value;
+
+                                                                    // Giới hạn tối đa 11 chữ số
+                                                                    if (newValue
+                                                                            .length >
+                                                                        11) {
+                                                                      return;
+                                                                    }
+                                                                    final numValue =
+                                                                        int.tryParse(
+                                                                          newValue,
+                                                                        );
+
+                                                                    if (numValue !=
+                                                                        null) {
+                                                                      _totalController
+                                                                          .text = numberFormat
+                                                                          .format(
+                                                                            numValue,
+                                                                          );
+                                                                    } else {
+                                                                      _totalController
+                                                                              .text =
+                                                                          newValue;
+                                                                    }
+                                                                  },
+                                                                  onBackspace: () {
+                                                                    // Bỏ dấu phẩy, xóa 1 ký tự, format lại
+                                                                    final cleanValue =
+                                                                        _totalController
+                                                                            .text
+                                                                            .replaceAll(
+                                                                              ',',
+                                                                              '',
                                                                             );
-                                                                        if (intValue !=
+                                                                    if (cleanValue
+                                                                        .isNotEmpty) {
+                                                                      final newValue =
+                                                                          cleanValue.substring(
+                                                                            0,
+                                                                            cleanValue.length -
+                                                                                1,
+                                                                          );
+                                                                      if (newValue
+                                                                          .isNotEmpty) {
+                                                                        final numValue =
+                                                                            int.tryParse(
+                                                                              newValue,
+                                                                            );
+                                                                        if (numValue !=
                                                                                 null &&
-                                                                            intValue >
+                                                                            numValue >
                                                                                 0) {
-                                                                          _avaController
+                                                                          _totalController
                                                                               .text = numberFormat.format(
-                                                                            intValue,
+                                                                            numValue,
                                                                           );
                                                                         } else {
-                                                                          _avaController.text =
-                                                                              '';
+                                                                          _totalController.text =
+                                                                              newValue;
                                                                         }
+                                                                      } else {
+                                                                        _totalController.text =
+                                                                            '';
                                                                       }
                                                                     }
                                                                   },
-                                                                  onPercentSelected:
-                                                                      (
-                                                                        percent,
-                                                                      ) {
-                                                                        calculate_volume_with_percentages(
-                                                                          percent,
-                                                                        );
-                                                                      },
-                                                                  initialValue:
-                                                                      _avaController
-                                                                          .text,
                                                                 ),
                                                               ).whenComplete(() {
-                                                                setState(() {
-                                                                  isTabBarVisible =
-                                                                      true;
-                                                                });
-
-                                                                _tooltipController
-                                                                    .hideTooltip();
-
-                                                                setState(() {
-                                                                  isTooltipVisible =
-                                                                      false;
-                                                                  isVolumeFocused =
-                                                                      false;
-                                                                });
-
-                                                                _volumeFocus
+                                                                setState(
+                                                                  () =>
+                                                                      isTabBarVisible =
+                                                                          true,
+                                                                );
+                                                                _totalFocus
                                                                     .unfocus();
                                                               });
 
@@ -2304,7 +2603,7 @@ class _CommandorderState extends State<Commandorder>
                                                                   .addPostFrameCallback((
                                                                     _,
                                                                   ) {
-                                                                    _volumeFocus
+                                                                    _totalFocus
                                                                         .requestFocus();
                                                                   });
                                                             },
@@ -2313,9 +2612,7 @@ class _CommandorderState extends State<Commandorder>
                                                             cursorColor:
                                                                 Colors.green,
                                                             focusNode:
-                                                                _volumeFocus,
-                                                            controller:
-                                                                _avaController,
+                                                                _totalFocus,
                                                             style:
                                                                 GoogleFonts.manrope(
                                                                   color: Colors
@@ -2325,14 +2622,11 @@ class _CommandorderState extends State<Commandorder>
                                                                       FontWeight
                                                                           .w500,
                                                                 ),
+                                                            controller:
+                                                                _totalController,
                                                             decoration: InputDecoration(
                                                               hintText:
-                                                                  _avaController
-                                                                          .text
-                                                                          .isEmpty &&
-                                                                      !isTooltipVisible
-                                                                  ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
-                                                                  : "",
+                                                                  "Tổng giá trị",
                                                               hintStyle:
                                                                   GoogleFonts.manrope(
                                                                     color: Colors
@@ -2345,436 +2639,220 @@ class _CommandorderState extends State<Commandorder>
                                                                       .none,
                                                               contentPadding:
                                                                   EdgeInsets.only(
-                                                                    bottom: 12,
+                                                                    top: 9.5,
+                                                                    bottom:
+                                                                        13.5,
                                                                   ),
                                                             ),
+                                                            textAlignVertical:
+                                                                TextAlignVertical
+                                                                    .center,
                                                             textAlign: TextAlign
                                                                 .center,
-                                                          ),
-                                                        ),
-
-                                                        GestureDetector(
-                                                          onTap: () =>
-                                                              increamentAvalbleController(
-                                                                _avaController,
-                                                              ),
-                                                          child: SvgPicture.asset(
-                                                            "assets/icons/plus.svg",
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                   ),
                                                 ),
-                                              ],
-                                            ),
-
-                                            if (isOverSucMua)
-                                              Positioned(
-                                                bottom: -17,
-                                                left: -5,
-                                                right: 0,
-                                                child: Center(
-                                                  child: Text(
-                                                    errorMessage,
-                                                    style: GoogleFonts.manrope(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Colors.red,
+                                                SizedBox(width: 12),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    if (isValid(
+                                                      _priceController,
+                                                      _avaController,
+                                                      _totalController,
+                                                      giatran,
+                                                      giamin,
+                                                      sucmua,
+                                                    )) {
+                                                      print(1);
+                                                    } else {
+                                                      print(0);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    width: 129.5,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      color: state.isClickedSell
+                                                          ? Color(0xFFF34859)
+                                                          : Color(0xFF1AAF74),
+                                                    ),
+                                                    child: Center(
+                                                      child: state.isClickedSell
+                                                          ? Text(
+                                                              "Đặt bán",
+                                                              style: GoogleFonts.manrope(
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            )
+                                                          : Text(
+                                                              "Đặt mua",
+                                                              style: GoogleFonts.manrope(
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w700,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                          ],
+                                                SizedBox(width: 12),
+                                                SvgPicture.asset(
+                                                  "assets/icons/pen.svg",
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _position,
+                    builder: (context, pos, _) {
+                      return AnimatedPositioned(
+                        duration: Duration(milliseconds: 100),
+                        top: pos,
+                        left: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onVerticalDragUpdate: (detail) {
+                            final screenHeight = MediaQuery.of(
+                              context,
+                            ).size.height;
+                            final calculatedMaxPosition = screenHeight - 350;
 
-                                SizedBox(height: _isOverLimit ? 0 : 18),
-                                if (_isOverLimit)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 12,
-                                      bottom: 8,
+                            var delta = _position.value + detail.delta.dy;
+
+                            // 👇 Giới hạn trên (kéo lên tối đa)
+                            const minPosition =
+                                50.0; // ví dụ: không kéo lên quá 100px từ đỉnh
+                            if (delta < minPosition) delta = minPosition;
+
+                            // 👇 Giới hạn dưới (kéo xuống tối đa)
+                            if (delta > calculatedMaxPosition)
+                              delta = calculatedMaxPosition;
+
+                            _position.value = delta;
+                          },
+
+                          child: Container(
+                            height: MediaQuery.of(context).size.height - 210,
+                            decoration: BoxDecoration(
+                              color: Color(0xFF111315),
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                TabBar(
+                                  controller: _tabController2,
+                                  isScrollable: true,
+                                  tabAlignment: TabAlignment.start,
+                                  labelPadding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  labelColor: Colors.white,
+                                  unselectedLabelColor: Colors.white60,
+                                  indicatorColor: Colors.white,
+                                  dividerColor: Colors.transparent,
+                                  labelStyle: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFFB8B3B3),
+                                    fontSize: 14,
+                                  ),
+                                  unselectedLabelStyle: GoogleFonts.manrope(
+                                    fontWeight: FontWeight.w500,
+                                    color: Color(0xFF6F767E),
+                                    fontSize: 12,
+                                  ),
+                                  indicator: UnderlineTabIndicator(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      width: 3,
+                                      color: Color(0xFF1AAF74),
                                     ),
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        "Giá không nằm trong biên độ",
-                                        style: GoogleFonts.manrope(
-                                          color: Colors.red,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
+                                    insets: EdgeInsets.symmetric(horizontal: 5),
+                                  ),
+                                  tabs: [
+                                    Tab(text: "Chờ khớp"),
+                                    Tab(text: "Đã khớp"),
+                                    Tab(text: "Lệnh điều khiển"),
+                                  ],
+                                ),
+                                Expanded(
+                                  child: TabBarView(
+                                    controller: _tabController2,
+                                    children: [
+                                      // Tab 1: Chờ khớp
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Center(
+                                          child: Text(
+                                            "Nội dung Chờ khớp",
+                                            style: GoogleFonts.manrope(
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 12),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 169.5,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            border: Border.all(
-                                              color: isTotalFocused
-                                                  ? Colors.green
-                                                  : Colors.transparent,
-                                            ),
-                                            color: Color(0xFF3A4247),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 12,
-                                              right: 12,
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: TextField(
-                                                    inputFormatters: [
-                                                      FilteringTextInputFormatter
-                                                          .digitsOnly,
-                                                    ],
-                                                    onTap: () {
-                                                      setState(() {
-                                                        isTabBarVisible = false;
-                                                      });
-                                                      showModalBottomSheet(
-                                                        context: context,
-                                                        backgroundColor:
-                                                            Colors.transparent,
-                                                        isScrollControlled:
-                                                            true,
-                                                        barrierColor:
-                                                            Colors.transparent,
-                                                        builder: (_) => TotalKeyboard(
-                                                          onTextInput: (value) {
-                                                            if ([
-                                                              "LO",
-                                                              "MP",
-                                                              "ATO",
-                                                              "ATC",
-                                                            ].contains(value)) {
-                                                              _totalController
-                                                                      .text =
-                                                                  value;
-                                                              return;
-                                                            }
-
-                                                            // Lấy giá trị hiện tại không có dấu phẩy
-                                                            final cleanValue =
-                                                                _totalController
-                                                                    .text
-                                                                    .replaceAll(
-                                                                      ',',
-                                                                      '',
-                                                                    );
-                                                            final newValue =
-                                                                cleanValue +
-                                                                value;
-
-                                                            // Giới hạn tối đa 11 chữ số
-                                                            if (newValue
-                                                                    .length >
-                                                                11) {
-                                                              return;
-                                                            }
-                                                            final numValue =
-                                                                int.tryParse(
-                                                                  newValue,
-                                                                );
-
-                                                            if (numValue !=
-                                                                null) {
-                                                              _totalController
-                                                                      .text =
-                                                                  numberFormat
-                                                                      .format(
-                                                                        numValue,
-                                                                      );
-                                                            } else {
-                                                              _totalController
-                                                                      .text =
-                                                                  newValue;
-                                                            }
-                                                          },
-                                                          onBackspace: () {
-                                                            // Bỏ dấu phẩy, xóa 1 ký tự, format lại
-                                                            final cleanValue =
-                                                                _totalController
-                                                                    .text
-                                                                    .replaceAll(
-                                                                      ',',
-                                                                      '',
-                                                                    );
-                                                            if (cleanValue
-                                                                .isNotEmpty) {
-                                                              final newValue =
-                                                                  cleanValue
-                                                                      .substring(
-                                                                        0,
-                                                                        cleanValue.length -
-                                                                            1,
-                                                                      );
-                                                              if (newValue
-                                                                  .isNotEmpty) {
-                                                                final numValue =
-                                                                    int.tryParse(
-                                                                      newValue,
-                                                                    );
-                                                                if (numValue !=
-                                                                        null &&
-                                                                    numValue >
-                                                                        0) {
-                                                                  _totalController
-                                                                          .text =
-                                                                      numberFormat
-                                                                          .format(
-                                                                            numValue,
-                                                                          );
-                                                                } else {
-                                                                  _totalController
-                                                                          .text =
-                                                                      newValue;
-                                                                }
-                                                              } else {
-                                                                _totalController
-                                                                        .text =
-                                                                    '';
-                                                              }
-                                                            }
-                                                          },
-                                                        ),
-                                                      ).whenComplete(() {
-                                                        setState(
-                                                          () =>
-                                                              isTabBarVisible =
-                                                                  true,
-                                                        );
-                                                        _totalFocus.unfocus();
-                                                      });
-
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback((
-                                                            _,
-                                                          ) {
-                                                            _totalFocus
-                                                                .requestFocus();
-                                                          });
-                                                    },
-                                                    readOnly: true,
-                                                    showCursor: true,
-                                                    cursorColor: Colors.green,
-                                                    focusNode: _totalFocus,
-                                                    style: GoogleFonts.manrope(
-                                                      color: Colors.white,
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                    controller:
-                                                        _totalController,
-                                                    decoration: InputDecoration(
-                                                      hintText: "Tổng giá trị",
-                                                      hintStyle:
-                                                          GoogleFonts.manrope(
-                                                            color: Colors.grey,
-                                                            fontSize: 14,
-                                                          ),
-                                                      border: InputBorder.none,
-                                                      contentPadding:
-                                                          EdgeInsets.only(
-                                                            top: 9.5,
-                                                            bottom: 13.5,
-                                                          ),
-                                                    ),
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ),
-                                              ],
+                                      // Tab 2: Đã khớp
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Center(
+                                          child: Text(
+                                            "Nội dung Đã khớp",
+                                            style: GoogleFonts.manrope(
+                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 12),
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (isValid(
-                                              _priceController,
-                                              _avaController,
-                                              _totalController,
-                                              giatran,
-                                              giamin,
-                                              sucmua,
-                                            )) {
-                                              print(1);
-                                            } else {
-                                              print(0);
-                                            }
-                                          },
-                                          child: Container(
-                                            width: 129.5,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              color: state.isClickedSell
-                                                  ? Color(0xFFF34859)
-                                                  : Color(0xFF1AAF74),
-                                            ),
-                                            child: Center(
-                                              child: state.isClickedSell
-                                                  ? Text(
-                                                      "Đặt bán",
-                                                      style:
-                                                          GoogleFonts.manrope(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: Colors.white,
-                                                          ),
-                                                    )
-                                                  : Text(
-                                                      "Đặt mua",
-                                                      style:
-                                                          GoogleFonts.manrope(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: Colors.white,
-                                                          ),
-                                                    ),
+                                      ),
+                                      // Tab 3: Lệnh điều khiển
+                                      Container(
+                                        padding: EdgeInsets.all(16),
+                                        child: Center(
+                                          child: Text(
+                                            "Nội dung Lệnh điều khiển",
+                                            style: GoogleFonts.manrope(
+                                              color: Colors.white,
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 12),
-                                        SvgPicture.asset(
-                                          "assets/icons/pen.svg",
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ValueListenableBuilder(
-                      valueListenable: remainHeightNotifier,
-                      builder: (context, value, child) {
-                        final screenHeight = MediaQuery.of(context).size.height;
-                        var baseSize = value / screenHeight;
-                        // Giữ minSize = baseSize
-                        var minSize = baseSize.clamp(0.0, 0.92);
-                        // Set cứng initialChildSize = 0.39 (39% chiều cao màn hình)
-                        var initialSize = baseSize;
-                        return DraggableScrollableSheet(
-                          initialChildSize: initialSize,
-                          minChildSize: minSize,
-                          maxChildSize: 0.92,
-                          builder: (context, controller) => Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF111315),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: DefaultTabController(
-                              length: 3, // số tab
-                              child: Column(
-                                children: [
-                                  TabBar(
-                                    tabs: [
-                                      Tab(text: "Chờ khớp"),
-                                      Tab(text: "Đã khớp"),
-                                      Tab(text: "Lệnh điều kiện"),
-                                    ],
-                                    isScrollable: true,
-                                    labelColor: Color(0xFF1AAF74),
-                                    labelStyle: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    unselectedLabelStyle: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    tabAlignment: TabAlignment.start,
-                                    labelPadding: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    unselectedLabelColor: Color(0xFF6F767E),
-                                    dividerColor: Colors.transparent,
-                                    indicatorSize: TabBarIndicatorSize.label,
-                                    indicator: UnderlineTabIndicator(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(
-                                        width: 3,
-                                        color: Color(0xFF1AAF74),
-                                      ),
-                                      insets: EdgeInsets.symmetric(
-                                        horizontal: 60,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: TabBarView(
-                                      children: [
-                                        ListView.builder(
-                                          controller: controller,
-                                          itemCount: hi.length,
-                                          itemBuilder: (context, index) {
-                                            final label = hi[index];
-                                            return ListTile(
-                                              title: Text(
-                                                label,
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                        Center(
-                                          child: Text(
-                                            "Nội dung Tab 2",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        Center(
-                                          child: Text(
-                                            "Nội dung Tab 3",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
