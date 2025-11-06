@@ -68,6 +68,7 @@ class _CommandorderState extends State<Commandorder>
   final ValueNotifier<bool> isShowBuySell = ValueNotifier(true);
   final double minPosition = -270;
   final double maxPosition = 800;
+  double bottomLimitPosition = 0;
   void checkSucMua() {
     final totalText = _totalController.text.replaceAll(',', '');
     final total = int.tryParse(totalText) ?? 0;
@@ -874,6 +875,7 @@ class _CommandorderState extends State<Commandorder>
                           //setState(() {
                           widgetSize2 = size.height;
                           _position.value = widgetSize2! + 100;
+                          bottomLimitPosition = _position.value;
                           //});
                         },
                         child: Container(
@@ -2739,11 +2741,6 @@ class _CommandorderState extends State<Commandorder>
                         right: 0,
                         child: GestureDetector(
                           onVerticalDragUpdate: (detail) {
-                            final screenHeight = MediaQuery.of(
-                              context,
-                            ).size.height;
-                            final calculatedMaxPosition = screenHeight - 350;
-
                             var delta = _position.value + detail.delta.dy;
 
                             // 👇 Giới hạn trên (kéo lên tối đa)
@@ -2752,8 +2749,8 @@ class _CommandorderState extends State<Commandorder>
                             if (delta < minPosition) delta = minPosition;
 
                             // 👇 Giới hạn dưới (kéo xuống tối đa)
-                            if (delta > calculatedMaxPosition)
-                              delta = calculatedMaxPosition;
+                            if (delta > bottomLimitPosition)
+                              delta = bottomLimitPosition;
 
                             _position.value = delta;
                           },
