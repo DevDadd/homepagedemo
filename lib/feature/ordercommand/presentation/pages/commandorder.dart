@@ -69,6 +69,7 @@ class _CommandorderState extends State<Commandorder>
   final double minPosition = -270;
   final double maxPosition = 800;
   double bottomLimitPosition = 0;
+  final GlobalKey orderWidgetKey = GlobalKey();
   void checkSucMua() {
     final totalText = _totalController.text.replaceAll(',', '');
     final total = int.tryParse(totalText) ?? 0;
@@ -416,6 +417,12 @@ class _CommandorderState extends State<Commandorder>
     return (price >= giamin && price <= giatran) && (total <= sucmua);
   }
 
+  void calculateBottomLimitPosition() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+    _position.value = 500;
+    bottomLimitPosition = 500;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -423,7 +430,14 @@ class _CommandorderState extends State<Commandorder>
     _tabController2 = TabController(length: 3, vsync: this);
     _tabController = TabController(length: 2, vsync: this);
     _tabController1 = TabController(length: 4, vsync: this);
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final RenderBox? renderBox =
+          orderWidgetKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        final size = renderBox.size;
+        calculateBottomLimitPosition();
+      }
+    });
     _tabController1.addListener(() {
       if (_tabController1.indexIsChanging == false) {
         setState(() {});
@@ -879,6 +893,7 @@ class _CommandorderState extends State<Commandorder>
                           //});
                         },
                         child: Container(
+                          key: orderWidgetKey,
                           width: double.infinity,
                           decoration: BoxDecoration(),
                           child: Column(
