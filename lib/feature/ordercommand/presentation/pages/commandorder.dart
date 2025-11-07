@@ -588,6 +588,7 @@ class _CommandorderState extends State<Commandorder>
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: const Color(0xFF111315),
         appBar: AppBar(
           toolbarHeight: 44,
