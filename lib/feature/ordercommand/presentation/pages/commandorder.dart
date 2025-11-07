@@ -342,22 +342,20 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void findVolumeWhenKnowTotal() {
-    // Xóa dấu phẩy phân cách hàng nghìn
     String totalText = _totalController.text.replaceAll(',', '');
     String priceText = _priceController.text.replaceAll(',', '');
 
     double? price;
     double? total;
 
-    // Nếu là mode đặc biệt thì dùng giá trần
     if (_priceController.text == "MP" ||
         _priceController.text == "ATO" ||
         _priceController.text == "ATC") {
-      price = giatran * 1000; // giatran là double, nhân với 1000
+      price = giatran * 1000;
     } else {
       price = double.tryParse(priceText);
       if (price != null) {
-        price = price * 1000; // Nhân với 1000 để tính đúng
+        price = price * 1000;
       }
     }
 
@@ -434,7 +432,6 @@ class _CommandorderState extends State<Commandorder>
       final RenderBox? renderBox =
           orderWidgetKey.currentContext?.findRenderObject() as RenderBox?;
       if (renderBox != null) {
-        final size = renderBox.size;
         calculateBottomLimitPosition();
       }
     });
@@ -889,7 +886,11 @@ class _CommandorderState extends State<Commandorder>
                         onChange: (size) {
                           //setState(() {
                           widgetSize2 = size.height;
-                          _position.value = widgetSize2! + 100;
+                          // Tính toán ngay dựa trên trạng thái TabBar (nhanh hơn, không cần delay)
+                          // TabBar có chiều cao 50px khi visible
+                          final tabBarHeight = isTabBarVisible ? 8.0 : 0.0;
+                          final calculatedSize = widgetSize2! + tabBarHeight;
+                          _position.value = calculatedSize + 102;
                           bottomLimitPosition = _position.value;
                           //});
                         },
@@ -1974,11 +1975,27 @@ class _CommandorderState extends State<Commandorder>
                                                                         },
                                                                   ),
                                                                 ),
-                                                              ).whenComplete(() {
+                                                              ).whenComplete(() async {
                                                                 setState(
                                                                   () =>
                                                                       isTabBarVisible =
                                                                           true,
+                                                                );
+                                                                await Future.delayed(
+                                                                  Duration(
+                                                                    milliseconds:
+                                                                        130,
+                                                                  ),
+                                                                  () {
+                                                                    _position
+                                                                            .value =
+                                                                        630;
+                                                                    bottomLimitPosition =
+                                                                        510;
+                                                                    print(
+                                                                      'bottomLimitPosition: $bottomLimitPosition',
+                                                                    );
+                                                                  },
                                                                 );
                                                                 _priceFocus
                                                                     .unfocus();
