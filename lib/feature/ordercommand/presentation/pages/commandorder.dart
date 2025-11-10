@@ -51,9 +51,8 @@ class _CommandorderState extends State<Commandorder>
   String errorMessage = "";
   bool isTabBarVisible = true;
   bool isTooltipVisible = false;
-  bool isVolumeKeyboardOpen = false; // Thêm biến để track keyboard volume
-  final JustTheController _tooltipController =
-      JustTheController(); // Sử dụng JustTheController
+  bool isVolumeKeyboardOpen = false;
+  final JustTheController _tooltipController = JustTheController();
   final NumberFormat numberFormat = NumberFormat("#,##0", "en_US");
   int? priceMaxCanBuy;
   double remainHeight = 600;
@@ -74,14 +73,11 @@ class _CommandorderState extends State<Commandorder>
     final totalText = _totalController.text.replaceAll(',', '');
     final total = int.tryParse(totalText) ?? 0;
 
-    // Lấy volume hiện tại (bỏ dấu phẩy)
     final volumeText = _avaController.text.replaceAll(',', '');
     final volume = double.tryParse(volumeText);
 
-    // Tính maxCanBuy dựa trên price hiện tại hoặc giá tối thiểu
     int maxCanBuy = 0;
 
-    // Nếu price vượt quá giới hạn, không cho phép nhập volume
     if (_isOverLimit) {
       setState(() {
         isOverSucMua = (volume != null && volume > 0);
@@ -90,22 +86,18 @@ class _CommandorderState extends State<Commandorder>
     }
 
     if (_priceController.text.isNotEmpty) {
-      // Nếu có price, dùng maxCanBuy từ price
       maxCanBuy = priceMaxCanBuy ?? 0;
     } else {
-      // Nếu chưa có price, dùng giá tối thiểu để tính maxCanBuy
       final double totalMoney = sucmua.toDouble();
       final double maxVolume = totalMoney / (giamin * 1000);
       maxCanBuy = maxVolume.floor();
     }
 
-    // Kiểm tra volume vượt quá maxCanBuy HOẶC total vượt quá sucmua
     final isVolumeOverMax = (volume != null && volume > maxCanBuy.toDouble());
 
     setState(() {
       isOverSucMua = total > sucmua || isVolumeOverMax;
 
-      // Set error message phù hợp
       if (isVolumeOverMax && total <= sucmua) {
         errorMessage = "Vượt quá khối lượng tối đa";
       } else if (total > sucmua) {
@@ -118,7 +110,7 @@ class _CommandorderState extends State<Commandorder>
 
   void calculateRemainHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final appBarHeight = 5.0; // toolbarHeight từ AppBar
+    final appBarHeight = 5.0;
 
     double size1 = widgetSize1 ?? 0;
     double size2 = widgetSize2 ?? 0;
@@ -132,7 +124,6 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void checkLimit() {
-    // Bỏ dấu phẩy phân cách hàng nghìn trước khi parse
     final priceText = _priceController.text.replaceAll(',', '');
     final price = double.tryParse(priceText);
     if (price != null) {
@@ -147,7 +138,6 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void updateGiaMax() {
-    // Nếu price vượt quá giới hạn, set priceMaxCanBuy về 0
     if (_isOverLimit) {
       priceMaxCanBuy = 0;
       return;
@@ -158,7 +148,6 @@ class _CommandorderState extends State<Commandorder>
     if (priceText == "MP" || priceText == "ATO" || priceText == "ATC") {
       price = giatran;
     } else {
-      // Bỏ dấu phẩy phân cách hàng nghìn trước khi parse
       final cleanPriceText = priceText.replaceAll(',', '');
       price = double.tryParse(cleanPriceText);
     }
@@ -177,7 +166,6 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void calculate_volume_with_percentages(int percentages) {
-    // Nếu price vượt quá giới hạn, set volume về rỗng
     if (_isOverLimit || priceMaxCanBuy == 0) {
       _avaController.text = '';
       _totalValue();
@@ -210,7 +198,6 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void decreamentController(TextEditingController controller) {
-    // Nếu price rỗng, set giá trần
     if (controller == _priceController && controller.text.isEmpty) {
       controller.text = giatran.toStringAsFixed(2);
       return;
@@ -226,7 +213,6 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void increamentController(TextEditingController controller) {
-    // Nếu price rỗng, set giá sàn
     if (controller == _priceController && controller.text.isEmpty) {
       controller.text = giamin.toStringAsFixed(2);
       return;
@@ -264,13 +250,11 @@ class _CommandorderState extends State<Commandorder>
         selection: TextSelection.collapsed(offset: formatted.length),
       );
     } else {
-      // Nếu <= 0 thì set về rỗng
       controller.text = '';
     }
   }
 
   void decreasementController(TextEditingController controller) {
-    // Nếu price rỗng, set giá trần
     if (controller == _priceController && controller.text.isEmpty) {
       controller.text = giatran.toStringAsFixed(2);
       return;
@@ -286,32 +270,25 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void _totalValue() {
-    // Lấy text từ controller, loại bỏ dấu phẩy phân cách hàng nghìn
     String priceText = _priceController.text.replaceAll(',', '');
-    String volumeText = _avaController.text.replaceAll(
-      ',',
-      '',
-    ); // Volume cũng có dấu phẩy
+    String volumeText = _avaController.text.replaceAll(',', '');
 
     double? price;
     double? volume;
 
-    // Nếu người dùng chọn mode đặc biệt thì dùng giá trần
     if (_priceController.text == "MP" ||
         _priceController.text == "ATO" ||
         _priceController.text == "ATC") {
-      price = giatran * 1000; // giatran là double, nhân với 1000
+      price = giatran * 1000;
     } else {
-      // Parse chuỗi sang số
       price = double.tryParse(priceText);
       if (price != null) {
-        price = price * 1000; // Nhân với 1000 để tính đúng
+        price = price * 1000;
       }
     }
 
     volume = double.tryParse(volumeText);
 
-    // Debug: in ra console để kiểm tra
     print('Debug _totalValue:');
     print('priceText: $priceText, volumeText: $volumeText');
     print('price: $price, volume: $volume');
@@ -321,17 +298,14 @@ class _CommandorderState extends State<Commandorder>
       return;
     }
 
-    // Tính tổng giá trị
     final total = (price * volume).floor();
 
     print('total: $total');
 
-    // Format lại theo định dạng số
     final formatted = numberFormat.format(total);
 
     print('formatted: $formatted');
 
-    // Chỉ cập nhật nếu khác giá trị hiện tại
     if (_totalController.text != formatted) {
       _totalController.value = TextEditingValue(
         text: formatted,
@@ -361,18 +335,15 @@ class _CommandorderState extends State<Commandorder>
 
     total = double.tryParse(totalText);
 
-    // Debug: in ra console để kiểm tra
     print('Debug findVolumeWhenKnowTotal:');
     print('totalText: $totalText, priceText: $priceText');
     print('total: $total, price: $price');
 
-    // Tránh chia cho 0 hoặc lỗi parse
     if (total == null || price == null || price == 0) {
       print('Return early: total=$total, price=$price');
       return;
     }
 
-    // Tính khối lượng
     final volume = total / price;
     int intVolume = volume.round();
     if (priceMaxCanBuy != null && priceMaxCanBuy! > 0) {
@@ -381,12 +352,10 @@ class _CommandorderState extends State<Commandorder>
 
     print('volume: $volume, intVolume: $intVolume');
 
-    // Không format volume, chỉ giữ nguyên số
     final volumeText = intVolume.toString();
 
     print('volumeText: $volumeText');
 
-    // Chỉ cập nhật nếu khác hiện tại
     if (_avaController.text != volumeText) {
       _avaController.value = TextEditingValue(
         text: volumeText,
@@ -417,8 +386,8 @@ class _CommandorderState extends State<Commandorder>
 
   void calculateBottomLimitPosition() async {
     await Future.delayed(const Duration(milliseconds: 200));
-    _position.value = 500;
-    bottomLimitPosition = 500;
+    _position.value = 510;
+    bottomLimitPosition = 510;
   }
 
   @override
@@ -441,24 +410,19 @@ class _CommandorderState extends State<Commandorder>
       }
     });
 
-    // 🧮 Chỉ tính total khi cả price và volume đều có giá trị
     _priceController.addListener(() {
       print('Price changed: ${_priceController.text}');
 
-      // Không tính gì khi đang focus vào total field (người dùng đang nhập total thủ công)
       if (isTotalFocused) {
         return;
       }
 
-      // Nếu đang focus vào volume field VÀ có total, tính lại volume từ price và total
       if (isVolumeFocused && _totalController.text.isNotEmpty) {
         print(
           'Price changed with volume focused, calling findVolumeWhenKnowTotal',
         );
         findVolumeWhenKnowTotal();
-      }
-      // Nếu có cả price và volume (bất kể focus vào đâu), tính total
-      else if (_priceController.text.isNotEmpty &&
+      } else if (_priceController.text.isNotEmpty &&
           _avaController.text.isNotEmpty) {
         print('Price changed, calculating total from price and volume');
         _totalValue();
@@ -467,29 +431,23 @@ class _CommandorderState extends State<Commandorder>
     _priceController.addListener(checkLimit);
     _priceController.addListener(() {
       updateGiaMax();
-      checkSucMua(); // Kiểm tra lại volume khi price thay đổi
+      checkSucMua();
       setState(() {});
     });
 
-    // 🧮 Volume không được format, chỉ tính total khi cả price và volume đều có giá trị
     _avaController.addListener(() {
-      // Update UI khi text thay đổi
       setState(() {});
 
       print('Volume changed: ${_avaController.text}');
 
-      // Nếu volume rỗng thì set total về rỗng
       if (_avaController.text.isEmpty && !isTotalFocused) {
         _totalController.text = '';
         checkSucMua();
         return;
       }
 
-      // Kiểm tra volume có vượt quá maxCanBuy
       checkSucMua();
 
-      // Chỉ tính total khi cả price và volume đều có giá trị
-      // Nhưng không tính nếu đang focus vào total field
       if (_priceController.text.isNotEmpty &&
           _avaController.text.isNotEmpty &&
           !isTotalFocused) {
@@ -512,7 +470,6 @@ class _CommandorderState extends State<Commandorder>
             final selectionIndexFromEnd =
                 _totalController.text.length - _totalController.selection.end;
 
-            // Đảm bảo offset hợp lệ
             final newOffset = newText.length - selectionIndexFromEnd;
             final clampedOffset = newOffset.clamp(0, newText.length);
 
@@ -521,20 +478,15 @@ class _CommandorderState extends State<Commandorder>
               selection: TextSelection.collapsed(offset: clampedOffset),
             );
           } catch (e) {
-            // Nếu có lỗi, chỉ set text không set selection
             _totalController.value = TextEditingValue(
               text: newText,
               selection: TextSelection.collapsed(offset: newText.length),
             );
           }
         }
-
-        // Không tính volume khi đang focus vào total
-        // Volume sẽ được tính khi không focus vào total nữa
       }
     });
 
-    // 🎯 Theo dõi focus cho 3 ô nhập
     _priceFocus.addListener(() {
       setState(() {
         isPriceFocused = _priceFocus.hasFocus;
@@ -568,7 +520,7 @@ class _CommandorderState extends State<Commandorder>
     _priceController.dispose();
     _totalController.dispose();
     _avaController.dispose();
-    _tooltipController.dispose(); // Dispose JustTheController
+    _tooltipController.dispose();
     super.dispose();
   }
 
@@ -884,15 +836,11 @@ class _CommandorderState extends State<Commandorder>
                           : SizedBox(height: 0),
                       MeasureSize(
                         onChange: (size) {
-                          //setState(() {
                           widgetSize2 = size.height;
-                          // Tính toán ngay dựa trên trạng thái TabBar (nhanh hơn, không cần delay)
-                          // TabBar có chiều cao 50px khi visible
                           final tabBarHeight = isTabBarVisible ? 8.0 : 0.0;
                           final calculatedSize = widgetSize2! + tabBarHeight;
                           _position.value = calculatedSize + 102;
                           bottomLimitPosition = _position.value;
-                          //});
                         },
                         child: Container(
                           key: orderWidgetKey,
@@ -907,8 +855,7 @@ class _CommandorderState extends State<Commandorder>
                                   child: SizedBox(
                                     height: isTabBarVisible ? 50 : 0,
                                     child: IgnorePointer(
-                                      ignoring:
-                                          !isTabBarVisible, // không nhận tương tác khi ẩn
+                                      ignoring: !isTabBarVisible,
                                       child: TabBar(
                                         controller: _tabController1,
                                         isScrollable: true,
@@ -1724,7 +1671,6 @@ class _CommandorderState extends State<Commandorder>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                // Ô giá
                                                 Container(
                                                   width: 169.5,
                                                   height: 40,
@@ -1815,12 +1761,13 @@ class _CommandorderState extends State<Commandorder>
                                                                         giatran,
                                                                     selectedMode:
                                                                         selectedMode,
-                                                                    initialValue: _priceController
-                                                                        .text
-                                                                        .replaceAll(
-                                                                          ',',
-                                                                          '',
-                                                                        ), // Bỏ dấu phẩy để truyền vào keyboard
+                                                                    initialValue:
+                                                                        _priceController
+                                                                            .text
+                                                                            .replaceAll(
+                                                                              ',',
+                                                                              '',
+                                                                            ),
                                                                     onModeChanged: (mode) {
                                                                       setState(() {
                                                                         selectedMode =
@@ -1829,7 +1776,6 @@ class _CommandorderState extends State<Commandorder>
                                                                     },
                                                                     onTextInput: (value) {
                                                                       setState(() {
-                                                                        // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
                                                                         if (value
                                                                             .contains(
                                                                               '.',
@@ -1864,7 +1810,6 @@ class _CommandorderState extends State<Commandorder>
                                                                                 value;
                                                                           }
                                                                         } else {
-                                                                          // Format giá trị không có số thập phân
                                                                           final numValue = double.tryParse(
                                                                             value,
                                                                           );
@@ -1890,16 +1835,13 @@ class _CommandorderState extends State<Commandorder>
                                                                       });
                                                                     },
 
-                                                                    onBackspace: () {
-                                                                      // Keyboard sẽ xử lý backspace trong nội bộ
-                                                                      // Chỉ cần update controller dựa trên giá trị từ keyboard
-                                                                    },
+                                                                    onBackspace:
+                                                                        () {},
                                                                     onConfirmed:
                                                                         (
                                                                           confirmedValue,
                                                                         ) {
                                                                           setState(() {
-                                                                            // Nếu có dấu chấm (số thập phân), format với dấu phẩy và giữ 2 chữ số
                                                                             if (confirmedValue.contains(
                                                                               '.',
                                                                             )) {
@@ -1923,7 +1865,6 @@ class _CommandorderState extends State<Commandorder>
                                                                                     ? parts[1]
                                                                                     : '';
 
-                                                                                // Nếu decimalPart rỗng hoặc toàn số 0, bỏ dấu chấm
                                                                                 final isDecimalZero =
                                                                                     decimalPart.isEmpty ||
                                                                                     decimalPart
@@ -1934,7 +1875,6 @@ class _CommandorderState extends State<Commandorder>
                                                                                         .isEmpty;
 
                                                                                 if (isDecimalZero) {
-                                                                                  // Bỏ dấu chấm, format như số nguyên
                                                                                   final intValue =
                                                                                       int.tryParse(
                                                                                         integerPart,
@@ -1956,7 +1896,6 @@ class _CommandorderState extends State<Commandorder>
                                                                                 _priceController.text = confirmedValue;
                                                                               }
                                                                             } else {
-                                                                              // Format giá trị không có số thập phân
                                                                               final numValue = double.tryParse(
                                                                                 confirmedValue,
                                                                               );
@@ -1984,7 +1923,7 @@ class _CommandorderState extends State<Commandorder>
                                                                 await Future.delayed(
                                                                   Duration(
                                                                     milliseconds:
-                                                                        130,
+                                                                        400,
                                                                   ),
                                                                   () {
                                                                     _position
@@ -2090,8 +2029,6 @@ class _CommandorderState extends State<Commandorder>
 
                                                 const SizedBox(width: 12),
 
-                                                // Ô khối lượng (volume) + cảnh báo
-                                                // Khai báo global key ở trên cùng của State
                                                 Stack(
                                                   clipBehavior: Clip.none,
                                                   children: [
@@ -2198,7 +2135,6 @@ class _CommandorderState extends State<Commandorder>
                                                                             false;
                                                                       });
 
-                                                                      // Hiển thị tooltip
                                                                       _tooltipController
                                                                           .showTooltip();
 
@@ -2244,12 +2180,9 @@ class _CommandorderState extends State<Commandorder>
                                                                                 ].contains(
                                                                                   _avaController.text,
                                                                                 )) {
-                                                                                  // Nhận toàn bộ giá trị từ keyboard và xử lý
-                                                                                  // Kiểm tra xem có dấu chấm không
                                                                                   if (value.contains(
                                                                                     '.',
                                                                                   )) {
-                                                                                    // Nếu có dấu chấm, parse thành double và giữ nguyên dấu chấm
                                                                                     final doubleValue = double.tryParse(
                                                                                       value,
                                                                                     );
@@ -2260,7 +2193,6 @@ class _CommandorderState extends State<Commandorder>
                                                                                       _avaController.text = value;
                                                                                     }
                                                                                   } else {
-                                                                                    // Nếu không có dấu chấm, parse thành int và format với dấu phẩy
                                                                                     final intValue = int.tryParse(
                                                                                       value,
                                                                                     );
@@ -2273,12 +2205,10 @@ class _CommandorderState extends State<Commandorder>
                                                                                       );
                                                                                     }
                                                                                   }
-                                                                                  // Nếu <= 0 thì không set gì cả, giữ nguyên giá trị hiện tại
                                                                                 }
                                                                               },
                                                                           onBackspace: () {
                                                                             if (_avaController.text.isNotEmpty) {
-                                                                              // Xóa 1 ký tự
                                                                               final currentValue = _avaController.text;
                                                                               final newValue = currentValue.substring(
                                                                                 0,
@@ -2291,11 +2221,9 @@ class _CommandorderState extends State<Commandorder>
                                                                                 return;
                                                                               }
 
-                                                                              // Kiểm tra xem có dấu chấm không
                                                                               if (newValue.contains(
                                                                                 '.',
                                                                               )) {
-                                                                                // Nếu có dấu chấm, giữ nguyên
                                                                                 final doubleValue = double.tryParse(
                                                                                   newValue,
                                                                                 );
@@ -2308,7 +2236,6 @@ class _CommandorderState extends State<Commandorder>
                                                                                   _avaController.text = '';
                                                                                 }
                                                                               } else {
-                                                                                // Nếu không có dấu chấm, parse thành int và format
                                                                                 final cleanValue = newValue.replaceAll(
                                                                                   ',',
                                                                                   '',
@@ -2340,11 +2267,26 @@ class _CommandorderState extends State<Commandorder>
                                                                           initialValue:
                                                                               _avaController.text,
                                                                         ),
-                                                                      ).whenComplete(() {
-                                                                        setState(() {
-                                                                          isTabBarVisible =
-                                                                              true;
-                                                                        });
+                                                                      ).whenComplete(() async {
+                                                                        setState(
+                                                                          () => isTabBarVisible =
+                                                                              true,
+                                                                        );
+                                                                        await Future.delayed(
+                                                                          Duration(
+                                                                            milliseconds:
+                                                                                400,
+                                                                          ),
+                                                                          () {
+                                                                            _position.value =
+                                                                                630;
+                                                                            bottomLimitPosition =
+                                                                                510;
+                                                                            print(
+                                                                              'bottomLimitPosition: $bottomLimitPosition',
+                                                                            );
+                                                                          },
+                                                                        );
 
                                                                         _tooltipController
                                                                             .hideTooltip();
@@ -2544,8 +2486,6 @@ class _CommandorderState extends State<Commandorder>
                                                                           value;
                                                                       return;
                                                                     }
-
-                                                                    // Lấy giá trị hiện tại không có dấu phẩy
                                                                     final cleanValue =
                                                                         _totalController
                                                                             .text
@@ -2557,7 +2497,6 @@ class _CommandorderState extends State<Commandorder>
                                                                         cleanValue +
                                                                         value;
 
-                                                                    // Giới hạn tối đa 11 chữ số
                                                                     if (newValue
                                                                             .length >
                                                                         11) {
@@ -2582,7 +2521,6 @@ class _CommandorderState extends State<Commandorder>
                                                                     }
                                                                   },
                                                                   onBackspace: () {
-                                                                    // Bỏ dấu phẩy, xóa 1 ký tự, format lại
                                                                     final cleanValue =
                                                                         _totalController
                                                                             .text
@@ -2623,12 +2561,29 @@ class _CommandorderState extends State<Commandorder>
                                                                     }
                                                                   },
                                                                 ),
-                                                              ).whenComplete(() {
+                                                              ).whenComplete(() async {
                                                                 setState(
                                                                   () =>
                                                                       isTabBarVisible =
                                                                           true,
                                                                 );
+                                                                await Future.delayed(
+                                                                  Duration(
+                                                                    milliseconds:
+                                                                        400,
+                                                                  ),
+                                                                  () {
+                                                                    _position
+                                                                            .value =
+                                                                        630;
+                                                                    bottomLimitPosition =
+                                                                        510;
+                                                                    print(
+                                                                      'bottomLimitPosition: $bottomLimitPosition',
+                                                                    );
+                                                                  },
+                                                                );
+
                                                                 _totalFocus
                                                                     .unfocus();
                                                               });
@@ -2776,15 +2731,12 @@ class _CommandorderState extends State<Commandorder>
                           onVerticalDragUpdate: (detail) {
                             var delta = _position.value + detail.delta.dy;
 
-                            // 👇 Giới hạn trên (kéo lên tối đa)
-                            const minPosition =
-                                50.0; // ví dụ: không kéo lên quá 100px từ đỉnh
+                            const minPosition = 50.0;
                             if (delta < minPosition) delta = minPosition;
 
-                            // 👇 Giới hạn dưới (kéo xuống tối đa)
-                            if (delta > bottomLimitPosition)
+                            if (delta > bottomLimitPosition) {
                               delta = bottomLimitPosition;
-
+                            }
                             _position.value = delta;
                           },
 
@@ -2838,7 +2790,6 @@ class _CommandorderState extends State<Commandorder>
                                   child: TabBarView(
                                     controller: _tabController2,
                                     children: [
-                                      // Tab 1: Chờ khớp
                                       Container(
                                         padding: EdgeInsets.all(16),
                                         child: Center(
@@ -2850,7 +2801,6 @@ class _CommandorderState extends State<Commandorder>
                                           ),
                                         ),
                                       ),
-                                      // Tab 2: Đã khớp
                                       Container(
                                         padding: EdgeInsets.all(16),
                                         child: Center(
@@ -2862,7 +2812,6 @@ class _CommandorderState extends State<Commandorder>
                                           ),
                                         ),
                                       ),
-                                      // Tab 3: Lệnh điều khiển
                                       Container(
                                         padding: EdgeInsets.all(16),
                                         child: Center(
