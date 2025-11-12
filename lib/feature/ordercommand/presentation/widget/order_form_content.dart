@@ -16,7 +16,7 @@ import 'package:homepageintern/feature/ordercommand/presentation/widget/sellbutt
 import 'package:homepageintern/feature/ordercommand/presentation/widget/totalkeyboard.dart';
 import 'package:intl/intl.dart';
 
-class OrderFormContent extends StatelessWidget {
+class OrderFormContent extends StatefulWidget {
   final TabController tabController1;
   final TextEditingController priceController;
   final TextEditingController totalController;
@@ -63,6 +63,7 @@ class OrderFormContent extends StatelessWidget {
     double,
   )
   onIsValid;
+  final VoidCallback? onAutoScaleTabBarViewLoaded;
 
   const OrderFormContent({
     super.key,
@@ -104,14 +105,36 @@ class OrderFormContent extends StatelessWidget {
     required this.onDecreamentAvalbleController,
     required this.onCalculateVolumeWithPercentages,
     required this.onIsValid,
+    this.onAutoScaleTabBarViewLoaded,
   });
+
+  @override
+  State<OrderFormContent> createState() => _OrderFormContentState();
+}
+
+class _OrderFormContentState extends State<OrderFormContent> {
+  bool _isAutoScaleTabBarViewLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (mounted) {
+        setState(() {
+          _isAutoScaleTabBarViewLoaded = true;
+        });
+        widget.onAutoScaleTabBarViewLoaded?.call();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OrdercommandCubit, OrdercommandState>(
       builder: (context, state) {
         return Container(
-          key: orderWidgetKey,
+          key: widget.orderWidgetKey,
           width: double.infinity,
           decoration: BoxDecoration(),
           child: Column(
@@ -121,11 +144,11 @@ class OrderFormContent extends StatelessWidget {
                 curve: Curves.easeInOut,
                 child: ClipRRect(
                   child: SizedBox(
-                    height: isTabBarVisible ? 50 : 0,
+                    height: widget.isTabBarVisible ? 50 : 0,
                     child: IgnorePointer(
-                      ignoring: !isTabBarVisible,
+                      ignoring: !widget.isTabBarVisible,
                       child: TabBar(
-                        controller: tabController1,
+                        controller: widget.tabController1,
                         isScrollable: true,
                         tabAlignment: TabAlignment.start,
                         labelPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -163,10 +186,11 @@ class OrderFormContent extends StatelessWidget {
                 ),
               ),
 
-              AutoScaleTabBarView(
-                controller: tabController1,
-                children: [
-                  Padding(
+              _isAutoScaleTabBarViewLoaded
+                  ? AutoScaleTabBarView(
+                      controller: widget.tabController1,
+                      children: [
+                        Padding(
                     padding: const EdgeInsets.only(
                       left: 12,
                       top: 19,
@@ -256,11 +280,11 @@ class OrderFormContent extends StatelessWidget {
                                         alignment: Alignment.centerLeft,
                                         child: GestureDetector(
                                           onTap: () {
-                                            priceController.text = giahientai
+                                            widget.priceController.text = widget.giahientai
                                                 .toStringAsFixed(2);
                                           },
                                           child: Text(
-                                            giahientai.toStringAsFixed(2),
+                                            widget.giahientai.toStringAsFixed(2),
                                             style: GoogleFonts.manrope(
                                               color: Color(0xFFF34859),
                                               fontWeight: FontWeight.w500,
@@ -300,11 +324,11 @@ class OrderFormContent extends StatelessWidget {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
-                                            priceController.text = thamchieu
+                                            widget.priceController.text = widget.thamchieu
                                                 .toStringAsFixed(2);
                                           },
                                           child: Text(
-                                            thamchieu.toStringAsFixed(2),
+                                            widget.thamchieu.toStringAsFixed(2),
                                             style: GoogleFonts.manrope(
                                               color: Color(0xFFFF9F41),
                                               fontWeight: FontWeight.w500,
@@ -362,7 +386,7 @@ class OrderFormContent extends StatelessWidget {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
-                                            priceController.text = "94.10";
+                                            widget.priceController.text = "94.10";
                                           },
                                           child: Text(
                                             "94.10",
@@ -397,7 +421,7 @@ class OrderFormContent extends StatelessWidget {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
-                                            priceController.text = "94.40";
+                                            widget.priceController.text = "94.40";
                                           },
                                           child: Text(
                                             "94.40",
@@ -458,7 +482,7 @@ class OrderFormContent extends StatelessWidget {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
-                                            priceController.text = "94.00";
+                                            widget.priceController.text = "94.00";
                                           },
                                           child: Text(
                                             "94.00",
@@ -493,7 +517,7 @@ class OrderFormContent extends StatelessWidget {
                                         ),
                                         child: GestureDetector(
                                           onTap: () {
-                                            priceController.text = "94.50";
+                                            widget.priceController.text = "94.50";
                                           },
                                           child: Text(
                                             "94.50",
@@ -548,7 +572,15 @@ class OrderFormContent extends StatelessWidget {
                     child: Text("Khác", style: TextStyle(color: Colors.white)),
                   ),
                 ],
-              ),
+              )
+                  : Container(
+                      height: 200,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF1AAF74),
+                        ),
+                      ),
+                    ),
               SizedBox(height: 25),
               BlocBuilder<OrdercommandCubit, OrdercommandState>(
                 builder: (context, state) {
@@ -743,8 +775,8 @@ class OrderFormContent extends StatelessWidget {
                                 SizedBox(width: 4),
                                 Text(
                                   state.isClickedSell
-                                      ? limit.toString()
-                                      : numberFormat.format(sucmua).toString(),
+                                      ? widget.limit.toString()
+                                      : widget.numberFormat.format(widget.sucmua).toString(),
                                   style: GoogleFonts.manrope(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -772,9 +804,9 @@ class OrderFormContent extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                     color: const Color(0xFF3A4247),
                                     border: Border.all(
-                                      color: isOverLimit
+                                      color: widget.isOverLimit
                                           ? Colors.red
-                                          : (isPriceFocused
+                                          : (widget.isPriceFocused
                                                 ? Colors.green
                                                 : Colors.transparent),
                                       width: 1.5,
@@ -790,18 +822,18 @@ class OrderFormContent extends StatelessWidget {
                                           builder: (context) {
                                             final currentPrice =
                                                 double.tryParse(
-                                                  priceController.text,
+                                                  widget.priceController.text,
                                                 ) ??
                                                 0.0;
                                             final bool isAtFloor =
-                                                currentPrice <= giamin;
+                                                currentPrice <= widget.giamin;
 
                                             return GestureDetector(
                                               onTap: isAtFloor
                                                   ? null
                                                   : () =>
-                                                        onDecreasementController(
-                                                          priceController,
+                                                        widget.onDecreasementController(
+                                                          widget.priceController,
                                                         ),
                                               child: Opacity(
                                                 opacity: isAtFloor ? 0.4 : 1.0,
@@ -815,7 +847,7 @@ class OrderFormContent extends StatelessWidget {
                                         Expanded(
                                           child: TextField(
                                             onTap: () {
-                                              onIsTabBarVisibleChanged(false);
+                                              widget.onIsTabBarVisibleChanged(false);
                                               showModalBottomSheet(
                                                 context: context,
                                                 backgroundColor:
@@ -829,20 +861,20 @@ class OrderFormContent extends StatelessWidget {
                                                   behavior: HitTestBehavior
                                                       .deferToChild,
                                                   child: CustomKeyboard(
-                                                    giaTran: giatran,
-                                                    selectedMode: selectedMode,
+                                                    giaTran: widget.giatran,
+                                                    selectedMode: widget.selectedMode,
                                                     initialValue:
-                                                        priceController.text
+                                                        widget.priceController.text
                                                             .replaceAll(
                                                               ',',
                                                               '',
                                                             ),
                                                     onModeChanged: (mode) {
-                                                      // selectedMode is managed by parent
+                                                      // widget.selectedMode is managed by parent
                                                     },
                                                     onTextInput: (value) {
                                                       // Update handled by controller
-                                                      onSetState();
+                                                      widget.onSetState();
                                                       if (value.contains('.')) {
                                                         final numValue =
                                                             double.tryParse(
@@ -862,16 +894,16 @@ class OrderFormContent extends StatelessWidget {
                                                               ? parts[1]
                                                               : '';
                                                           final formattedInteger =
-                                                              numberFormat.format(
+                                                              widget.numberFormat.format(
                                                                 int.tryParse(
                                                                       integerPart,
                                                                     ) ??
                                                                     0,
                                                               );
-                                                          priceController.text =
+                                                          widget.priceController.text =
                                                               '$formattedInteger.$decimalPart';
                                                         } else {
-                                                          priceController.text =
+                                                          widget.priceController.text =
                                                               value;
                                                         }
                                                       } else {
@@ -881,23 +913,23 @@ class OrderFormContent extends StatelessWidget {
                                                             );
                                                         if (numValue != null &&
                                                             numValue > 0) {
-                                                          priceController.text =
-                                                              numberFormat
+                                                          widget.priceController.text =
+                                                              widget.numberFormat
                                                                   .format(
                                                                     numValue
                                                                         .toInt(),
                                                                   );
                                                         } else {
-                                                          priceController.text =
+                                                          widget.priceController.text =
                                                               value;
                                                         }
                                                       }
-                                                      priceController
+                                                      widget.priceController
                                                               .selection =
                                                           TextSelection.fromPosition(
                                                             TextPosition(
                                                               offset:
-                                                                  priceController
+                                                                  widget.priceController
                                                                       .text
                                                                       .length,
                                                             ),
@@ -906,7 +938,7 @@ class OrderFormContent extends StatelessWidget {
 
                                                     onBackspace: () {},
                                                     onConfirmed: (confirmedValue) {
-                                                      onSetState();
+                                                      widget.onSetState();
                                                       if (confirmedValue
                                                           .contains('.')) {
                                                         final numValue =
@@ -945,26 +977,26 @@ class OrderFormContent extends StatelessWidget {
                                                                   integerPart,
                                                                 ) ??
                                                                 0;
-                                                            priceController
+                                                            widget.priceController
                                                                     .text =
-                                                                numberFormat
+                                                                widget.numberFormat
                                                                     .format(
                                                                       intValue,
                                                                     );
                                                           } else {
                                                             final formattedInteger =
-                                                                numberFormat.format(
+                                                                widget.numberFormat.format(
                                                                   int.tryParse(
                                                                         integerPart,
                                                                       ) ??
                                                                       0,
                                                                 );
-                                                            priceController
+                                                            widget.priceController
                                                                     .text =
                                                                 '$formattedInteger.$decimalPart';
                                                           }
                                                         } else {
-                                                          priceController.text =
+                                                          widget.priceController.text =
                                                               confirmedValue;
                                                         }
                                                       } else {
@@ -974,14 +1006,14 @@ class OrderFormContent extends StatelessWidget {
                                                             );
                                                         if (numValue != null &&
                                                             numValue > 0) {
-                                                          priceController.text =
-                                                              numberFormat
+                                                          widget.priceController.text =
+                                                              widget.numberFormat
                                                                   .format(
                                                                     numValue
                                                                         .toInt(),
                                                                   );
                                                         } else {
-                                                          priceController.text =
+                                                          widget.priceController.text =
                                                               confirmedValue;
                                                         }
                                                       }
@@ -989,12 +1021,12 @@ class OrderFormContent extends StatelessWidget {
                                                   ),
                                                 ),
                                               ).whenComplete(() async {
-                                                onIsTabBarVisibleChanged(true);
+                                                widget.onIsTabBarVisibleChanged(true);
                                                 await Future.delayed(
                                                   Duration(milliseconds: 400),
                                                   () {
-                                                    position.value = 630;
-                                                    onBottomLimitPositionChanged(
+                                                    widget.position.value = 630;
+                                                    widget.onBottomLimitPositionChanged(
                                                       510,
                                                     );
                                                     print(
@@ -1002,24 +1034,24 @@ class OrderFormContent extends StatelessWidget {
                                                     );
                                                   },
                                                 );
-                                                priceFocus.unfocus();
+                                                widget.priceFocus.unfocus();
                                               });
 
                                               WidgetsBinding.instance
                                                   .addPostFrameCallback((_) {
-                                                    priceFocus.requestFocus();
+                                                    widget.priceFocus.requestFocus();
                                                   });
                                             },
                                             readOnly: true,
                                             showCursor: true,
                                             cursorColor: Colors.green,
-                                            focusNode: priceFocus,
+                                            focusNode: widget.priceFocus,
                                             style: GoogleFonts.manrope(
                                               color: Colors.white,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
                                             ),
-                                            controller: priceController,
+                                            controller: widget.priceController,
                                             decoration: InputDecoration(
                                               hintText: "Giá",
                                               hintStyle: GoogleFonts.manrope(
@@ -1042,18 +1074,18 @@ class OrderFormContent extends StatelessWidget {
                                           builder: (context) {
                                             final currentPrice =
                                                 double.tryParse(
-                                                  priceController.text,
+                                                  widget.priceController.text,
                                                 ) ??
                                                 0.0;
                                             final bool isAtCeiling =
-                                                currentPrice >= giatran;
+                                                currentPrice >= widget.giatran;
 
                                             return GestureDetector(
                                               onTap: isAtCeiling
                                                   ? null
                                                   : () =>
-                                                        onIncreamentController(
-                                                          priceController,
+                                                        widget.onIncreamentController(
+                                                          widget.priceController,
                                                         ),
                                               child: Opacity(
                                                 opacity: isAtCeiling
@@ -1080,7 +1112,7 @@ class OrderFormContent extends StatelessWidget {
                                       children: [
                                         JustTheTooltip(
                                           backgroundColor: Colors.transparent,
-                                          controller: tooltipController,
+                                          controller: widget.tooltipController,
                                           isModal: true,
                                           barrierDismissible: false,
                                           triggerMode: TooltipTriggerMode.tap,
@@ -1099,7 +1131,7 @@ class OrderFormContent extends StatelessWidget {
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  "KL max:                   ${numberFormat.format(priceMaxCanBuy ?? 0)}",
+                                                  "KL max:                   ${widget.numberFormat.format(widget.priceMaxCanBuy ?? 0)}",
                                                   style: GoogleFonts.manrope(
                                                     color: Colors.white,
                                                     fontSize: 12,
@@ -1120,9 +1152,9 @@ class OrderFormContent extends StatelessWidget {
                                             ),
                                             color: const Color(0xFF3A4247),
                                             border: Border.all(
-                                              color: isOverSucMua
+                                              color: widget.isOverSucMua
                                                   ? Colors.red
-                                                  : (isVolumeFocused
+                                                  : (widget.isVolumeFocused
                                                         ? Colors.green
                                                         : Colors.transparent),
                                               width: 1.5,
@@ -1136,8 +1168,8 @@ class OrderFormContent extends StatelessWidget {
                                               children: [
                                                 GestureDetector(
                                                   onTap: () =>
-                                                      onDecreamentAvalbleController(
-                                                        avaController,
+                                                      widget.onDecreamentAvalbleController(
+                                                        widget.avaController,
                                                       ),
                                                   child: SvgPicture.asset(
                                                     "assets/icons/addbut.svg",
@@ -1146,17 +1178,17 @@ class OrderFormContent extends StatelessWidget {
                                                 Expanded(
                                                   child: TextField(
                                                     onTap: () {
-                                                      onIsTabBarVisibleChanged(
+                                                      widget.onIsTabBarVisibleChanged(
                                                         false,
                                                       );
 
-                                                      tooltipController
+                                                      widget.tooltipController
                                                           .showTooltip();
 
-                                                      onIsTooltipVisibleChanged(
+                                                      widget.onIsTooltipVisibleChanged(
                                                         true,
                                                       );
-                                                      onIsVolumeFocusedChanged(
+                                                      widget.onIsVolumeFocusedChanged(
                                                         true,
                                                       );
 
@@ -1170,7 +1202,7 @@ class OrderFormContent extends StatelessWidget {
                                                             Colors.transparent,
                                                         builder: (_) => PercentKeyboard(
                                                           priceMaxCanBuy:
-                                                              priceMaxCanBuy,
+                                                              widget.priceMaxCanBuy,
                                                           onTextInput: (value) {
                                                             if ([
                                                               "LO",
@@ -1178,7 +1210,7 @@ class OrderFormContent extends StatelessWidget {
                                                               "ATO",
                                                               "ATC",
                                                             ].contains(value)) {
-                                                              avaController
+                                                              widget.avaController
                                                                       .text =
                                                                   value;
                                                               return;
@@ -1189,7 +1221,7 @@ class OrderFormContent extends StatelessWidget {
                                                               "ATO",
                                                               "ATC",
                                                             ].contains(
-                                                              avaController
+                                                              widget.avaController
                                                                   .text,
                                                             )) {
                                                               if (value
@@ -1204,7 +1236,7 @@ class OrderFormContent extends StatelessWidget {
                                                                         null &&
                                                                     doubleValue >
                                                                         0) {
-                                                                  avaController
+                                                                  widget.avaController
                                                                           .text =
                                                                       value;
                                                                 }
@@ -1217,9 +1249,9 @@ class OrderFormContent extends StatelessWidget {
                                                                         null &&
                                                                     intValue >
                                                                         0) {
-                                                                  avaController
+                                                                  widget.avaController
                                                                           .text =
-                                                                      numberFormat
+                                                                      widget.numberFormat
                                                                           .format(
                                                                             intValue,
                                                                           );
@@ -1228,11 +1260,11 @@ class OrderFormContent extends StatelessWidget {
                                                             }
                                                           },
                                                           onBackspace: () {
-                                                            if (avaController
+                                                            if (widget.avaController
                                                                 .text
                                                                 .isNotEmpty) {
                                                               final currentValue =
-                                                                  avaController
+                                                                  widget.avaController
                                                                       .text;
                                                               final newValue =
                                                                   currentValue
@@ -1244,7 +1276,7 @@ class OrderFormContent extends StatelessWidget {
 
                                                               if (newValue
                                                                   .isEmpty) {
-                                                                avaController
+                                                                widget.avaController
                                                                         .text =
                                                                     '';
                                                                 return;
@@ -1262,11 +1294,11 @@ class OrderFormContent extends StatelessWidget {
                                                                         null &&
                                                                     doubleValue >
                                                                         0) {
-                                                                  avaController
+                                                                  widget.avaController
                                                                           .text =
                                                                       newValue;
                                                                 } else {
-                                                                  avaController
+                                                                  widget.avaController
                                                                           .text =
                                                                       '';
                                                                 }
@@ -1285,14 +1317,14 @@ class OrderFormContent extends StatelessWidget {
                                                                         null &&
                                                                     intValue >
                                                                         0) {
-                                                                  avaController
+                                                                  widget.avaController
                                                                           .text =
-                                                                      numberFormat
+                                                                      widget.numberFormat
                                                                           .format(
                                                                             intValue,
                                                                           );
                                                                 } else {
-                                                                  avaController
+                                                                  widget.avaController
                                                                           .text =
                                                                       '';
                                                                 }
@@ -1301,16 +1333,16 @@ class OrderFormContent extends StatelessWidget {
                                                           },
                                                           onPercentSelected:
                                                               (percent) {
-                                                                onCalculateVolumeWithPercentages(
+                                                                widget.onCalculateVolumeWithPercentages(
                                                                   percent,
                                                                 );
                                                               },
                                                           initialValue:
-                                                              avaController
+                                                              widget.avaController
                                                                   .text,
                                                         ),
                                                       ).whenComplete(() async {
-                                                        onIsTabBarVisibleChanged(
+                                                        widget.onIsTabBarVisibleChanged(
                                                           true,
                                                         );
                                                         await Future.delayed(
@@ -1318,9 +1350,9 @@ class OrderFormContent extends StatelessWidget {
                                                             milliseconds: 400,
                                                           ),
                                                           () {
-                                                            position.value =
+                                                            widget.position.value =
                                                                 630;
-                                                            onBottomLimitPositionChanged(
+                                                            widget.onBottomLimitPositionChanged(
                                                               510,
                                                             );
                                                             print(
@@ -1329,32 +1361,32 @@ class OrderFormContent extends StatelessWidget {
                                                           },
                                                         );
 
-                                                        tooltipController
+                                                        widget.tooltipController
                                                             .hideTooltip();
 
-                                                        onIsTooltipVisibleChanged(
+                                                        widget.onIsTooltipVisibleChanged(
                                                           false,
                                                         );
-                                                        onIsVolumeFocusedChanged(
+                                                        widget.onIsVolumeFocusedChanged(
                                                           false,
                                                         );
 
-                                                        volumeFocus.unfocus();
+                                                        widget.volumeFocus.unfocus();
                                                       });
 
                                                       WidgetsBinding.instance
                                                           .addPostFrameCallback((
                                                             _,
                                                           ) {
-                                                            volumeFocus
+                                                            widget.volumeFocus
                                                                 .requestFocus();
                                                           });
                                                     },
                                                     readOnly: true,
                                                     showCursor: true,
                                                     cursorColor: Colors.green,
-                                                    focusNode: volumeFocus,
-                                                    controller: avaController,
+                                                    focusNode: widget.volumeFocus,
+                                                    controller: widget.avaController,
                                                     style: GoogleFonts.manrope(
                                                       color: Colors.white,
                                                       fontSize: 14,
@@ -1363,11 +1395,11 @@ class OrderFormContent extends StatelessWidget {
                                                     ),
                                                     decoration: InputDecoration(
                                                       hintText:
-                                                          avaController
+                                                          widget.avaController
                                                                   .text
                                                                   .isEmpty &&
-                                                              !isTooltipVisible
-                                                          ? "Tối đa: ${numberFormat.format(priceMaxCanBuy ?? 0)}"
+                                                              !widget.isTooltipVisible
+                                                          ? "Tối đa: ${widget.numberFormat.format(widget.priceMaxCanBuy ?? 0)}"
                                                           : "",
                                                       hintStyle:
                                                           GoogleFonts.manrope(
@@ -1386,8 +1418,8 @@ class OrderFormContent extends StatelessWidget {
 
                                                 GestureDetector(
                                                   onTap: () =>
-                                                      onIncreamentAvalbleController(
-                                                        avaController,
+                                                      widget.onIncreamentAvalbleController(
+                                                        widget.avaController,
                                                       ),
                                                   child: SvgPicture.asset(
                                                     "assets/icons/plus.svg",
@@ -1400,14 +1432,14 @@ class OrderFormContent extends StatelessWidget {
                                       ],
                                     ),
 
-                                    if (isOverSucMua)
+                                    if (widget.isOverSucMua)
                                       Positioned(
                                         bottom: -17,
                                         left: -5,
                                         right: 0,
                                         child: Center(
                                           child: Text(
-                                            errorMessage,
+                                            widget.errorMessage,
                                             style: GoogleFonts.manrope(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
@@ -1423,8 +1455,8 @@ class OrderFormContent extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(height: isOverLimit ? 0 : 18),
-                        if (isOverLimit)
+                        SizedBox(height: widget.isOverLimit ? 0 : 18),
+                        if (widget.isOverLimit)
                           Padding(
                             padding: const EdgeInsets.only(left: 12, bottom: 8),
                             child: Align(
@@ -1452,7 +1484,7 @@ class OrderFormContent extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: isTotalFocused
+                                      color: widget.isTotalFocused
                                           ? Colors.green
                                           : Colors.transparent,
                                     ),
@@ -1472,7 +1504,7 @@ class OrderFormContent extends StatelessWidget {
                                                   .digitsOnly,
                                             ],
                                             onTap: () {
-                                              onIsTabBarVisibleChanged(false);
+                                              widget.onIsTabBarVisibleChanged(false);
                                               showModalBottomSheet(
                                                 context: context,
                                                 backgroundColor:
@@ -1488,12 +1520,12 @@ class OrderFormContent extends StatelessWidget {
                                                       "ATO",
                                                       "ATC",
                                                     ].contains(value)) {
-                                                      totalController.text =
+                                                      widget.totalController.text =
                                                           value;
                                                       return;
                                                     }
                                                     final cleanValue =
-                                                        totalController.text
+                                                        widget.totalController.text
                                                             .replaceAll(
                                                               ',',
                                                               '',
@@ -1508,18 +1540,18 @@ class OrderFormContent extends StatelessWidget {
                                                         int.tryParse(newValue);
 
                                                     if (numValue != null) {
-                                                      totalController.text =
-                                                          numberFormat.format(
+                                                      widget.totalController.text =
+                                                          widget.numberFormat.format(
                                                             numValue,
                                                           );
                                                     } else {
-                                                      totalController.text =
+                                                      widget.totalController.text =
                                                           newValue;
                                                     }
                                                   },
                                                   onBackspace: () {
                                                     final cleanValue =
-                                                        totalController.text
+                                                        widget.totalController.text
                                                             .replaceAll(
                                                               ',',
                                                               '',
@@ -1538,29 +1570,29 @@ class OrderFormContent extends StatelessWidget {
                                                             );
                                                         if (numValue != null &&
                                                             numValue > 0) {
-                                                          totalController.text =
-                                                              numberFormat
+                                                          widget.totalController.text =
+                                                              widget.numberFormat
                                                                   .format(
                                                                     numValue,
                                                                   );
                                                         } else {
-                                                          totalController.text =
+                                                          widget.totalController.text =
                                                               newValue;
                                                         }
                                                       } else {
-                                                        totalController.text =
+                                                        widget.totalController.text =
                                                             '';
                                                       }
                                                     }
                                                   },
                                                 ),
                                               ).whenComplete(() async {
-                                                onIsTabBarVisibleChanged(true);
+                                                widget.onIsTabBarVisibleChanged(true);
                                                 await Future.delayed(
                                                   Duration(milliseconds: 400),
                                                   () {
-                                                    position.value = 630;
-                                                    onBottomLimitPositionChanged(
+                                                    widget.position.value = 630;
+                                                    widget.onBottomLimitPositionChanged(
                                                       510,
                                                     );
                                                     print(
@@ -1569,24 +1601,24 @@ class OrderFormContent extends StatelessWidget {
                                                   },
                                                 );
 
-                                                totalFocus.unfocus();
+                                                widget.totalFocus.unfocus();
                                               });
 
                                               WidgetsBinding.instance
                                                   .addPostFrameCallback((_) {
-                                                    totalFocus.requestFocus();
+                                                    widget.totalFocus.requestFocus();
                                                   });
                                             },
                                             readOnly: true,
                                             showCursor: true,
                                             cursorColor: Colors.green,
-                                            focusNode: totalFocus,
+                                            focusNode: widget.totalFocus,
                                             style: GoogleFonts.manrope(
                                               color: Colors.white,
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
                                             ),
-                                            controller: totalController,
+                                            controller: widget.totalController,
                                             decoration: InputDecoration(
                                               hintText: "Tổng giá trị",
                                               hintStyle: GoogleFonts.manrope(
@@ -1611,13 +1643,13 @@ class OrderFormContent extends StatelessWidget {
                                 SizedBox(width: 12),
                                 GestureDetector(
                                   onTap: () {
-                                    if (onIsValid(
-                                      priceController,
-                                      avaController,
-                                      totalController,
-                                      giatran,
-                                      giamin,
-                                      sucmua,
+                                    if (widget.onIsValid(
+                                      widget.priceController,
+                                      widget.avaController,
+                                      widget.totalController,
+                                      widget.giatran,
+                                      widget.giamin,
+                                      widget.sucmua,
                                     )) {
                                       print(1);
                                     } else {

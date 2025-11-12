@@ -43,6 +43,7 @@ class _CommandorderState extends State<Commandorder>
   bool isTabBarVisible = true;
   bool isTooltipVisible = false;
   bool isVolumeKeyboardOpen = false;
+  bool isAutoScaleTabBarViewLoaded = false;
   final JustTheController _tooltipController = JustTheController();
   final NumberFormat numberFormat = NumberFormat("#,##0", "en_US");
   int? priceMaxCanBuy;
@@ -52,7 +53,7 @@ class _CommandorderState extends State<Commandorder>
   double? widgetSize3;
   late ValueNotifier<double> remainHeightNotifier = ValueNotifier(200);
   final List<String> hi = ["FPT", "VIC", "HPG", "VCB", "VNI", "HNX"];
-  final ValueNotifier<double> _position = ValueNotifier(275);
+  final ValueNotifier<double> _position = ValueNotifier(400);
   final double orderWidgetHeight = 500;
   final ValueNotifier<bool> isAllowScroll = ValueNotifier(true);
   final ValueNotifier<bool> isShowBuySell = ValueNotifier(true);
@@ -376,9 +377,9 @@ class _CommandorderState extends State<Commandorder>
   }
 
   void calculateBottomLimitPosition() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    _position.value = 510;
-    bottomLimitPosition = 510;
+    await Future.delayed(const Duration(milliseconds: 1800));
+    _position.value = 520;
+    bottomLimitPosition = 520;
   }
 
   @override
@@ -830,8 +831,9 @@ class _CommandorderState extends State<Commandorder>
                           widgetSize2 = size.height;
                           final tabBarHeight = isTabBarVisible ? 8.0 : 0.0;
                           final calculatedSize = widgetSize2! + tabBarHeight;
-                          _position.value = calculatedSize + 102;
+                          _position.value = calculatedSize + 112;
                           bottomLimitPosition = _position.value;
+                          print("widgetSize2 $widgetSize2");
                         },
                         child: OrderFormContent(
                           tabController1: _tabController1,
@@ -891,6 +893,11 @@ class _CommandorderState extends State<Commandorder>
                           onCalculateVolumeWithPercentages:
                               calculate_volume_with_percentages,
                           onIsValid: isValid,
+                          onAutoScaleTabBarViewLoaded: () {
+                            setState(() {
+                              isAutoScaleTabBarViewLoaded = true;
+                            });
+                          },
                         ),
                       ),
                     ],
