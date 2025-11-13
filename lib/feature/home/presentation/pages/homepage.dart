@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homepageintern/core/extensions/color_extension.dart';
+import 'package:homepageintern/core/widgets/custom_bottom_navigation_bar.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/homepagesliverheader.dart';
+import 'package:homepageintern/feature/ordercommand/presentation/pages/commandorder.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
     as extended;
 import 'package:sliver_tools/sliver_tools.dart';
@@ -221,30 +223,21 @@ class _HomepageState extends State<Homepage> {
           body: const SizedBox.shrink(),
         ),
       ),
-      bottomNavigationBar: AnimatedSlide(
-        duration: const Duration(milliseconds: 300),
-        offset: _showNav ? Offset.zero : const Offset(0, 1),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.white,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xFF1AAF74),
-          unselectedItemColor: const Color(0xFF6F767E),
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          selectedLabelStyle: GoogleFonts.manrope(fontWeight: FontWeight.w700),
-          unselectedLabelStyle: GoogleFonts.manrope(
-            fontWeight: FontWeight.w500,
-          ),
-          items: [
-            _buildBottomNavItem("Trang chủ", "assets/icons/house.svg"),
-            _buildBottomNavItem("Danh mục", "assets/icons/chart.svg"),
-            _buildBottomNavItem("Đặt lệnh", "assets/icons/hammer.svg"),
-            _buildBottomNavItem("Số dư GD", "assets/icons/wallet.svg"),
-            _buildBottomNavItem("Chức năng", "assets/icons/function.svg"),
-          ],
-        ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == 2) {
+            // Navigate to Commandorder
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const Commandorder()),
+            );
+          } else {
+            setState(() => _currentIndex = index);
+          }
+        },
+        backgroundColor: Colors.white,
+        showNav: _showNav,
       ),
     );
   }
@@ -393,21 +386,6 @@ class _HomepageState extends State<Homepage> {
           ),
         ),
       ],
-    );
-  }
-
-  BottomNavigationBarItem _buildBottomNavItem(String label, String iconPath) {
-    return BottomNavigationBarItem(
-      label: label,
-      icon: SvgPicture.asset(iconPath, color: const Color(0xFFAFB3BE)),
-      activeIcon: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SvgPicture.asset(iconPath, color: const Color(0xFF1AAF74)),
-          const SizedBox(height: 6),
-          SvgPicture.asset("assets/icons/line.svg"),
-        ],
-      ),
     );
   }
 }

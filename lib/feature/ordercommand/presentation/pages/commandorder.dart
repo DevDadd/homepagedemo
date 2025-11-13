@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:homepageintern/core/widgets/custom_bottom_navigation_bar.dart';
+import 'package:homepageintern/feature/home/presentation/pages/homepage.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/dottedlinepainter.dart';
 import 'package:homepageintern/feature/ordercommand/presentation/widget/order_form_content.dart';
 import 'package:intl/intl.dart';
@@ -22,6 +24,7 @@ class _CommandorderState extends State<Commandorder>
   late TabController _tabController1;
   late TabController _tabController2;
   String? selectedMode;
+  int _currentIndex = 2; // Đặt lệnh là index 2
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
   final TextEditingController _avaController = TextEditingController();
@@ -1027,6 +1030,22 @@ class _CommandorderState extends State<Commandorder>
               ),
             ],
           ),
+        ),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            if (index == 0) {
+              // Navigate to Homepage
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Homepage()),
+              );
+            } else {
+              setState(() => _currentIndex = index);
+            }
+          },
+          backgroundColor: const Color(0xFF111315),
+          showNav: true,
         ),
       ),
     );

@@ -191,118 +191,239 @@ class _OrderFormContentState extends State<OrderFormContent> {
                       controller: widget.tabController1,
                       children: [
                         Padding(
-                    padding: const EdgeInsets.only(
-                      left: 12,
-                      top: 19,
-                      right: 12,
-                    ),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Container(
-                        decoration: BoxDecoration(),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "KL",
-                                  style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12.sp,
-                                    color: Color(0xFF6F767E),
-                                  ),
-                                ),
-                                SizedBox(width: 103.5),
-                                Text(
-                                  "Giá mua",
-                                  style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12.sp,
-                                    color: Color(0xFF6F767E),
-                                  ),
-                                ),
-                                SizedBox(width: 24),
-                                Text(
-                                  "Giá bán",
-                                  style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12.sp,
-                                    color: Color(0xFF6F767E),
-                                  ),
-                                ),
-                                SizedBox(width: 107.5),
-                                Text(
-                                  "KL",
-                                  style: GoogleFonts.manrope(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12.sp,
-                                    color: Color(0xFF6F767E),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            top: 19,
+                            right: 12,
+                          ),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Container(
+                              decoration: BoxDecoration(),
+                              child: Column(
                                 children: [
-                                  Text(
-                                    "20,000",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFF6F767E),
-                                    ),
-                                  ),
-                                  SizedBox(width: 85.5),
-                                  Stack(
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Row(
-                                        children: [
-                                          SizedBox(width: 18),
-                                          Container(
-                                            width: 33,
-                                            height: 21,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(4),
-                                                bottomLeft: Radius.circular(4),
-                                              ),
-                                              color: Color(
-                                                0xFF1AAF74,
-                                              ).withOpacity(0.3),
-                                            ),
-                                          ),
-                                        ],
+                                      Text(
+                                        "KL",
+                                        style: GoogleFonts.manrope(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12.sp,
+                                          color: Color(0xFF6F767E),
+                                        ),
                                       ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            widget.priceController.text = widget.giahientai
-                                                .toStringAsFixed(2);
-                                          },
-                                          child: Text(
-                                            widget.giahientai.toStringAsFixed(2),
-                                            style: GoogleFonts.manrope(
-                                              color: Color(0xFFF34859),
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                            ),
-                                          ),
+                                      SizedBox(width: 103.5),
+                                      Text(
+                                        "Giá mua",
+                                        style: GoogleFonts.manrope(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12.sp,
+                                          color: Color(0xFF6F767E),
+                                        ),
+                                      ),
+                                      SizedBox(width: 24),
+                                      Text(
+                                        "Giá bán",
+                                        style: GoogleFonts.manrope(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12.sp,
+                                          color: Color(0xFF6F767E),
+                                        ),
+                                      ),
+                                      SizedBox(width: 107.5),
+                                      Text(
+                                        "KL",
+                                        style: GoogleFonts.manrope(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12.sp,
+                                          color: Color(0xFF6F767E),
                                         ),
                                       ),
                                     ],
                                   ),
-                                  Stack(
-                                    children: [
-                                      SizedBox(
-                                        child: Row(
+                                  SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "20,000",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Color(0xFF6F767E),
+                                          ),
+                                        ),
+                                        SizedBox(width: 85.5),
+                                        Stack(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                SizedBox(width: 18),
+                                                Container(
+                                                  width: 33,
+                                                  height: 21,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                4,
+                                                              ),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                    color: Color(
+                                                      0xFF1AAF74,
+                                                    ).withOpacity(0.3),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  widget.priceController.text =
+                                                      widget.giahientai
+                                                          .toStringAsFixed(2);
+                                                },
+                                                child: Text(
+                                                  widget.giahientai
+                                                      .toStringAsFixed(2),
+                                                  style: GoogleFonts.manrope(
+                                                    color: Color(0xFFF34859),
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Stack(
+                                          children: [
+                                            SizedBox(
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 33,
+                                                    height: 21,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                            topRight:
+                                                                Radius.circular(
+                                                                  4,
+                                                                ),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                  4,
+                                                                ),
+                                                          ),
+                                                      color: Color(
+                                                        0xFFF34859,
+                                                      ).withOpacity(0.3),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 14,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  widget.priceController.text =
+                                                      widget.thamchieu
+                                                          .toStringAsFixed(2);
+                                                },
+                                                child: Text(
+                                                  widget.thamchieu
+                                                      .toStringAsFixed(2),
+                                                  style: GoogleFonts.manrope(
+                                                    color: Color(0xFFFF9F41),
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          "10.000",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Color(0xFF6F767E),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "30,000",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Color(0xFF6F767E),
+                                          ),
+                                        ),
+                                        SizedBox(width: 51.w),
+                                        Stack(
                                           children: [
                                             Container(
-                                              width: 33,
-                                              height: 21,
+                                              height: 21.h,
+                                              width: 79.w,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(4),
+                                                  bottomLeft: Radius.circular(
+                                                    4,
+                                                  ),
+                                                ),
+                                                color: Color(
+                                                  0xFF1AAF74,
+                                                ).withOpacity(0.3),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 34,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  widget.priceController.text =
+                                                      "94.10";
+                                                },
+                                                child: Text(
+                                                  "94.10",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Stack(
+                                          children: [
+                                            Container(
+                                              height: 21.h,
+                                              width: 79.w,
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.only(
                                                   topRight: Radius.circular(4),
@@ -315,264 +436,174 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                 ).withOpacity(0.3),
                                               ),
                                             ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 14,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  widget.priceController.text =
+                                                      "94.40";
+                                                },
+                                                child: Text(
+                                                  "94.40",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 14,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            widget.priceController.text = widget.thamchieu
-                                                .toStringAsFixed(2);
-                                          },
-                                          child: Text(
-                                            widget.thamchieu.toStringAsFixed(2),
-                                            style: GoogleFonts.manrope(
-                                              color: Color(0xFFFF9F41),
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                            ),
+                                        Spacer(),
+                                        Text(
+                                          "15,000",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Color(0xFF6F767E),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                  Spacer(),
-                                  Text(
-                                    "10.000",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFF6F767E),
+                                  SizedBox(height: 12),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "50,000",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Color(0xFF6F767E),
+                                          ),
+                                        ),
+                                        SizedBox(width: 27),
+                                        Stack(
+                                          children: [
+                                            Container(
+                                              height: 21,
+                                              width: 109,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(4),
+                                                  bottomLeft: Radius.circular(
+                                                    4,
+                                                  ),
+                                                ),
+                                                color: Color(
+                                                  0xFF1AAF74,
+                                                ).withOpacity(0.3),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 56,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  widget.priceController.text =
+                                                      "94.00";
+                                                },
+                                                child: Text(
+                                                  "94.00",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Stack(
+                                          children: [
+                                            Container(
+                                              height: 21,
+                                              width: 101,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.only(
+                                                  topRight: Radius.circular(4),
+                                                  bottomRight: Radius.circular(
+                                                    4,
+                                                  ),
+                                                ),
+                                                color: Color(
+                                                  0xFFF34859,
+                                                ).withOpacity(0.3),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 14,
+                                              ),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  widget.priceController.text =
+                                                      "94.50";
+                                                },
+                                                child: Text(
+                                                  "94.50",
+                                                  style: GoogleFonts.manrope(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF34859),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          "20,000",
+                                          style: GoogleFonts.manrope(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            color: Color(0xFF6F767E),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "30,000",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFF6F767E),
-                                    ),
-                                  ),
-                                  SizedBox(width: 51.w),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        height: 21.h,
-                                        width: 79.w,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(4),
-                                            bottomLeft: Radius.circular(4),
-                                          ),
-                                          color: Color(
-                                            0xFF1AAF74,
-                                          ).withOpacity(0.3),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 34,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            widget.priceController.text = "94.10";
-                                          },
-                                          child: Text(
-                                            "94.10",
-                                            style: GoogleFonts.manrope(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              color: Color(0xFFF34859),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        height: 21.h,
-                                        width: 79.w,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(4),
-                                            bottomRight: Radius.circular(4),
-                                          ),
-                                          color: Color(
-                                            0xFFF34859,
-                                          ).withOpacity(0.3),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 14,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            widget.priceController.text = "94.40";
-                                          },
-                                          child: Text(
-                                            "94.40",
-                                            style: GoogleFonts.manrope(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              color: Color(0xFFF34859),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Text(
-                                    "15,000",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFF6F767E),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "50,000",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFF6F767E),
-                                    ),
-                                  ),
-                                  SizedBox(width: 27),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        height: 21,
-                                        width: 109,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(4),
-                                            bottomLeft: Radius.circular(4),
-                                          ),
-                                          color: Color(
-                                            0xFF1AAF74,
-                                          ).withOpacity(0.3),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 56,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            widget.priceController.text = "94.00";
-                                          },
-                                          child: Text(
-                                            "94.00",
-                                            style: GoogleFonts.manrope(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              color: Color(0xFFF34859),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        height: 21,
-                                        width: 101,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(4),
-                                            bottomRight: Radius.circular(4),
-                                          ),
-                                          color: Color(
-                                            0xFFF34859,
-                                          ).withOpacity(0.3),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          left: 14,
-                                        ),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            widget.priceController.text = "94.50";
-                                          },
-                                          child: Text(
-                                            "94.50",
-                                            style: GoogleFonts.manrope(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              color: Color(0xFFF34859),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Text(
-                                    "20,000",
-                                    style: GoogleFonts.manrope(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFF6F767E),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        left: 12,
-                        right: 12,
-                        top: 19,
-                      ),
-                      child: Container(
-                        height: 200,
-                        width: double.infinity,
-                        decoration: BoxDecoration(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      "Lịch sử",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  Center(
-                    child: Text("Khác", style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              )
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              left: 12,
+                              right: 12,
+                              top: 19,
+                            ),
+                            child: Container(
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            "Lịch sử",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            "Khác",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )
                   : Container(
                       height: 200,
                       child: Center(
@@ -776,7 +807,9 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                 Text(
                                   state.isClickedSell
                                       ? widget.limit.toString()
-                                      : widget.numberFormat.format(widget.sucmua).toString(),
+                                      : widget.numberFormat
+                                            .format(widget.sucmua)
+                                            .toString(),
                                   style: GoogleFonts.manrope(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -831,9 +864,10 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                             return GestureDetector(
                                               onTap: isAtFloor
                                                   ? null
-                                                  : () =>
-                                                        widget.onDecreasementController(
-                                                          widget.priceController,
+                                                  : () => widget
+                                                        .onDecreasementController(
+                                                          widget
+                                                              .priceController,
                                                         ),
                                               child: Opacity(
                                                 opacity: isAtFloor ? 0.4 : 1.0,
@@ -847,7 +881,9 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                         Expanded(
                                           child: TextField(
                                             onTap: () {
-                                              widget.onIsTabBarVisibleChanged(false);
+                                              widget.onIsTabBarVisibleChanged(
+                                                false,
+                                              );
                                               showModalBottomSheet(
                                                 context: context,
                                                 backgroundColor:
@@ -862,13 +898,12 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                       .deferToChild,
                                                   child: CustomKeyboard(
                                                     giaTran: widget.giatran,
-                                                    selectedMode: widget.selectedMode,
-                                                    initialValue:
-                                                        widget.priceController.text
-                                                            .replaceAll(
-                                                              ',',
-                                                              '',
-                                                            ),
+                                                    selectedMode:
+                                                        widget.selectedMode,
+                                                    initialValue: widget
+                                                        .priceController
+                                                        .text
+                                                        .replaceAll(',', ''),
                                                     onModeChanged: (mode) {
                                                       // widget.selectedMode is managed by parent
                                                     },
@@ -894,16 +929,22 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                               ? parts[1]
                                                               : '';
                                                           final formattedInteger =
-                                                              widget.numberFormat.format(
-                                                                int.tryParse(
-                                                                      integerPart,
-                                                                    ) ??
-                                                                    0,
-                                                              );
-                                                          widget.priceController.text =
+                                                              widget
+                                                                  .numberFormat
+                                                                  .format(
+                                                                    int.tryParse(
+                                                                          integerPart,
+                                                                        ) ??
+                                                                        0,
+                                                                  );
+                                                          widget
+                                                                  .priceController
+                                                                  .text =
                                                               '$formattedInteger.$decimalPart';
                                                         } else {
-                                                          widget.priceController.text =
+                                                          widget
+                                                                  .priceController
+                                                                  .text =
                                                               value;
                                                         }
                                                       } else {
@@ -913,25 +954,30 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                             );
                                                         if (numValue != null &&
                                                             numValue > 0) {
-                                                          widget.priceController.text =
-                                                              widget.numberFormat
-                                                                  .format(
-                                                                    numValue
-                                                                        .toInt(),
-                                                                  );
+                                                          widget
+                                                              .priceController
+                                                              .text = widget
+                                                              .numberFormat
+                                                              .format(
+                                                                numValue
+                                                                    .toInt(),
+                                                              );
                                                         } else {
-                                                          widget.priceController.text =
+                                                          widget
+                                                                  .priceController
+                                                                  .text =
                                                               value;
                                                         }
                                                       }
-                                                      widget.priceController
+                                                      widget
+                                                              .priceController
                                                               .selection =
                                                           TextSelection.fromPosition(
                                                             TextPosition(
-                                                              offset:
-                                                                  widget.priceController
-                                                                      .text
-                                                                      .length,
+                                                              offset: widget
+                                                                  .priceController
+                                                                  .text
+                                                                  .length,
                                                             ),
                                                           );
                                                     },
@@ -977,26 +1023,31 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                                   integerPart,
                                                                 ) ??
                                                                 0;
-                                                            widget.priceController
-                                                                    .text =
-                                                                widget.numberFormat
-                                                                    .format(
-                                                                      intValue,
-                                                                    );
+                                                            widget
+                                                                .priceController
+                                                                .text = widget
+                                                                .numberFormat
+                                                                .format(
+                                                                  intValue,
+                                                                );
                                                           } else {
-                                                            final formattedInteger =
-                                                                widget.numberFormat.format(
+                                                            final formattedInteger = widget
+                                                                .numberFormat
+                                                                .format(
                                                                   int.tryParse(
                                                                         integerPart,
                                                                       ) ??
                                                                       0,
                                                                 );
-                                                            widget.priceController
+                                                            widget
+                                                                    .priceController
                                                                     .text =
                                                                 '$formattedInteger.$decimalPart';
                                                           }
                                                         } else {
-                                                          widget.priceController.text =
+                                                          widget
+                                                                  .priceController
+                                                                  .text =
                                                               confirmedValue;
                                                         }
                                                       } else {
@@ -1006,14 +1057,18 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                             );
                                                         if (numValue != null &&
                                                             numValue > 0) {
-                                                          widget.priceController.text =
-                                                              widget.numberFormat
-                                                                  .format(
-                                                                    numValue
-                                                                        .toInt(),
-                                                                  );
+                                                          widget
+                                                              .priceController
+                                                              .text = widget
+                                                              .numberFormat
+                                                              .format(
+                                                                numValue
+                                                                    .toInt(),
+                                                              );
                                                         } else {
-                                                          widget.priceController.text =
+                                                          widget
+                                                                  .priceController
+                                                                  .text =
                                                               confirmedValue;
                                                         }
                                                       }
@@ -1021,14 +1076,17 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                   ),
                                                 ),
                                               ).whenComplete(() async {
-                                                widget.onIsTabBarVisibleChanged(true);
+                                                widget.onIsTabBarVisibleChanged(
+                                                  true,
+                                                );
                                                 await Future.delayed(
                                                   Duration(milliseconds: 400),
                                                   () {
                                                     widget.position.value = 630;
-                                                    widget.onBottomLimitPositionChanged(
-                                                      510,
-                                                    );
+                                                    widget
+                                                        .onBottomLimitPositionChanged(
+                                                          510,
+                                                        );
                                                     print(
                                                       'bottomLimitPosition: 510',
                                                     );
@@ -1039,7 +1097,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
 
                                               WidgetsBinding.instance
                                                   .addPostFrameCallback((_) {
-                                                    widget.priceFocus.requestFocus();
+                                                    widget.priceFocus
+                                                        .requestFocus();
                                                   });
                                             },
                                             readOnly: true,
@@ -1083,9 +1142,10 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                             return GestureDetector(
                                               onTap: isAtCeiling
                                                   ? null
-                                                  : () =>
-                                                        widget.onIncreamentController(
-                                                          widget.priceController,
+                                                  : () => widget
+                                                        .onIncreamentController(
+                                                          widget
+                                                              .priceController,
                                                         ),
                                               child: Opacity(
                                                 opacity: isAtCeiling
@@ -1167,8 +1227,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                             child: Row(
                                               children: [
                                                 GestureDetector(
-                                                  onTap: () =>
-                                                      widget.onDecreamentAvalbleController(
+                                                  onTap: () => widget
+                                                      .onDecreamentAvalbleController(
                                                         widget.avaController,
                                                       ),
                                                   child: SvgPicture.asset(
@@ -1178,19 +1238,22 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                 Expanded(
                                                   child: TextField(
                                                     onTap: () {
-                                                      widget.onIsTabBarVisibleChanged(
-                                                        false,
-                                                      );
+                                                      widget
+                                                          .onIsTabBarVisibleChanged(
+                                                            false,
+                                                          );
 
                                                       widget.tooltipController
                                                           .showTooltip();
 
-                                                      widget.onIsTooltipVisibleChanged(
-                                                        true,
-                                                      );
-                                                      widget.onIsVolumeFocusedChanged(
-                                                        true,
-                                                      );
+                                                      widget
+                                                          .onIsTooltipVisibleChanged(
+                                                            true,
+                                                          );
+                                                      widget
+                                                          .onIsVolumeFocusedChanged(
+                                                            true,
+                                                          );
 
                                                       showModalBottomSheet(
                                                         context: context,
@@ -1201,8 +1264,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                         barrierColor:
                                                             Colors.transparent,
                                                         builder: (_) => PercentKeyboard(
-                                                          priceMaxCanBuy:
-                                                              widget.priceMaxCanBuy,
+                                                          priceMaxCanBuy: widget
+                                                              .priceMaxCanBuy,
                                                           onTextInput: (value) {
                                                             if ([
                                                               "LO",
@@ -1210,7 +1273,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                               "ATO",
                                                               "ATC",
                                                             ].contains(value)) {
-                                                              widget.avaController
+                                                              widget
+                                                                      .avaController
                                                                       .text =
                                                                   value;
                                                               return;
@@ -1221,7 +1285,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                               "ATO",
                                                               "ATC",
                                                             ].contains(
-                                                              widget.avaController
+                                                              widget
+                                                                  .avaController
                                                                   .text,
                                                             )) {
                                                               if (value
@@ -1236,7 +1301,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                                         null &&
                                                                     doubleValue >
                                                                         0) {
-                                                                  widget.avaController
+                                                                  widget
+                                                                          .avaController
                                                                           .text =
                                                                       value;
                                                                 }
@@ -1249,22 +1315,25 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                                         null &&
                                                                     intValue >
                                                                         0) {
-                                                                  widget.avaController
-                                                                          .text =
-                                                                      widget.numberFormat
-                                                                          .format(
-                                                                            intValue,
-                                                                          );
+                                                                  widget
+                                                                      .avaController
+                                                                      .text = widget
+                                                                      .numberFormat
+                                                                      .format(
+                                                                        intValue,
+                                                                      );
                                                                 }
                                                               }
                                                             }
                                                           },
                                                           onBackspace: () {
-                                                            if (widget.avaController
+                                                            if (widget
+                                                                .avaController
                                                                 .text
                                                                 .isNotEmpty) {
                                                               final currentValue =
-                                                                  widget.avaController
+                                                                  widget
+                                                                      .avaController
                                                                       .text;
                                                               final newValue =
                                                                   currentValue
@@ -1276,7 +1345,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
 
                                                               if (newValue
                                                                   .isEmpty) {
-                                                                widget.avaController
+                                                                widget
+                                                                        .avaController
                                                                         .text =
                                                                     '';
                                                                 return;
@@ -1294,11 +1364,13 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                                         null &&
                                                                     doubleValue >
                                                                         0) {
-                                                                  widget.avaController
+                                                                  widget
+                                                                          .avaController
                                                                           .text =
                                                                       newValue;
                                                                 } else {
-                                                                  widget.avaController
+                                                                  widget
+                                                                          .avaController
                                                                           .text =
                                                                       '';
                                                                 }
@@ -1317,14 +1389,16 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                                         null &&
                                                                     intValue >
                                                                         0) {
-                                                                  widget.avaController
-                                                                          .text =
-                                                                      widget.numberFormat
-                                                                          .format(
-                                                                            intValue,
-                                                                          );
+                                                                  widget
+                                                                      .avaController
+                                                                      .text = widget
+                                                                      .numberFormat
+                                                                      .format(
+                                                                        intValue,
+                                                                      );
                                                                 } else {
-                                                                  widget.avaController
+                                                                  widget
+                                                                          .avaController
                                                                           .text =
                                                                       '';
                                                                 }
@@ -1333,28 +1407,33 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                           },
                                                           onPercentSelected:
                                                               (percent) {
-                                                                widget.onCalculateVolumeWithPercentages(
-                                                                  percent,
-                                                                );
+                                                                widget
+                                                                    .onCalculateVolumeWithPercentages(
+                                                                      percent,
+                                                                    );
                                                               },
-                                                          initialValue:
-                                                              widget.avaController
-                                                                  .text,
+                                                          initialValue: widget
+                                                              .avaController
+                                                              .text,
                                                         ),
                                                       ).whenComplete(() async {
-                                                        widget.onIsTabBarVisibleChanged(
-                                                          true,
-                                                        );
+                                                        widget
+                                                            .onIsTabBarVisibleChanged(
+                                                              true,
+                                                            );
                                                         await Future.delayed(
                                                           Duration(
                                                             milliseconds: 400,
                                                           ),
                                                           () {
-                                                            widget.position.value =
+                                                            widget
+                                                                    .position
+                                                                    .value =
                                                                 630;
-                                                            widget.onBottomLimitPositionChanged(
-                                                              510,
-                                                            );
+                                                            widget
+                                                                .onBottomLimitPositionChanged(
+                                                                  510,
+                                                                );
                                                             print(
                                                               'bottomLimitPosition: 510',
                                                             );
@@ -1364,14 +1443,17 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                         widget.tooltipController
                                                             .hideTooltip();
 
-                                                        widget.onIsTooltipVisibleChanged(
-                                                          false,
-                                                        );
-                                                        widget.onIsVolumeFocusedChanged(
-                                                          false,
-                                                        );
+                                                        widget
+                                                            .onIsTooltipVisibleChanged(
+                                                              false,
+                                                            );
+                                                        widget
+                                                            .onIsVolumeFocusedChanged(
+                                                              false,
+                                                            );
 
-                                                        widget.volumeFocus.unfocus();
+                                                        widget.volumeFocus
+                                                            .unfocus();
                                                       });
 
                                                       WidgetsBinding.instance
@@ -1385,8 +1467,10 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                     readOnly: true,
                                                     showCursor: true,
                                                     cursorColor: Colors.green,
-                                                    focusNode: widget.volumeFocus,
-                                                    controller: widget.avaController,
+                                                    focusNode:
+                                                        widget.volumeFocus,
+                                                    controller:
+                                                        widget.avaController,
                                                     style: GoogleFonts.manrope(
                                                       color: Colors.white,
                                                       fontSize: 14,
@@ -1395,10 +1479,12 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                     ),
                                                     decoration: InputDecoration(
                                                       hintText:
-                                                          widget.avaController
+                                                          widget
+                                                                  .avaController
                                                                   .text
                                                                   .isEmpty &&
-                                                              !widget.isTooltipVisible
+                                                              !widget
+                                                                  .isTooltipVisible
                                                           ? "Tối đa: ${widget.numberFormat.format(widget.priceMaxCanBuy ?? 0)}"
                                                           : "",
                                                       hintStyle:
@@ -1417,8 +1503,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                 ),
 
                                                 GestureDetector(
-                                                  onTap: () =>
-                                                      widget.onIncreamentAvalbleController(
+                                                  onTap: () => widget
+                                                      .onIncreamentAvalbleController(
                                                         widget.avaController,
                                                       ),
                                                   child: SvgPicture.asset(
@@ -1504,7 +1590,9 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                   .digitsOnly,
                                             ],
                                             onTap: () {
-                                              widget.onIsTabBarVisibleChanged(false);
+                                              widget.onIsTabBarVisibleChanged(
+                                                false,
+                                              );
                                               showModalBottomSheet(
                                                 context: context,
                                                 backgroundColor:
@@ -1520,16 +1608,16 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                       "ATO",
                                                       "ATC",
                                                     ].contains(value)) {
-                                                      widget.totalController.text =
+                                                      widget
+                                                              .totalController
+                                                              .text =
                                                           value;
                                                       return;
                                                     }
-                                                    final cleanValue =
-                                                        widget.totalController.text
-                                                            .replaceAll(
-                                                              ',',
-                                                              '',
-                                                            );
+                                                    final cleanValue = widget
+                                                        .totalController
+                                                        .text
+                                                        .replaceAll(',', '');
                                                     final newValue =
                                                         cleanValue + value;
 
@@ -1540,22 +1628,23 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                         int.tryParse(newValue);
 
                                                     if (numValue != null) {
-                                                      widget.totalController.text =
-                                                          widget.numberFormat.format(
-                                                            numValue,
-                                                          );
+                                                      widget
+                                                          .totalController
+                                                          .text = widget
+                                                          .numberFormat
+                                                          .format(numValue);
                                                     } else {
-                                                      widget.totalController.text =
+                                                      widget
+                                                              .totalController
+                                                              .text =
                                                           newValue;
                                                     }
                                                   },
                                                   onBackspace: () {
-                                                    final cleanValue =
-                                                        widget.totalController.text
-                                                            .replaceAll(
-                                                              ',',
-                                                              '',
-                                                            );
+                                                    final cleanValue = widget
+                                                        .totalController
+                                                        .text
+                                                        .replaceAll(',', '');
                                                     if (cleanValue.isNotEmpty) {
                                                       final newValue =
                                                           cleanValue.substring(
@@ -1570,31 +1659,38 @@ class _OrderFormContentState extends State<OrderFormContent> {
                                                             );
                                                         if (numValue != null &&
                                                             numValue > 0) {
-                                                          widget.totalController.text =
-                                                              widget.numberFormat
-                                                                  .format(
-                                                                    numValue,
-                                                                  );
+                                                          widget
+                                                              .totalController
+                                                              .text = widget
+                                                              .numberFormat
+                                                              .format(numValue);
                                                         } else {
-                                                          widget.totalController.text =
+                                                          widget
+                                                                  .totalController
+                                                                  .text =
                                                               newValue;
                                                         }
                                                       } else {
-                                                        widget.totalController.text =
+                                                        widget
+                                                                .totalController
+                                                                .text =
                                                             '';
                                                       }
                                                     }
                                                   },
                                                 ),
                                               ).whenComplete(() async {
-                                                widget.onIsTabBarVisibleChanged(true);
+                                                widget.onIsTabBarVisibleChanged(
+                                                  true,
+                                                );
                                                 await Future.delayed(
                                                   Duration(milliseconds: 400),
                                                   () {
                                                     widget.position.value = 630;
-                                                    widget.onBottomLimitPositionChanged(
-                                                      510,
-                                                    );
+                                                    widget
+                                                        .onBottomLimitPositionChanged(
+                                                          510,
+                                                        );
                                                     print(
                                                       'bottomLimitPosition: 510',
                                                     );
@@ -1606,7 +1702,8 @@ class _OrderFormContentState extends State<OrderFormContent> {
 
                                               WidgetsBinding.instance
                                                   .addPostFrameCallback((_) {
-                                                    widget.totalFocus.requestFocus();
+                                                    widget.totalFocus
+                                                        .requestFocus();
                                                   });
                                             },
                                             readOnly: true,
