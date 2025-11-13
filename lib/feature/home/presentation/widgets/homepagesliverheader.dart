@@ -1,10 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:homepageintern/feature/home/presentation/widgets/listview.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:shared_logic/feature/profile/cubit/user_cubit.dart';
+import 'package:shared_logic/feature/profile/presentation/pages/profile_page.dart';
 
 class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   final double minHeight;
@@ -38,7 +41,11 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
   double lerp(double min, double max, double t) => min + (max - min) * t;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
 
     final double nameFontSize = lerp(32, 20, progress);
@@ -168,18 +175,22 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                     Builder(
                                       builder: (context) {
                                         final double localT =
-                                            ((progress - 0.39) / 0.67)
-                                                .clamp(0.0, 1.0);
-                                        final double easedT =
-                                            Curves.easeInOut.transform(localT);
+                                            ((progress - 0.39) / 0.67).clamp(
+                                              0.0,
+                                              1.0,
+                                            );
+                                        final double easedT = Curves.easeInOut
+                                            .transform(localT);
                                         final double idOpacity = easedT;
                                         final double idYOffsetStart =
                                             messageYOffset;
                                         final double idYOffsetEnd =
                                             messageYOffset - 5;
-                                        final double idYOffset =
-                                            lerpDouble(idYOffsetStart,
-                                                idYOffsetEnd, easedT)!;
+                                        final double idYOffset = lerpDouble(
+                                          idYOffsetStart,
+                                          idYOffsetEnd,
+                                          easedT,
+                                        )!;
 
                                         return Transform.translate(
                                           offset: Offset(0, idYOffset),
@@ -190,8 +201,7 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                               style: GoogleFonts.manrope(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
-                                                color:
-                                                    const Color(0xFF424242),
+                                                color: const Color(0xFF424242),
                                               ),
                                             ),
                                           ),
@@ -205,12 +215,25 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                 offset: Offset(0, -5 * progress),
                                 child: Row(
                                   children: [
-                                    Text(
-                                      name,
-                                      style: GoogleFonts.manrope(
-                                        fontSize: nameFontSize,
-                                        fontWeight: FontWeight.w600,
-                                        color: const Color(0xFF424242),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => BlocProvider(
+                                              create: (context) => UserCubit(),
+                                              child: const ProfilePage(),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        name,
+                                        style: GoogleFonts.manrope(
+                                          fontSize: nameFontSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF424242),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -255,7 +278,8 @@ class Homepagesliverheader extends SliverPersistentHeaderDelegate {
                                 final original = items[i];
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 17),
+                                    horizontal: 17,
+                                  ),
                                   child: Transform.scale(
                                     scale: featureIconSize / 32,
                                     child: FeatureItem(
