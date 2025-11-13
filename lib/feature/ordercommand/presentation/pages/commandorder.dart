@@ -834,7 +834,7 @@ class _CommandorderState extends State<Commandorder>
                           widgetSize2 = size.height;
                           final tabBarHeight = isTabBarVisible ? 8.0 : 0.0;
                           final calculatedSize = widgetSize2! + tabBarHeight;
-                          _position.value = calculatedSize + 112;
+                          _position.value = calculatedSize + 90;
                           bottomLimitPosition = _position.value;
                           print("widgetSize2 $widgetSize2");
                         },
