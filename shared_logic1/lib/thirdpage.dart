@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -7,13 +8,85 @@ import 'package:shared_logic1/widgets/listwidget.dart';
 
 class Thirdpage extends StatefulWidget {
   final int selectedIndex;
-  Thirdpage({super.key, required this.selectedIndex});
+  final VoidCallback? onNavigateToHome;
+
+  Thirdpage({super.key, required this.selectedIndex, this.onNavigateToHome});
 
   @override
   State<Thirdpage> createState() => _ThirdpageState();
 }
 
-class _ThirdpageState extends State<Thirdpage> {
+class _ThirdpageState extends State<Thirdpage>
+    with SingleTickerProviderStateMixin {
+  OverlayEntry? overlayEntry;
+  late AnimationController _animationController;
+  late Animation<double> _slideAnimation;
+  Timer? _overlayTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+    );
+    _slideAnimation = Tween<double>(begin: -100, end: 0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
+  }
+
+  void showOverlay() {
+    _overlayTimer?.cancel();
+
+    overlayEntry?.remove();
+    overlayEntry = null;
+
+    _animationController.reset();
+
+    final overlay = Overlay.of(context);
+    final size = MediaQuery.of(context).size;
+    overlayEntry = OverlayEntry(
+      builder: (context) => AnimatedBuilder(
+        animation: _slideAnimation,
+        builder: (context, child) {
+          return Positioned(
+            top: size.height * 0.1 + _slideAnimation.value,
+            left: 20,
+            right: 20,
+            child: Container(
+              width: 343.w,
+              height: 44.h,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(
+                  "Không thể chọn hơn 7 widgets",
+                  style: GoogleFonts.manrope(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    overlay.insert(overlayEntry!);
+    _animationController.forward();
+
+    _overlayTimer = Timer(Duration(seconds: 2), () {
+      _animationController.reverse().then((_) {
+        overlayEntry?.remove();
+        overlayEntry = null;
+      });
+    });
+  }
+
   List<String> titles = [
     "Tài sản",
     "Chỉ số thị trường",
@@ -26,7 +99,6 @@ class _ThirdpageState extends State<Thirdpage> {
   ];
   Set<String> selectedTitles = {};
 
-  // Danh sách items được highlight tự động dựa trên selectedIndex
   List<String> get autoHighlightedTitles {
     if (widget.selectedIndex == 0) {
       return ["Tài sản", "Chỉ số thị trường", "Nhóm cổ phiếu"];
@@ -52,16 +124,22 @@ class _ThirdpageState extends State<Thirdpage> {
     return [];
   }
 
-  // Tổng số items đã được chọn (bao gồm cả auto highlight và user selection)
   int get selectedCount {
-    // Lấy số items được highlight tự động
     final autoCount = autoHighlightedTitles.length;
-    // Lấy số items user đã click (trừ đi những items đã có trong auto highlight)
     final userSelectedTitles = selectedTitles
         .where((title) => !autoHighlightedTitles.contains(title))
         .toSet();
     final userCount = userSelectedTitles.length;
     return autoCount + userCount;
+  }
+
+  @override
+  void dispose() {
+    _overlayTimer?.cancel();
+    _animationController.stop();
+    _animationController.dispose();
+    overlayEntry?.remove();
+    super.dispose();
   }
 
   @override
@@ -160,22 +238,17 @@ class _ThirdpageState extends State<Thirdpage> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          final autoCount = autoHighlightedTitles.length;
-                          final userCount = selectedTitles
-                              .where((t) => !autoHighlightedTitles.contains(t))
-                              .length;
-
                           if (selectedCount >= 1 && selectedCount <= 7) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Fourthpage(),
+                                builder: (context) => Fourthpage(
+                                  onNavigateToHome: widget.onNavigateToHome,
+                                ),
                               ),
                             );
                           } else {
-                            print(
-                              'Cannot navigate: selectedCount = $selectedCount (must be 1-7)',
-                            );
+                            showOverlay();
                           }
                         },
                         child: Text(

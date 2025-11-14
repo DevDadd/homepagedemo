@@ -7,7 +7,9 @@ import 'package:shared_logic1/widgets/checkbox.dart';
 import 'package:simple_shadow/simple_shadow.dart';
 
 class Secondpage extends StatefulWidget {
-  const Secondpage({super.key});
+  final VoidCallback? onNavigateToHome;
+
+  const Secondpage({super.key, this.onNavigateToHome});
 
   @override
   State<Secondpage> createState() => _SecondpageState();
@@ -121,8 +123,10 @@ class _SecondpageState extends State<Secondpage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            Thirdpage(selectedIndex: selectedIndex),
+                        builder: (context) => Thirdpage(
+                          selectedIndex: selectedIndex,
+                          onNavigateToHome: widget.onNavigateToHome,
+                        ),
                       ),
                     );
                   },

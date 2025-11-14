@@ -7,10 +7,13 @@ import 'package:shared_logic1/secondpage.dart';
 import 'package:simple_shadow/simple_shadow.dart';
 
 class Startpage extends StatelessWidget {
-  const Startpage({super.key});
+  final VoidCallback? onNavigateToHome;
+
+  const Startpage({super.key, this.onNavigateToHome});
 
   @override
   Widget build(BuildContext context) {
+    final onNavigateToHome = this.onNavigateToHome;
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -72,7 +75,10 @@ class Startpage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Secondpage()),
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Secondpage(onNavigateToHome: onNavigateToHome),
+                      ),
                     );
                   },
                   child: Text(

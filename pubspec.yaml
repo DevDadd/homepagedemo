@@ -125,6 +125,8 @@ flutter:
     - assets/icons/pressed.svg
     - assets/icons/three.svg
     - assets/icons/greencir.svg
+    - assets/icons/stupid.svg
+    - assets/icons/loz.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

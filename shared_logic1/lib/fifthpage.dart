@@ -1,49 +1,18 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_logic1/fifthpage.dart';
 
-class Fourthpage extends StatefulWidget {
+class Fifthpage extends StatefulWidget {
   final VoidCallback? onNavigateToHome;
 
-  const Fourthpage({super.key, this.onNavigateToHome});
+  const Fifthpage({super.key, this.onNavigateToHome});
 
   @override
-  State<Fourthpage> createState() => _FourthpageState();
+  State<Fifthpage> createState() => _FifthpageState();
 }
 
-class _FourthpageState extends State<Fourthpage> {
-  int index = -1;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(Duration(seconds: 2), (timer) {
-      setState(() {
-        index++;
-        if (index >= 3) {
-          timer.cancel();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  Fifthpage(onNavigateToHome: widget.onNavigateToHome),
-            ),
-          );
-        }
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
+class _FifthpageState extends State<Fifthpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +29,7 @@ class _FourthpageState extends State<Fourthpage> {
           Padding(
             padding: const EdgeInsets.only(left: 12.5),
             child: Text(
-              "Đang xử lý",
+              "Hoàn tất",
               style: GoogleFonts.manrope(
                 fontSize: 32.sp,
                 fontWeight: FontWeight.w800,
@@ -85,15 +54,8 @@ class _FourthpageState extends State<Fourthpage> {
             padding: const EdgeInsets.only(left: 12.5),
             child: Row(
               children: [
-                index >= 0
-                    ? SvgPicture.asset("assets/icons/greencir.svg")
-                    : SizedBox(
-                        width: 24.w,
-                        height: 24.h,
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF1AAF74),
-                        ),
-                      ),
+                SvgPicture.asset("assets/icons/greencir.svg"),
+
                 SizedBox(width: 10.w),
                 Text(
                   "Cá nhân hoá",
@@ -111,15 +73,7 @@ class _FourthpageState extends State<Fourthpage> {
             padding: const EdgeInsets.only(left: 12.5),
             child: Row(
               children: [
-                index >= 1
-                    ? SvgPicture.asset("assets/icons/greencir.svg")
-                    : SizedBox(
-                        width: 24.w,
-                        height: 24.h,
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF1AAF74),
-                        ),
-                      ),
+                SvgPicture.asset("assets/icons/greencir.svg"),
                 SizedBox(width: 10.w),
                 Text(
                   "Mức độ hiểu biết",
@@ -137,15 +91,8 @@ class _FourthpageState extends State<Fourthpage> {
             padding: const EdgeInsets.only(left: 12.5),
             child: Row(
               children: [
-                index >= 2
-                    ? SvgPicture.asset("assets/icons/greencir.svg")
-                    : SizedBox(
-                        width: 24.w,
-                        height: 24.h,
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF1AAF74),
-                        ),
-                      ),
+                SvgPicture.asset("assets/icons/greencir.svg"),
+
                 SizedBox(width: 10.w),
                 Text(
                   "Đề xuất dành cho bạn",
@@ -156,6 +103,38 @@ class _FourthpageState extends State<Fourthpage> {
                   ),
                 ),
               ],
+            ),
+          ),
+          Spacer(),
+
+          Padding(
+            padding: const EdgeInsets.only(bottom: 42),
+            child: Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(160.w, 48.h),
+                  backgroundColor: Color(0xFF1AAF74),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  if (widget.onNavigateToHome != null) {
+                    widget.onNavigateToHome!();
+                  } else {
+                    // Fallback: pop về root
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  }
+                },
+                child: Text(
+                  "Đến trang chủ",
+                  style: GoogleFonts.manrope(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
