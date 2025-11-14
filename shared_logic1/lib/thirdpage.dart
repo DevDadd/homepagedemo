@@ -62,7 +62,7 @@ class _ThirdpageState extends State<Thirdpage>
               ),
               child: Center(
                 child: Text(
-                  "Không thể chọn hơn 7 widgets",
+                  "Đang chọn nhiều hoặc bé hơn số widget cho phép",
                   style: GoogleFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
