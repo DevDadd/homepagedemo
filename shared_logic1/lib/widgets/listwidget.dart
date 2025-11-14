@@ -24,42 +24,11 @@ class Listwidget extends StatefulWidget {
 }
 
 class _ListwidgetState extends State<Listwidget> {
-  static const List<String> highlightTitles = [
-    "Tài sản",
-    "Chỉ số thị trường",
-    "Nhóm cổ phiếu",
-  ];
-  static const List<String> highlightTitles2 = [
-    "Tài sản",
-    "Chỉ số thị trường",
-    "Nhóm cổ phiếu",
-    "Danh sách sở hữu",
-    "Tin tức",
-  ];
-  static const List<String> highlightTitles3 = [
-    "Tài sản",
-    "Chỉ số thị trường",
-    "Nhóm cổ phiếu",
-    "Danh sách sở hữu",
-    "Tin tức",
-    "Bản đồ nhiệt",
-    "Hiệu quả đầu tư",
-  ];
-
   @override
   Widget build(BuildContext context) {
-    bool shouldHighlight = false;
-    if (widget.selectedIndex == 0) {
-      shouldHighlight = highlightTitles.contains(widget.title);
-    } else if (widget.selectedIndex == 1) {
-      shouldHighlight = highlightTitles2.contains(widget.title);
-    } else if (widget.selectedIndex == 2) {
-      shouldHighlight = highlightTitles3.contains(widget.title);
-    }
-
-    if (widget.isSelected) {
-      shouldHighlight = true;
-    }
+    // Chỉ highlight khi isSelected = true
+    // Logic highlight dựa trên selectedIndex đã được xử lý ở parent component
+    bool shouldHighlight = widget.isSelected;
 
     final Color backgroundColor = shouldHighlight
         ? Color(0xFF1AAF74)

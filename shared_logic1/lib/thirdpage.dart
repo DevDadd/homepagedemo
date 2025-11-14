@@ -98,6 +98,7 @@ class _ThirdpageState extends State<Thirdpage>
     "Khuyến nghị đầu tư",
   ];
   Set<String> selectedTitles = {};
+  Set<String> deselectedAutoHighlightedTitles = {};
 
   List<String> get autoHighlightedTitles {
     if (widget.selectedIndex == 0) {
@@ -125,12 +126,24 @@ class _ThirdpageState extends State<Thirdpage>
   }
 
   int get selectedCount {
-    final autoCount = autoHighlightedTitles.length;
+    final autoHighlighted = autoHighlightedTitles
+        .where((title) => !deselectedAutoHighlightedTitles.contains(title))
+        .toList();
+    final autoCount = autoHighlighted.length;
     final userSelectedTitles = selectedTitles
         .where((title) => !autoHighlightedTitles.contains(title))
         .toSet();
     final userCount = userSelectedTitles.length;
     return autoCount + userCount;
+  }
+
+  bool _isItemSelected(String title) {
+    // Kiểm tra nếu item là auto-highlighted và chưa bị bỏ chọn
+    if (autoHighlightedTitles.contains(title)) {
+      return !deselectedAutoHighlightedTitles.contains(title);
+    }
+    // Kiểm tra nếu item được user chọn
+    return selectedTitles.contains(title);
   }
 
   @override
@@ -178,6 +191,8 @@ class _ThirdpageState extends State<Thirdpage>
             SizedBox(height: 38.h),
             Expanded(
               child: ReorderableListView(
+                proxyDecorator: (child, index, animation) =>
+                    Container(color: Colors.transparent, child: child),
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 shrinkWrap: true,
                 children: List.generate(
@@ -187,15 +202,24 @@ class _ThirdpageState extends State<Thirdpage>
                     title: titles[index],
                     selectedIndex: widget.selectedIndex,
                     itemIndex: index,
-                    isSelected: selectedTitles.contains(titles[index]),
+                    isSelected: _isItemSelected(titles[index]),
                     onTap: () {
                       setState(() {
                         final title = titles[index];
-                        // Nếu item đã được highlight tự động, không cho phép toggle
+
+                        // Nếu item đã được highlight tự động, cho phép toggle
                         if (autoHighlightedTitles.contains(title)) {
+                          if (deselectedAutoHighlightedTitles.contains(title)) {
+                            // Đang bỏ chọn, cho phép chọn lại
+                            deselectedAutoHighlightedTitles.remove(title);
+                          } else {
+                            // Đang chọn, cho phép bỏ chọn
+                            deselectedAutoHighlightedTitles.add(title);
+                          }
                           return;
                         }
 
+                        // Xử lý các item không phải auto-highlighted
                         if (selectedTitles.contains(title)) {
                           selectedTitles.remove(title);
                         } else {
