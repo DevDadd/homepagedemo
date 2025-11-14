@@ -57,6 +57,9 @@ dependencies:
   measure_size: ^4.0.0
   shared_logic:
     path: shared_logic
+  shared_logic1:
+    path: shared_logic1
+  simple_shadow: ^0.3.1
 
 
 dev_dependencies:
@@ -116,6 +119,10 @@ flutter:
     - assets/icons/pen.svg
     - assets/icons/leftarr.svg
     - assets/icons/rightarr.svg
+    - assets/icons/greenarr.svg
+    - assets/icons/chart2.svg
+    - assets/icons/checkbut.svg
+    - assets/icons/pressed.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

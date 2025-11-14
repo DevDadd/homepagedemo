@@ -1,0 +1,76 @@
+name: shared_logic1
+description: "A new Flutter package project."
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: ^3.8.1
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  simple_shadow: ^0.3.1
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.3
+  path_provider: ^2.1.5
+  flutter_bloc: ^9.1.1
+  hydrated_bloc: ^10.1.1
+  json_annotation: ^4.9.0
+  copy_with_extension: ^10.0.1
+  copy_with_extension_gen: ^10.0.1
+  lottie: ^3.3.1
+  flutter_svg: ^2.2.1
+  google_fonts: ^6.3.2
+  extended_nested_scroll_view: ^6.2.1
+  smooth_page_indicator: ^1.2.1
+  flutter_screenutil: ^5.9.3
+  sliver_tools: ^0.2.12
+  marquee: ^2.3.0
+  autoscale_tabbarview: ^1.0.2
+  equatable: ^2.0.7
+  draggable_bottom_sheet_nullsafety: ^1.0.2
+  intl: ^0.19.0
+  just_the_tooltip: ^0.0.12
+  measure_size: ^4.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # To add assets to your package, add an assets section, like this:
+  assets:
+    - assets/star.svg
+  #
+  # For details regarding assets in packages, see
+  # https://flutter.dev/to/asset-from-package
+  #
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # To add custom fonts to your package, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts in packages, see
+  # https://flutter.dev/to/font-from-package
